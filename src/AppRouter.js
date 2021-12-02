@@ -1,8 +1,8 @@
 import logo from './logo.svg';
 import './App.css';
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Router, BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { Router, HashRouter, Route, Switch, Redirect } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
 
 import App from "./App";
@@ -16,9 +16,8 @@ const RenderUserAuthenticated = () => {
 }
 
 export const AppRouter = () => {
-
     return (
-        <BrowserRouter>
+        <HashRouter>
           <Route exact path="/login">
             <Login />
           </Route>
@@ -26,7 +25,7 @@ export const AppRouter = () => {
             <Redirect to={{ pathname: '/datasets' }} />
           </Route>
           <Route exact path={["/datasets", "/traces"]} component={RenderUserAuthenticated}/>
-        </BrowserRouter>
+        </HashRouter>
     );
 }
 

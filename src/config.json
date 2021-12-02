@@ -1,4 +1,1 @@
-{
-  "appVersion": null,
-  "proxyServerUrl": "http://localhost:8000/api/v1"
-}
+{"appVersion":"<replace_me>","datasetService":"https://chaimeleon-eu.i3m.upv.es/dataset-service/api","keycloak":{"url":"https://chaimeleon-eu.i3m.upv.es/auth/","realm":"CHAIMELEON","clientId":"dataset-service-ui","onLoad":"login-required","redirectUri":"https://chaimeleon-eu.i3m.upv.es/dataset-service/"},"version":"0.1.0-alpha"}

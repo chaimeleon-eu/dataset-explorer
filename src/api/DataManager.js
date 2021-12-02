@@ -2,16 +2,16 @@ import WebClient from "./WebClient.js";
 
 export default class DataManager {
 
-  constructor(token) {
-    this._token = token;
+  getDatasets(token) {
+    return WebClient.getDatasets(token);
   }
 
-  get datasets() {
-    return WebClient.getDatasets(this._token);
+  getDataset(token, datasetId) {
+    return WebClient.getDataset(token, datasetId);
   }
 
-  get tracesActions() {
-    return WebClient.getTracesActions(this._token);
+  getTracesActions(token) {
+    return WebClient.getTracesActions(token);
   }
 
 }

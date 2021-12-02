@@ -1,4 +1,11 @@
 {
-  "appVersion": "0.1.0-alpha",
-  "proxyServerUrl": "http://localhost:8000/api/v1"
+  "appVersion": "dev",
+  "datasetService": "http://localhost:8000/api/v1",
+  "keycloak": {
+    "url": "http://localhost:8080/auth/",
+    "realm": "CHAIMELEON",
+    "clientId": "dataset-service",
+    "onLoad": "login-required",
+    "redirectUri": "http://localhost:3000"
+  }
 }

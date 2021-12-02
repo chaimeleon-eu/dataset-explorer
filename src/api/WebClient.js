@@ -3,13 +3,19 @@ import Config from "../config.json";
 export default class WebClient {
 
   static getDatasets(token) {
-    return WebClient._call("GET", Config.proxyServerUrl + "/datasets",
+    return WebClient._call("GET", Config.datasetService + "/datasets",
+      new Map([["Access-Control-Allow-Origin", "*"]]),
+                null, token, "text");
+  }
+
+  static getDataset(token, dsId) {
+    return WebClient._call("GET", Config.datasetService + "/dataset/" + dsId,
       new Map([["Access-Control-Allow-Origin", "*"]]),
                 null, token, "text");
   }
 
   static getTracesActions(token) {
-      return WebClient._call("GET", Config.proxyServerUrl + "/traces/actions/",
+      return WebClient._call("GET", Config.datasetService + "/traces/actions/",
         new Map([["Access-Control-Allow-Origin", "*"]]),
                   null, token, "text");
   }

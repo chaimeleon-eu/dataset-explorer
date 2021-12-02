@@ -1,10 +1,6 @@
 import Keycloak from 'keycloak-js';
+import Config from "./config.json";
 
-const keycloak = Keycloak({
-  'url': 'http://localhost:8080/auth',
-  'realm': 'CHAIMELEON',
-  'clientId': 'datsuc',
-  'onLoad': 'login-required'
-});
+const keycloak = Keycloak(Config.keycloak);
 
 export default keycloak;
