@@ -3,6 +3,7 @@ import { ListGroup, Button, InputGroup, FormControl, Table as BTable, Container,
 import { useTable, useRowSelect } from 'react-table';
 import {useState, useEffect} from 'react';
 import { useKeycloak } from '@react-keycloak/web';
+import { EnvelopeFill, ClipboardPlus } from 'react-bootstrap-icons';
 
 import Message from "../model/Message.js";
 
@@ -10,7 +11,11 @@ const NoDataConst = props => (
   <div>No data.</div>
 );
 
-function TableComponent({ columns, data }) {
+const defaultPropGetter = () => ({});
+
+function TableComponent({ columns, data,
+  getColumnProps = defaultPropGetter,
+  getCellProps = defaultPropGetter }) {
   // Use the state and functions returned from useTable to build your UI
   const { getTableProps, headerGroups, rows, prepareRow } = useTable({
       columns,
@@ -39,7 +44,7 @@ function TableComponent({ columns, data }) {
             <tr {...row.getRowProps()}>
               {row.cells.map(cell => {
                 return (
-                  <td {...cell.getCellProps()}>
+                  <td {...cell.getCellProps({className: "word-wrap"})}>
                     {cell.render('Cell')}
                   </td>
                 )
@@ -118,17 +123,19 @@ function DatasetDetailsBody(props) {
       {
         Header: 'Subject',
         accessor: 'subjectName'
-      },
-      {
-        Header: 'Mount Path',
-        accessor: 'path',
-        Cell: ({ cell: { value } }) => (
-          <Container fluid bsStyle="default" style={{width: "10em", maxWidth:"10em", overflowWrap: "break-word"}}>
-            { value }
-          </Container>
-        )
       }
+
     ]);
+    // ,
+    // {
+    //   Header: 'Mount Path',
+    //   accessor: 'path',
+    //   Cell: ({ cell: { value } }) => (
+    //     <Container fluid bsstyle="default" style={{width: "10em", maxWidth:"10em", overflowWrap: "break-word"}}>
+    //       { value }
+    //     </Container>
+    //   )
+    // }
   // let studiesByPatient = new Map();
   // studies.map(e => {
   //   let st = studiesByPatient.get(e.subjectName)
@@ -156,7 +163,7 @@ function DatasetDetailsBody(props) {
   //       accessor: 'studies',
   //       Cell: ({ cell: { value } }) => (
   //         <Container fluid>
-  //           {value.map((v) => (<span class="badge rounded-pill bg-secondary m-1">{v}</span>))}
+  //           {value.map((v) => (<span className="badge rounded-pill bg-secondary m-1">{v}</span>))}
   //         </Container>
   //       )
   //     }
@@ -177,23 +184,35 @@ function DatasetDetailsBody(props) {
       <Row>
         <Col xs={4}>
           <ListGroup variant="flush">
-            <ListGroup.Item><b>ID: </b>{allValues.data.id}</ListGroup.Item>
+            <ListGroup.Item><b>ID: </b>
+              {allValues.data.id}
+              <Button variant="link" className="m-0 ms-1 p-0" onClick={() =>
+                  {navigator.clipboard.writeText(allValues.data.id).then(function() {
+                    console.log('Async: Copying to clipboard was successful!');
+                  }, function(err) {
+                    console.error('Async: Could not copy text: ', err);
+                  });}} >
+                <ClipboardPlus />
+              </Button>
+            </ListGroup.Item>
             <ListGroup.Item><b>Name: </b>{allValues.data.name}</ListGroup.Item>
             <ListGroup.Item><b>Author: </b>
-              <a href="mailto:{{allValues.data.authorEmail}}">
-                {allValues.data.authorName} ({allValues.data.authorId})
+              {allValues.data.authorName}
+              <a className="ms-1" href={"mailto:" + allValues.data.authorEmail }>
+                <EnvelopeFill />
               </a>
             </ListGroup.Item>
-            <ListGroup.Item><b>Created: </b>{allValues.data.creationDate}</ListGroup.Item>
+            <ListGroup.Item><b>Created: </b>{new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
+                  .format(Date.parse(allValues.data.creationDate))}</ListGroup.Item>
             <ListGroup.Item><b>Description: </b>{allValues.data.description}</ListGroup.Item>
-            <ListGroup.Item><b>Group ID: </b>{allValues.data.gid}</ListGroup.Item>
             <ListGroup.Item><b>Public: </b>{allValues.data.public ? "YES" : "NO"}</ListGroup.Item>
             <ListGroup.Item><b>Studies count: </b>{allValues.data.studiesCount}</ListGroup.Item>
             <ListGroup.Item><b>Patients count: </b>{allValues.data.patientsCount}</ListGroup.Item>
           </ListGroup>
         </Col>
         <Col xs={8}>
-          <TableComponent columns={columns} data={allValues.data.studies} NoDataComponent={NoDataConst} />
+          <TableComponent columns={columns} data={allValues.data.studies}
+          NoDataComponent={NoDataConst} />
         </Col>
       </Row>
     </Container>

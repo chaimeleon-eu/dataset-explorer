@@ -10,6 +10,10 @@ export default class DataManager {
     return WebClient.getDataset(token, datasetId);
   }
 
+  getDatasetHistory(token, datasetId) {
+    return WebClient.getDatasetHistory(token, datasetId);
+  }
+
   getTracesActions(token) {
     return WebClient.getTracesActions(token);
   }

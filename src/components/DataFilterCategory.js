@@ -7,7 +7,11 @@ function DataFilterEntry(props) {
   return (
     <InputGroup size="sm" className="mb-2">
       <InputGroup.Checkbox aria-label="Checkbox for following text input" />
-      <InputGroup.Text style={{"width": "80%", "backgroundColor": "rgba(255,255,255,0)"}}><span className="d-inline-block text-truncate" style={{"max-width": "100%"}}>{props.label}</span></InputGroup.Text>
+      <InputGroup.Text style={{"width": "80%", "backgroundColor": "rgba(255,255,255,0)"}}>
+        <span className="d-inline-block text-truncate"
+          style={{"maxWidth": "100%"}}>{props.label}
+        </span>
+      </InputGroup.Text>
     </InputGroup>
   );
 }
@@ -15,12 +19,12 @@ function DataFilterEntry(props) {
 function DataFilterCategory(props) {
   var [categories, setCategories] = useState([]);
   var [isLoaded, setIsLoaded] = useState(false);
-
   useEffect(() => {
     props.category.categoryLoader()
       .then(
         (xhr) => {
           setIsLoaded(true);
+          console.log(xhr.response);
           const result = JSON.parse(xhr.response);
           const mapping = props.category.categoryMapping(result);
           setCategories(mapping);

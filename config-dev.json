@@ -1,6 +1,7 @@
 {
   "appVersion": "dev",
   "datasetService": "http://localhost:8000/api/v1",
+  "tracerService": "https://localhost:8090/api/v1",
   "keycloak": {
     "url": "http://localhost:8080/auth/",
     "realm": "CHAIMELEON",

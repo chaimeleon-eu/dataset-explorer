@@ -1,14 +1,16 @@
-import React from 'react';
+import React  from 'react';
 import ReactDOM from 'react-dom';
 import { Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} from 'react-bootstrap';
 import { Search as SearchIc, FilePlus as FilePlusIc } from "react-bootstrap-icons";
 import { useTable, useRowSelect, useFilters, useGlobalFilter, useAsyncDebounce } from 'react-table';
 import {useState, useEffect} from 'react';
 import {matchSorter} from 'match-sorter';
+import { EnvelopeFill, ClipboardPlus } from 'react-bootstrap-icons';
 
 import Message from "../model/Message.js";
 import DatasetDetailsBody from "./DatasetDetailsBody.js";
 import DatasetDetailsFooter from "./DatasetDetailsFooter.js";
+import DatasetHistoryBody from "./DatasetHistoryBody.js";
 import DatasetNewBody from "./DatasetNewBody.js";
 import DatasetNewFooter from "./DatasetNewFooter.js";
 import Dialog from "./Dialog.js";
@@ -374,6 +376,7 @@ function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDe
             </div>
           ),
         },
+
         ...columns,
         {
           id: 'operations',
@@ -389,7 +392,16 @@ function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDe
                 size: Dialog.SIZE_XL,
                 footer: <DatasetDetailsFooter onClose={Dialog.HANDLE_CLOSE}/>
               })}>Details</Button>
-              <Button variant="link">Use on Kube</Button>
+              <Button variant="link" onClick={() =>showDialog({
+                title: <div>Dataset <b>{row.original["name"]}</b> history</div>,
+                body: <DatasetHistoryBody dataManager={dataManager}
+                  postMessage={postMessage} onDialogDetailsClose={onDialogDetailsClose}
+                  datasetId={row.original["id"]} author={row.original["authorName"]}
+                  actionDate={row.original["creationDate"]}
+                />,
+                size: Dialog.SIZE_XL,
+                footer: <DatasetDetailsFooter onClose={Dialog.HANDLE_CLOSE}/>
+                })}>History</Button>
             </div>
           )
         }
@@ -449,6 +461,22 @@ function DatasetsMainTable(props) {
   const columns = React.useMemo(
     () => [
       {
+        Header: 'ID',
+        Cell: ({ row }) => (
+              <React.Fragment>
+              {row.original["id"]}
+              <Button variant="link" className="m-0 p-0 ms-1" onClick={() =>
+                  {navigator.clipboard.writeText(row.original["id"]).then(function() {
+                    console.log('Async: Copying to clipboard was successful!');
+                  }, function(err) {
+                    console.error('Async: Could not copy text: ', err);
+                  });}} >
+                <ClipboardPlus />
+              </Button>
+              </React.Fragment>
+          )
+      },
+      {
         Header: 'Dataset',
         accessor: 'name'
       },
@@ -458,14 +486,17 @@ function DatasetsMainTable(props) {
       },
       {
         Header: 'Created',
-        accessor: 'creationDate'
+        Cell: ({ row }) => (
+            new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
+              .format(Date.parse(row.original["creationDate"]))
+          )
       },
       {
-        Header: 'Studies count',
+        Header: 'Studies',
         accessor: 'studiesCount'
       },
       {
-        Header: 'Patients count',
+        Header: 'Patients',
         accessor: 'patientsCount'
       }
     ]);

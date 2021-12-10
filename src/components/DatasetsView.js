@@ -72,7 +72,7 @@ function DatasetsView (props) {
 
       return (
         <Container fluid>
-          <Row>
+          {/*<Row>
             <Col>
               <div className="float-left">
                 <Button className="d-none" size="sm" onClick={() => props.showDialog({
@@ -88,12 +88,12 @@ function DatasetsView (props) {
                 <SearchComponent />
               </div>
             </Col>
-          </Row>
-          <Col>
+          </Row>*/}
+          <Row>
             <DatasetsMainTable data={data} showDialog={props.showDialog}
               dataManager={props.dataManager}
               postMessage={props.postMessage}/>
-          </Col>
+          </Row>
         </Container>
       );
 }

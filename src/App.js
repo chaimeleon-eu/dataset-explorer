@@ -78,7 +78,7 @@ const App = () => {
             <h4 className="m-0 p-0">Dataset Explorer</h4>
             <Button className="m-0 p-0" size="sm" variant="link">{Config.appVersion}</Button>
           </div>
-          <div className="float-start ml-2"><NavMenu /></div>
+          {/*<div className="float-start ml-2"><NavMenu /></div>*/}
           <div className="float-end"><UserInfo /></div>
         </div>
         <div>

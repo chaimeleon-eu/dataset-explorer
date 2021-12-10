@@ -15,7 +15,7 @@ export default class WebClient {
   }
 
   static getTracesActions(token) {
-      return WebClient._call("GET", Config.datasetService + "/traces/actions/",
+      return WebClient._call("GET", Config.tracerService + "/traces/actions/",
         new Map([["Access-Control-Allow-Origin", "*"]]),
                   null, token, "text");
   }

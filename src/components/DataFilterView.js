@@ -1,16 +1,18 @@
 import React, {useEffect, useState} from "react";
 import {Accordion, Container, Row, Col, Button} from "react-bootstrap";
+import { useKeycloak } from '@react-keycloak/web';
 
 import DataFilterCategory from "./DataFilterCategory.js";
 
 
 function DataFilterView(props) {
   var [categories, setCategories] = useState([]);
+  let { keycloak } = useKeycloak();
     useEffect(() => {
         setCategories([
           {
             categoryTitle: "User Action types",
-            categoryLoader: () => props.dataManager.tracesActions,
+            categoryLoader: () => props.dataManager.getTracesActions(keycloak.token),
             categoryMapping: function(inResult) {
               return inResult.map((el) => {return {label: el};});}
           }

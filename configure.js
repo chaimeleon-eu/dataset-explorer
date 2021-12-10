@@ -21,7 +21,8 @@ if (modeS.toUpperCase() === 'DEV') {
   const path = copyConfig('config-prod.json');
   let rawdata = fs.readFileSync(path);
   let conf = JSON.parse(rawdata);
-  conf.version = pjson.version;
+  conf.appVersion = pjson.version;
+  console.log(conf);
   fs.writeFileSync(path, JSON.stringify(conf));
 
 } else {
