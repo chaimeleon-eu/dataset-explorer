@@ -6,7 +6,7 @@
     "url": "https://chaimeleon-eu.i3m.upv.es/auth/",
     "realm": "CHAIMELEON",
     "clientId": "dataset-service-ui",
-    "onLoad": "login-required",
+    "onLoad": "check-sso",
     "redirectUri": "https://chaimeleon-eu.i3m.upv.es/dataset-service/"
   }
 }

@@ -1,12 +1,12 @@
 {
   "appVersion": "dev",
-  "datasetService": "http://localhost:8000/api/v1",
-  "tracerService": "https://localhost:8090/api/v1",
+  "datasetService": "http://asaserver.i3m.upv.es:8000/api/v1",
+  "tracerService": "https://asaserver.i3m.upv.es:8090/api/v1",
   "keycloak": {
-    "url": "http://localhost:8080/auth/",
+    "url": "https://asaserver.i3m.upv.es:20000/auth/",
     "realm": "CHAIMELEON",
     "clientId": "dataset-service",
     "onLoad": "login-required",
-    "redirectUri": "http://localhost:3000"
+    "redirectUri": "http://asaserver.i3m.upv.es:3005/"
   }
 }

@@ -1,5 +1,6 @@
 import React  from 'react';
 import ReactDOM from 'react-dom';
+import { Link } from "react-router-dom";
 import { Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} from 'react-bootstrap';
 import { Search as SearchIc, FilePlus as FilePlusIc } from "react-bootstrap-icons";
 import { useTable, useRowSelect, useFilters, useGlobalFilter, useAsyncDebounce } from 'react-table';
@@ -383,25 +384,7 @@ function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDe
           Header: () => (<React.Fragment/>),
           Cell: ({ row }) => (
             <div>
-              <Button variant="link" onClick={() =>showDialog({
-                title: <div>Dataset <b>{row.original["name"]}</b> details</div>,
-                body: <DatasetDetailsBody dataManager={dataManager}
-                  postMessage={postMessage} onDialogDetailsClose={onDialogDetailsClose}
-                  datasetId={row.original["id"]}
-                />,
-                size: Dialog.SIZE_XL,
-                footer: <DatasetDetailsFooter onClose={Dialog.HANDLE_CLOSE}/>
-              })}>Details</Button>
-              <Button variant="link" onClick={() =>showDialog({
-                title: <div>Dataset <b>{row.original["name"]}</b> history</div>,
-                body: <DatasetHistoryBody dataManager={dataManager}
-                  postMessage={postMessage} onDialogDetailsClose={onDialogDetailsClose}
-                  datasetId={row.original["id"]} author={row.original["authorName"]}
-                  actionDate={row.original["creationDate"]}
-                />,
-                size: Dialog.SIZE_XL,
-                footer: <DatasetDetailsFooter onClose={Dialog.HANDLE_CLOSE}/>
-                })}>History</Button>
+              <Link className="btn btn-link" to={`/datasets/${row.original["id"]}/details`}>More</Link>
             </div>
           )
         }

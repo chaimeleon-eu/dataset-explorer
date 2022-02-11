@@ -45,30 +45,36 @@ function DatasetsView (props) {
       //const data = [{name: "A", version: "1.0", created: "2021-08-09Z08:03:0000"}];
 
       let { keycloak } = useKeycloak();
-        useEffect(() => {
-          props.dataManager.getDatasets(keycloak.token)
-            .then(
-              (xhr) => {
-                setIsLoaded(true);
-                setData(JSON.parse(xhr.response));
-              },
-              (xhr) => {
-                setIsLoaded(true);
-                console.log(xhr);
-                let title = null;
-                let text = null;
-                if (!xhr.responseText) {
-                  title = Message.UNK_ERROR_TITLE;
-                  text = Message.UNK_ERROR_MSG;
-                } else {
-                  const err = JSON.parse(xhr.response);
-                    title = err.title;
-                    text = err.message;
-                }
-                props.postMessage(new Message(Message.ERROR, title, text));
-              });
 
-        }, []);
+      //console.log(keycloak);
+        useEffect(() => {
+            console.log(props.keycloakReady);
+            //setTimeout(function() {
+            //console.log(keycloak.authenticated);
+              props.dataManager.getDatasets(keycloak.token)
+                .then(
+                  (xhr) => {
+                    setIsLoaded(true);
+                    setData(JSON.parse(xhr.response));
+                  },
+                  (xhr) => {
+                    setIsLoaded(true);
+                    console.log(xhr);
+                    let title = null;
+                    let text = null;
+                    if (!xhr.responseText) {
+                      title = Message.UNK_ERROR_TITLE;
+                      text = Message.UNK_ERROR_MSG;
+                    } else {
+                      const err = JSON.parse(xhr.response);
+                        title = err.title;
+                        text = err.message;
+                    }
+                    props.postMessage(new Message(Message.ERROR, title, text));
+                  });
+
+        }, //1000);},
+        [props.keycloakReady]);
 
       return (
         <Container fluid>

@@ -1,10 +1,11 @@
 import * as React from 'react'
 import { useCallback } from 'react'
-import { Redirect, useLocation } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 import { useKeycloak } from '@react-keycloak/web'
 
 const Login = () => {
+  let navigate = useNavigate();
 
   const login = () => {keycloak.login();}
 
@@ -17,7 +18,10 @@ const Login = () => {
   const { keycloak } = useKeycloak();
   //const login = useCallback(() => {keycloak.login();}, [keycloak]);
   if (keycloak.authenticated)
-    return <Redirect to={{ pathname: '/' }} />
+    return <Navigate to={{ pathname: '/' }} />
+  else {
+    keycloak.login();
+  }
 
   return (
     <div>
