@@ -479,8 +479,8 @@ function DatasetsMainTable(props) {
         accessor: 'studiesCount'
       },
       {
-        Header: 'Patients',
-        accessor: 'patientsCount'
+        Header: 'Subjects',
+        accessor: 'subjectsCount'
       }
     ]);
     return <Table columns={columns} data={props.data} NoDataComponent={NoDataConst}
