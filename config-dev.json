@@ -4,8 +4,10 @@
   "tracerService": "https://asaserver.i3m.upv.es:8090/api/v1",
   "keycloak": {
     "url": "https://asaserver.i3m.upv.es:20000/auth/",
+    "responseMode": "fragment",
+    "checkLoginIframe": false,
     "realm": "CHAIMELEON",
-    "clientId": "dataset-service",
+    "clientId": "dataset-service-ui",
     "onLoad": "login-required",
     "redirectUri": "http://asaserver.i3m.upv.es:3005/"
   }

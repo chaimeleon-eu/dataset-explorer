@@ -41,7 +41,7 @@ function DataFilterCategory(props) {
               title = err.title;
               text = err.message;
           }
-          props.postMessage(new Message(Message.ERROR, title, text));
+          //props.postMessage(new Message(Message.ERROR, title, text));
         });
       }, [props.category]);
   const components = categories.map((m, idx) => <DataFilterEntry  label={m.label}/>);

@@ -9,11 +9,6 @@ import {matchSorter} from 'match-sorter';
 import { EnvelopeFill, ClipboardPlus } from 'react-bootstrap-icons';
 
 import Message from "../model/Message.js";
-import DatasetDetailsBody from "./DatasetDetailsBody.js";
-import DatasetDetailsFooter from "./DatasetDetailsFooter.js";
-import DatasetHistoryBody from "./DatasetHistoryBody.js";
-import DatasetNewBody from "./DatasetNewBody.js";
-import DatasetNewFooter from "./DatasetNewFooter.js";
 import Dialog from "./Dialog.js";
 
 

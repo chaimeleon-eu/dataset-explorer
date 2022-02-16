@@ -5,6 +5,8 @@
   "keycloak": {
     "url": "https://chaimeleon-eu.i3m.upv.es/auth/",
     "realm": "CHAIMELEON",
+    "responseMode": "query",
+    "checkLoginIframe": false,
     "clientId": "dataset-service-ui",
     "onLoad": "check-sso",
     "redirectUri": "https://chaimeleon-eu.i3m.upv.es/dataset-service/"
