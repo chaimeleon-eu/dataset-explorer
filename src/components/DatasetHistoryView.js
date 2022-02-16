@@ -72,13 +72,14 @@ function DatasetHistoryView(props) {
         Header: 'User',
         accessor: 'user'
       },
-      {
-        Header: 'Action Date',
-        Cell: ({ row }) => (
-            new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
-              .format(Date.parse(row.original["actionDate"]))
-          )
-      }
+      // {
+      //   Header: 'Action Date',
+      //   Cell: ({ row }) => (
+      //     if ()
+      //       new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
+      //         .format(Date.parse(row.original["actionDate"]))
+      //     )
+      // }
     ]);
       return (
           <Container fluid>
