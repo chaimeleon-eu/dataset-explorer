@@ -1,6 +1,6 @@
-import {Tabs, Tab, Button, Row } from "react-bootstrap";
+import {Tabs, Tab, Button, Row, Col, Container } from "react-bootstrap";
 import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
-import React, { useState, useEffect }from "react";
+import { useState, useEffect, Fragment }from "react";
 import { useKeycloak } from '@react-keycloak/web';
 import { EnvelopeFill, ClipboardPlus } from 'react-bootstrap-icons';
 
@@ -30,7 +30,7 @@ function DatasetView(props) {
 
   let { keycloak } = useKeycloak();
   useEffect(() => {
-    props.dataManager.getDataset(keycloak.token, datasetId)
+    props.dataManager.getDataset(keycloak.token, datasetId, 0, 0)
       .then(
         (xhr) => {
           setAllValues( prevValues => {
@@ -77,45 +77,52 @@ function DatasetView(props) {
       return <div></div>;
     }
   }
-  console.log(allValues);
   return (
-    <React.Fragment>
-    <Breadcrumbs elems={[{text: 'Dataset information', link: "", active: true}]}/>
-    <Row className="mb-4">
-    <h3 className="container-fluid mb-0">
-      <b>{allValues.data.name}</b> (
-        <i>{allValues.data.id}</i>
-        <Button variant="link" className="m-0 ms-1 p-0" onClick={() =>
-            {navigator.clipboard.writeText(allValues.data.id).then(function() {
-              console.log('Async: Copying to clipboard was successful!');
-            }, function(err) {
-              console.error('Async: Could not copy text: ', err);
-            });}} >
-          <ClipboardPlus />
-        </Button>
-      )
-    </h3>
-    <div style={{fontSize: "1rem"}}><i>Created on {new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
-          .format(Date.parse(allValues.data.creationDate))}
-          </i>
-    </div>
-    </Row>
-    <p>
-    <b>Description:</b> {allValues.data.description}
-    </p>
-    <Tabs defaultActiveKey="details" activeKey={props.activeTab} onSelect={(k) => navigate(`/datasets/${datasetId}/${k}`)}>
-      <Tab eventKey="details" title="Details">
-        <DatasetDetailsView allValues={allValues} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={props.dataManager}/>
-      </Tab>
-      <Tab eventKey="studies" title="Studies">
-        <DatasetStudiesView allValues={allValues} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={props.dataManager}/>
-      </Tab>
-      {keycloak.authenticated ?
-        (<Tab eventKey="history" title="History">
-            <DatasetHistoryView keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={props.dataManager}/>
-          </Tab>) : (<React.Fragment />)}
-    </Tabs>
-    </React.Fragment>
+    <Fragment>
+      <Breadcrumbs elems={[{text: 'Dataset information', link: "", active: true}]}/>
+      <Row className="mb-4 mt-4">
+        <Col md={11}>
+          <h3 className="container-fluid mb-0">
+            <b>{allValues.data.name}</b> (
+              <i>{allValues.data.id}</i>
+              <Button variant="link" className="m-0 ms-1 p-0" onClick={() =>
+                  {navigator.clipboard.writeText(allValues.data.id).then(function() {
+                    console.log('Async: Copying to clipboard was successful!');
+                  }, function(err) {
+                    console.error('Async: Could not copy text: ', err);
+                  });}} >
+                <ClipboardPlus />
+              </Button>
+            )
+          </h3>
+          <h3 className="container-fluid mb-0 ms-2" style={{fontSize: "1rem"}}><i>Created on {new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
+                .format(Date.parse(allValues.data.creationDate))}
+                </i>
+          </h3>
+        </Col>
+        <Col md={1}>
+          {keycloak.authenticated && keycloak.tokenParsed.sub === allValues.data.authorId ?
+            (<Button >Invalidate</Button>) : (<Fragment />)}
+        </Col>
+      </Row>
+      <Container fluid className="mt-0 mb-6">
+        <b>Description:</b> {allValues.data.description}
+      </Container>
+      <Container fluid className="">
+        <Tabs defaultActiveKey="details" activeKey={props.activeTab} onSelect={(k) => navigate(`/datasets/${datasetId}/${k}`)}>
+          <Tab eventKey="details" title="Details">
+            <DatasetDetailsView allValues={allValues} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={props.dataManager}/>
+          </Tab>
+          <Tab eventKey="studies" title="Studies">
+            <DatasetStudiesView datasetId={datasetId} studiesCount={allValues.data === null ? 0 : allValues.data.studiesCount} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={props.dataManager}/>
+          </Tab>
+          {keycloak.authenticated ?
+            (<Tab eventKey="history" title="History">
+                <DatasetHistoryView keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={props.dataManager}/>
+              </Tab>) : (<Fragment />)}
+        </Tabs>
+      </Container>
+    </Fragment>
   );
 }
 

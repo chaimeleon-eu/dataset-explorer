@@ -2,25 +2,25 @@ import Config from "../config.json";
 
 export default class WebClient {
 
-  static getDatasets(token) {
+  static getDatasets(token, skip, limit) {
     return WebClient._call("GET", Config.datasetService + "/datasets",
       new Map([["Access-Control-Allow-Origin", "*"]]),
-                null, token, "text");
+                null, token, "text", { skip, limit });
   }
 
-  static getDataset(token, dsId) {
+  static getDataset(token, dsId, studiesSkip, studiesLimit) {
     return WebClient._call("GET", Config.datasetService + "/dataset/" + dsId,
       new Map([["Access-Control-Allow-Origin", "*"]]),
-                null, token, "text");
+                null, token, "text", { studiesSkip, studiesLimit });
   }
 
   static getTracesActions(token) {
       return WebClient._call("GET", Config.tracerService + "/traces/actions/",
         new Map([["Access-Control-Allow-Origin", "*"]]),
-                  null, token, "text");
+                  null, token, "text", null);
   }
 
-  static _call(method, path, headers, payload, token, responseType) {
+  static _call(method, path, headers, payload, token, responseType, queryParams) {
 
       let request = new XMLHttpRequest();
       return new Promise(function (resolve, reject) {
@@ -42,9 +42,17 @@ export default class WebClient {
                 }
 
             };
+            if (queryParams !== null) {
+              path += "?" + Object.entries(queryParams)
+                .map(([k, v]) => encodeURIComponent(k) + "=" + encodeURIComponent(v))
+                .join("&");
+            }
+
             request.onerror = (err) => reject(err);
             request.open(method, path, true);
             request.responseType = responseType;
+
+
             for (const [k, v] of headers)
                 request.setRequestHeader(k, v);
             request.setRequestHeader("Authorization", "Bearer " + token);

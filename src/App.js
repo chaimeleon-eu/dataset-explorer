@@ -56,7 +56,7 @@ const App = (props) => {
         <div>
 
           <br />
-          <BrowserRouter>
+          <BrowserRouter basename={Config.basename}>
             <Routes>
               <Route exact path="/" element={<Navigate to="/datasets" replace />} />
               <Route exact path="/fair" element={<FairView />} />

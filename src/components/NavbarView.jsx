@@ -1,8 +1,9 @@
-import { Container, Navbar, Nav } from "react-bootstrap";
+import { Container, Navbar, Nav, Badge } from "react-bootstrap";
 import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect }from "react";
 
 import UserInfo from "./UserInfo";
+import Config from "../config.json"
 
 function NavbarView(props) {
 
@@ -12,7 +13,8 @@ function NavbarView(props) {
     <Navbar.Toggle aria-controls="basic-navbar-nav" />
     <Navbar.Collapse id="basic-navbar-nav">
       <Nav className="me-auto">
-        <Navbar.Brand href="/">Dataset Explorer</Navbar.Brand>
+        <Navbar.Brand href="/"><b className="m-4">Dataset Explorer</b>
+          <span className="app-version">{Config.appVersion}</span></Navbar.Brand>
         <Nav.Link href="/datasets">Datasets</Nav.Link>
         <Nav.Link href="/fair">Fair Principles</Nav.Link>
       </Nav>
