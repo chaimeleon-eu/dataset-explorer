@@ -17,6 +17,7 @@ function NavbarView(props) {
               <span className="app-version">{Config.appVersion}</span></Navbar.Brand>
             <Nav.Link href={Config.basename + "/datasets"}>Datasets</Nav.Link>
             <Nav.Link href={Config.basename + "/fair"}>Fair Principles</Nav.Link>
+            <Nav.Link href="https://github.com/chaimeleon-eu/dataset-service#api-usage">API Specs</Nav.Link>
           </Nav>
         </Navbar.Collapse>
         <UserInfo className="float-end"/>
