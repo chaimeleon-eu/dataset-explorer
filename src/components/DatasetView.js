@@ -33,8 +33,9 @@ function DatasetView(props) {
     props.dataManager.getDataset(keycloak.token, datasetId, 0, 0)
       .then(
         (xhr) => {
+          console.log(keycloak.token);
           setAllValues( prevValues => {
-             return { ...prevValues, isLoaded: true, data: JSON.parse(xhr.response), status: xhr.status }
+             return { ...prevValues, isLoaded: true, error: false, data: JSON.parse(xhr.response), status: xhr.status }
           });
           // setIsLoaded(true);
           // setData(JSON.parse(xhr.response));
@@ -74,7 +75,7 @@ function DatasetView(props) {
     } else if (allValues.status === 404) {
       return <ResourceNotFoundView id={datasetId} />;
     } else {
-      return <div></div>;
+      return <div>Error</div>;
     }
   }
   return (

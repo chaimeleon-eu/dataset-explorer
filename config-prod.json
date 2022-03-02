@@ -12,6 +12,6 @@
     "checkLoginIframe": false,
     "clientId": "dataset-service-ui",
     "onLoad": "check-sso",
-    "redirectUri": "https://chaimeleon-eu.i3m.upv.es/dataset-service/"
+    "redirectUri": "https://chaimeleon-eu.i3m.upv.es/dataset-service"
   }
 }

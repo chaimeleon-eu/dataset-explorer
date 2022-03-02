@@ -57,31 +57,33 @@ function DatasetsView (props) {
             console.log(props.keycloakReady);
             //setTimeout(function() {
             //console.log(keycloak.authenticated);
-            let modLimit = limit;
-            if (data.length === limit+1) {
-              modLimit += 1;
-            }
-              props.dataManager.getDatasets(keycloak.token, skip, modLimit)
-                .then(
-                  (xhr) => {
-                    setIsLoaded(true);
-                    setData(JSON.parse(xhr.response));
-                  },
-                  (xhr) => {
-                    setIsLoaded(true);
-                    console.log(xhr);
-                    let title = null;
-                    let text = null;
-                    if (!xhr.responseText) {
-                      title = Message.UNK_ERROR_TITLE;
-                      text = Message.UNK_ERROR_MSG;
-                    } else {
-                      const err = JSON.parse(xhr.response);
-                        title = err.title;
-                        text = err.message;
-                    }
-                    props.postMessage(new Message(Message.ERROR, title, text));
-                  });
+            if (props.keycloakReady) {
+                let modLimit = limit;
+                if (data.length === limit+1) {
+                  modLimit += 1;
+                }
+                  props.dataManager.getDatasets(keycloak.token, skip, modLimit)
+                    .then(
+                      (xhr) => {
+                        setIsLoaded(true);
+                        setData(JSON.parse(xhr.response));
+                      },
+                      (xhr) => {
+                        setIsLoaded(true);
+                        console.log(xhr);
+                        let title = null;
+                        let text = null;
+                        if (!xhr.responseText) {
+                          title = Message.UNK_ERROR_TITLE;
+                          text = Message.UNK_ERROR_MSG;
+                        } else {
+                          const err = JSON.parse(xhr.response);
+                            title = err.title;
+                            text = err.message;
+                        }
+                        props.postMessage(new Message(Message.ERROR, title, text));
+                      });
+                }
 
         }, //1000);},
         [props.keycloakReady, skip, limit]);

@@ -9,22 +9,19 @@ function NavbarView(props) {
 
   return(
     <Navbar bg="light" expand="lg" sticky="top">
-  <Container fluid>
-    <Navbar.Toggle aria-controls="basic-navbar-nav" />
-    <Navbar.Collapse id="basic-navbar-nav">
-      <Nav className="me-auto">
-        <Navbar.Brand href="/"><b className="m-4">Dataset Explorer</b>
-          <span className="app-version">{Config.appVersion}</span></Navbar.Brand>
-        <Nav.Link href="/datasets">Datasets</Nav.Link>
-        <Nav.Link href="/fair">Fair Principles</Nav.Link>
-      </Nav>
-    </Navbar.Collapse>
-    <UserInfo className="float-end"/>
-  </Container>
-</Navbar>
-
-
-  );
+      <Container fluid>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="me-auto">
+            <Navbar.Brand href={Config.basename + "/"}><b className="m-4">Dataset Explorer</b>
+              <span className="app-version">{Config.appVersion}</span></Navbar.Brand>
+            <Nav.Link href={Config.basename + "/datasets"}>Datasets</Nav.Link>
+            <Nav.Link href={Config.basename + "/fair"}>Fair Principles</Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+        <UserInfo className="float-end"/>
+      </Container>
+    </Navbar>);
 }
 
 export default NavbarView;
