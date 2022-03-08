@@ -42,6 +42,7 @@ const App = (props) => {
 
 
 
+
   let {keycloak} = useKeycloak();
   const [dataManager, setDataManager] = useState(new DataManager());
   const [message, setMessage] = useState(null);

@@ -1,7 +1,7 @@
 {
   "appVersion": "dev10000000000",
   "datasetService": "http://asaserver.i3m.upv.es:8000/api/v1",
-  "tracerService": "https://asaserver.i3m.upv.es:8090/api/v1",
+  "tracerService": "http://asaserver.i3m.upv.es:8000/api/v1/tracer-service",
   "basename": "",
   "defaultLimitDatasets": 5,
   "defaultLimitStudies": 4,
