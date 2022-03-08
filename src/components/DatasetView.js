@@ -33,7 +33,7 @@ function DatasetView(props) {
     props.dataManager.getDataset(keycloak.token, datasetId, 0, 0)
       .then(
         (xhr) => {
-          console.log(keycloak.token);
+          console.log(xhr.response);
           setAllValues( prevValues => {
              return { ...prevValues, isLoaded: true, error: false, data: JSON.parse(xhr.response), status: xhr.status }
           });
@@ -59,7 +59,7 @@ function DatasetView(props) {
           }
           //props.postMessage(new Message(Message.ERROR, title, text));
             setAllValues( prevValues => {
-               return { ...prevValues, isLoaded: true, error: true, status: xhr.status}
+               return { ...prevValues, data: null, isLoaded: true, error: true, status: xhr.status}
             });
           // setError(true);
           // console.log("here");
@@ -112,14 +112,15 @@ function DatasetView(props) {
       <Container fluid className="">
         <Tabs defaultActiveKey="details" activeKey={props.activeTab} onSelect={(k) => navigate(`/datasets/${datasetId}/${k}`)}>
           <Tab eventKey="details" title="Details">
-            <DatasetDetailsView allValues={allValues} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={props.dataManager}/>
+            <DatasetDetailsView allValues={allValues} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
           </Tab>
           <Tab eventKey="studies" title="Studies">
-            <DatasetStudiesView datasetId={datasetId} studiesCount={allValues.data === null ? 0 : allValues.data.studiesCount} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={props.dataManager}/>
+            <DatasetStudiesView datasetId={datasetId} studiesCount={allValues.data === null ? 0 : allValues.data.studiesCount} keycloakReady={props.keycloakReady}
+              postMessage={props.postMessage} dataManager={props.dataManager}/>
           </Tab>
           {keycloak.authenticated ?
             (<Tab eventKey="history" title="History">
-                <DatasetHistoryView keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={props.dataManager}/>
+                <DatasetHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
               </Tab>) : (<Fragment />)}
         </Tabs>
       </Container>
