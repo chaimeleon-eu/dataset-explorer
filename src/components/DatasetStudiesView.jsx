@@ -1,10 +1,13 @@
-import React, {useMemo, useState, useEffect } from 'react';
+import React, {useMemo, useState, useEffect, Fragment } from 'react';
 import { ListGroup, Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} from 'react-bootstrap';
 import { useTable, useRowSelect } from 'react-table';
 import { useKeycloak } from '@react-keycloak/web';
 
 import Config from "../config.json";
-import Message from "../model/Message.js";
+import Message from "../model/Message";
+import LoadingView from "./LoadingView";
+
+const STUDY_VISIBLE_SERIES = 1;
 
 const NoDataConst = props => (
   <div>No data.</div>
@@ -56,19 +59,53 @@ function TableComponent({ columns, data,
   )
 }
 
+function generateSeriesCellView(series, seriesLimit) {
+  return series.slice(0, seriesLimit).join(", ");
+}
+
+function generateSeriesCell(series, seriesLimit, onclickCb) {
+  if (series.length == 0) {
+    return <Fragment />;
+  }
+
+ //  { generateSeriesCellView(row.original.series, row.original.visibleSeriesLimit) }
+ //  { (row.original.visibleSeriesLimit > STUDY_VISIBLE_SERIES ? <Button size="sm" variant="link" >...>></Button> :
+ //    ( row.original.visibleSeriesLimit == row.original.series.length ? )
+ // ) }
+  return (generateSeriesCellView(series, seriesLimit));
+}
+
 
 function DatasetStudiesView(props) {
   const [skip, setSkip] = useState(0);
   const [limit, setLimit] = useState(Config.defaultLimitStudies);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState({
+       isLoaded: false,
+       isLoading: false,
+       error: null,
+       data: [],
+       status: -1
+
+  });
 
     let { keycloak } = useKeycloak();
   useEffect(() => {
-    if (props.studiesCount != 0 && props.keycloakReady) {
+    if (props.studiesCount != 0) {
+      setData( prevValues => {
+         return { ...prevValues, isLoading: true, isLoaded: false, error: null,
+           data: [], status: -1 }
+      });
       props.dataManager.getDataset(keycloak.token, props.datasetId, skip, limit)
         .then(
           (xhr) => {
-            setData(JSON.parse(xhr.response).studies);
+            let studies = JSON.parse(xhr.response).studies;
+            for (let study of studies) {
+                study.visibleSeriesLimit = STUDY_VISIBLE_SERIES;
+            }
+            setData( prevValues => {
+               return { ...prevValues, isLoading: false, isLoaded: true, error: null,
+                 data: JSON.parse(xhr.response).studies, status: xhr.status }
+            });
           },
           (xhr) => {
             //setIsLoaded(true);
@@ -87,6 +124,10 @@ function DatasetStudiesView(props) {
                 title = err.title;
                 text = err.message;
             }
+            setData( prevValues => {
+               return { ...prevValues, isLoading: false, isLoaded: true, error: text,
+                 data: [], status: xhr.status }
+            });
             props.postMessage(new Message(Message.ERROR, title, text));
           });
       }
@@ -115,14 +156,26 @@ function DatasetStudiesView(props) {
       {
         Header: 'Subject',
         accessor: 'subjectName'
+      },
+      {
+        Header: 'Series',
+        Cell: ({ row }) => (
+          <Container fluid>
+            { generateSeriesCell(row.original.series, row.original.series.length, null) }
+          </Container>
+        )
       }
 
-    ]);
+    ], [data.data]);
+
+    if (data.isLoading) {
+      return <LoadingView what="studies" />;
+    }
   return (
     <Container fluid>
       <Row>
           <Col>
-            <TableComponent columns={columns} data={data}
+            <TableComponent columns={columns} data={data.data}
             NoDataComponent={NoDataConst} />
           </Col>
       </Row>
