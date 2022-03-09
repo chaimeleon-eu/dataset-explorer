@@ -26,8 +26,7 @@ function DatasetDetailsView(props) {
       <Row>
         <Col>
           <ListGroup>
-            <ListGroup.Item>
-            {keycloak.authorized ? (
+            {keycloak.authenticated ? (
               <ListGroup.Item><b>Author: </b>
                 {datasetDetails.data.authorName}
                 <a className="ms-1" href={"mailto:" + datasetDetails.data.authorEmail }>
@@ -35,7 +34,6 @@ function DatasetDetailsView(props) {
                 </a>
               </ListGroup.Item>
             ) : (<React.Fragment />)}
-            </ListGroup.Item>
             <ListGroup.Item><b>Public: </b>{datasetDetails.data.public ? "YES" : "NO"}</ListGroup.Item>
             <ListGroup.Item><b>Studies count: </b>{datasetDetails.data.studiesCount}</ListGroup.Item>
             <ListGroup.Item><b>Subjects count: </b>{datasetDetails.data.subjectsCount}</ListGroup.Item>
