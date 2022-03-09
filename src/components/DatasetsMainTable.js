@@ -1,10 +1,9 @@
-import React  from 'react';
 import ReactDOM from 'react-dom';
 import { Link } from "react-router-dom";
-import { Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} from 'react-bootstrap';
+import { Badge, Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} from 'react-bootstrap';
 import { Search as SearchIc, FilePlus as FilePlusIc } from "react-bootstrap-icons";
 import { useTable, useRowSelect, useFilters, useGlobalFilter, useAsyncDebounce } from 'react-table';
-import {useState, useEffect} from 'react';
+import { Fragment, useState, useEffect, useRef, useMemo, forwardRef } from 'react';
 import {matchSorter} from 'match-sorter';
 import { EnvelopeFill, ClipboardPlus } from 'react-bootstrap-icons';
 
@@ -16,12 +15,12 @@ const NoDataConst = props => (
   <div>No data.</div>
 );
 
-const IndeterminateCheckbox = React.forwardRef(
+const IndeterminateCheckbox = forwardRef(
   ({ indeterminate, ...rest }, ref) => {
-    const defaultRef = React.useRef()
+    const defaultRef = useRef()
     const resolvedRef = ref || defaultRef
 
-    React.useEffect(() => {
+    useEffect(() => {
       resolvedRef.current.indeterminate = indeterminate
     }, [resolvedRef, indeterminate])
 
@@ -40,7 +39,7 @@ function GlobalFilter({
   setGlobalFilter,
 }) {
   const count = preGlobalFilteredRows.length
-  const [value, setValue] = React.useState(globalFilter)
+  const [value, setValue] = useState(globalFilter)
   const onChange = useAsyncDebounce(value => {
     setGlobalFilter(value || undefined)
   }, 200)
@@ -88,7 +87,7 @@ function SelectColumnFilter({
 }) {
   // Calculate the options for filtering
   // using the preFilteredRows
-  const options = React.useMemo(() => {
+  const options = useMemo(() => {
     const options = new Set()
     preFilteredRows.forEach(row => {
       options.add(row.values[id])
@@ -123,7 +122,7 @@ function SliderColumnFilter({
   // Calculate the min and max
   // using the preFilteredRows
 
-  const [min, max] = React.useMemo(() => {
+  const [min, max] = useMemo(() => {
     let min = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
     let max = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
     preFilteredRows.forEach(row => {
@@ -155,7 +154,7 @@ function SliderColumnFilter({
 function NumberRangeColumnFilter({
   column: { filterValue = [], preFilteredRows, setFilter, id },
 }) {
-  const [min, max] = React.useMemo(() => {
+  const [min, max] = useMemo(() => {
     let min = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
     let max = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
     preFilteredRows.forEach(row => {
@@ -224,7 +223,7 @@ function filterGreaterThan(rows, id, filterValue) {
 filterGreaterThan.autoRemove = val => typeof val !== 'number'
 
 function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDetailsClose }) {
-  const filterTypes = React.useMemo(
+  const filterTypes = useMemo(
     () => ({
       // Add a new fuzzyTextFilterFn filter type.
       fuzzyText: fuzzyTextFilterFn,
@@ -244,7 +243,7 @@ function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDe
     []
   )
 
-  const defaultColumn = React.useMemo(
+  const defaultColumn = useMemo(
     () => ({
       // Let's set up our default Filter UI
       Filter: DefaultColumnFilter,
@@ -293,7 +292,7 @@ function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDe
         ...columns,
         {
           id: 'operations',
-          Header: () => (<React.Fragment/>),
+          Header: () => (<Fragment/>),
           Cell: ({ row }) => (
             <div>
               <Link className="btn btn-link" to={`/datasets/${row.original["id"]}/details`}>More</Link>
@@ -353,12 +352,12 @@ function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDe
 }
 
 function DatasetsMainTable(props) {
-  const columns = React.useMemo(
+  const columns = useMemo(
     () => [
       {
         Header: 'ID',
         Cell: ({ row }) => (
-              <React.Fragment>
+              <Fragment>
               {row.original["id"]}
               <Button variant="link" className="m-0 p-0 ms-1" onClick={() =>
                   {navigator.clipboard.writeText(row.original["id"]).then(function() {
@@ -368,12 +367,22 @@ function DatasetsMainTable(props) {
                   });}} >
                 <ClipboardPlus />
               </Button>
-              </React.Fragment>
+              </Fragment>
           )
       },
       {
         Header: 'Dataset',
         accessor: 'name'
+      },
+      {
+        Header: 'Flags',
+        Cell: ({ row }) => (
+              <div className="mt-1 mb-1">
+                {console.log(row.original["public"])}
+                {( row.original["invalidated"] ? <Fragment><Badge bg="secondary">Invalidated</Badge><br /></Fragment> : <Fragment /> )}
+                {( row.original["public"] ? <Badge bg="dark">Public</Badge> : <Fragment /> )}
+              </div>
+          )
       },
       {
         Header: 'Author',

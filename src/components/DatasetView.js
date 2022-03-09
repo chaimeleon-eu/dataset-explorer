@@ -1,4 +1,4 @@
-import {Tabs, Tab, Button, Row, Col, Container } from "react-bootstrap";
+import {Tabs, Tab, Button, Row, Col, Container, Badge } from "react-bootstrap";
 import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, Fragment }from "react";
 import { useKeycloak } from '@react-keycloak/web';
@@ -100,6 +100,13 @@ function DatasetView(props) {
                 .format(Date.parse(allValues.data.creationDate))}
                 </i>
           </h3>
+          {( allValues.data.invalidated || allValues.data.public ?
+            <h3  className="container-fluid mb-0 ms-2 mt-2" style={{fontSize: "1rem"}}>
+              {( allValues.data.invalidated ? <Badge className="me-2" bg="secondary">Invalidated</Badge>: <Fragment /> )}
+              {( allValues.data.public ? <Badge bg="dark">Public</Badge> : <Fragment /> )}
+            </h3>
+            : <Fragment />
+          )}
         </Col>
         <Col md={1}>
           {keycloak.authenticated && keycloak.tokenParsed.sub === allValues.data.authorId ?

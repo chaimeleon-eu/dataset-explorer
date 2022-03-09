@@ -54,10 +54,9 @@ function DatasetsView (props) {
 
       //console.log(keycloak);
         useEffect(() => {
-            console.log(props.keycloakReady);
             //setTimeout(function() {
             //console.log(keycloak.authenticated);
-            if (props.keycloakReady) {
+            //if (props.keycloakReady) {
                 let modLimit = limit;
                 if (data.length === limit+1) {
                   modLimit += 1;
@@ -83,7 +82,7 @@ function DatasetsView (props) {
                         }
                         props.postMessage(new Message(Message.ERROR, title, text));
                       });
-                }
+                //}
 
         }, //1000);},
         [props.keycloakReady, skip, limit]);

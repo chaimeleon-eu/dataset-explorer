@@ -34,7 +34,6 @@ function DatasetDetailsView(props) {
                 </a>
               </ListGroup.Item>
             ) : (<React.Fragment />)}
-            <ListGroup.Item><b>Public: </b>{datasetDetails.data.public ? "YES" : "NO"}</ListGroup.Item>
             <ListGroup.Item><b>Studies count: </b>{datasetDetails.data.studiesCount}</ListGroup.Item>
             <ListGroup.Item><b>Subjects count: </b>{datasetDetails.data.subjectsCount}</ListGroup.Item>
             <ListGroup.Item><b>Age range: </b>{ageLstItem}</ListGroup.Item>
