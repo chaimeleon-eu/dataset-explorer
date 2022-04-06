@@ -17,6 +17,7 @@ const handleClose = (onBeforeClose) => {
 
 function Dialog(props) {
   const [show, setShow] = useState(false);
+  const [data, setData] = useState(props.settings.data);
   useEffect(() => {
     /* Assign update to outside variable */
     outsideSetShow = setShow;
@@ -27,13 +28,12 @@ function Dialog(props) {
 
   useEffect(() => {
       setShow(props.settings.show);
-  }, [props.settings])
+  }, [props.settings]);
 
   let dialogSizeClass = "";
   if (props.settings.size === Dialog.SIZE_XL) {
     dialogSizeClass = "modal-xl";
   }
-
   return (
     <>
       <Modal dialogClassName={dialogSizeClass} size={props.settings.size} show={show} onHide={() => handleClose(props.settings.onBeforeClose)}>

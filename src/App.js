@@ -23,7 +23,8 @@ var dlgDefaultValues = {
   title: "DEFAULT",
   body: <div>Empty body</div>,
   size: Dialog.SIZE_LG,
-  onBeforeClose: null
+  onBeforeClose: null,
+  data: null
 };
 
 const App = (props) => {
@@ -63,9 +64,9 @@ const App = (props) => {
               <Route exact path="/fair" element={<FairView />} />
               <Route path="/datasets" element={<DatasetsView keycloakReady={props.keycloakReady} urlChangedUpdKeycloak={props.urlChangedUpdKeycloakUri}
                 dataManager={dataManager} postMessage={postMessage} />} />
-                <Route path="/datasets/:datasetId/details" element={<DatasetView keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_DETAILS}/>} />
-                <Route path="/datasets/:datasetId/studies" element={<DatasetView keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_STUDIES}/>} />
-                <Route path="/datasets/:datasetId/history" element={<DatasetView keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_HISTORY}/>} />
+                <Route path="/datasets/:datasetId/details" element={<DatasetView showDialog={showDialog} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_DETAILS}/>} />
+                <Route path="/datasets/:datasetId/studies" element={<DatasetView showDialog={showDialog} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_STUDIES}/>} />
+                <Route path="/datasets/:datasetId/history" element={<DatasetView showDialog={showDialog} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_HISTORY}/>} />
                 <Route path="*" element={
                     <main style={{ padding: "1rem" }}>
                       <p>There's nothing here!</p>

@@ -1,4 +1,4 @@
-import React from "react";
+import { Fragment } from "react";
 import { useParams } from "react-router-dom";
 import { ListGroup, Button, InputGroup, FormControl, Container, Row, Col} from 'react-bootstrap';
 import {useState, useEffect} from 'react';
@@ -6,6 +6,7 @@ import { useKeycloak } from '@react-keycloak/web';
 import { EnvelopeFill, ClipboardPlus } from 'react-bootstrap-icons';
 
 import Message from "../model/Message.js";
+import DatasetFieldEdit from "./DatasetFieldEdit";
 
 
 function DatasetDetailsView(props) {
@@ -33,7 +34,24 @@ function DatasetDetailsView(props) {
                   <EnvelopeFill />
                 </a>
               </ListGroup.Item>
-            ) : (<React.Fragment />)}
+            ) : (<Fragment />)}
+            <ListGroup.Item>
+              <b>PID URL: </b><a href={datasetDetails.data.pidURL}>{datasetDetails.data.pidURL}</a>
+              { datasetDetails.data.editablePropertiesByTheUser.includes("pidUrl") ?
+                  <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="pidURL" fieldDisplay="PID URL" oldValue={datasetDetails.data.pidURL} patchDataset={props.patchDataset}/>
+                  : <Fragment />
+              }
+            </ListGroup.Item>
+            <ListGroup.Item><b>Contact Information: </b>{datasetDetails.data.contactInfo}
+              { datasetDetails.data.editablePropertiesByTheUser.includes("contactInfo") ?
+                    <DatasetFieldEdit  datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="contactInfo" fieldDisplay="Contact information" oldValue={datasetDetails.data.contactInfo} patchDataset={props.patchDataset} />
+                  : <Fragment /> }
+            </ListGroup.Item>
+            <ListGroup.Item><b>License: </b><a href={datasetDetails.data.license.url}>{datasetDetails.data.license.title}</a>
+              { datasetDetails.data.editablePropertiesByTheUser.includes("license") ?
+                    <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="license" fieldDisplay="Dataset license" oldValue={datasetDetails.data.license} patchDataset={props.patchDataset} />
+                  : <Fragment /> }
+            </ListGroup.Item>
             <ListGroup.Item><b>Studies count: </b>{datasetDetails.data.studiesCount}</ListGroup.Item>
             <ListGroup.Item><b>Subjects count: </b>{datasetDetails.data.subjectsCount}</ListGroup.Item>
             <ListGroup.Item><b>Age range: </b>{ageLstItem}</ListGroup.Item>

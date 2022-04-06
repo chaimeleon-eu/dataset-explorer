@@ -16,8 +16,19 @@ export default class WebClient {
     if (token != undefined) {
       headers.set("Authorization", "Bearer " + token);
     }
-    return WebClient._call("GET", Config.datasetService + "/dataset/" + dsId, headers,
+    return WebClient._call("GET", Config.datasetService + "/datasets/" + dsId, headers,
                 null, "text", { studiesSkip, studiesLimit });
+  }
+
+  static patchDataset(token, dsId, property, value) {
+      let headers = new Map();
+      if (token != undefined) {
+        headers.set("Authorization", "Bearer " + token);
+      }
+      headers.set("Content-Type", "application/json");
+      const payload = { property, value };
+      return WebClient._call("PATCH", Config.datasetService + "/datasets/" + dsId, headers,
+                  JSON.stringify(payload), "text", null );
   }
 
   static getTracesActions() {
