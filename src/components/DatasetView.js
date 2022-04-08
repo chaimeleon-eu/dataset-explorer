@@ -33,7 +33,7 @@ function getActions(token, data, patchDatasetCb) {
               {getAction(data.editablePropertiesByTheUser.includes("public"),
                   () => {patchDatasetCb(token, data["id"], "public", !data.public)}, data.public ? "Make private" : "Make public")}
               {getAction(data.editablePropertiesByTheUser.includes("draft"),
-                  () => {patchDatasetCb(token, data["id"], "draft", false)}, "Publish")}
+                  () => {patchDatasetCb(token, data["id"], "draft", false)}, "Release")}
             </DropdownButton>
   }
   return <Fragment />
@@ -61,8 +61,13 @@ function DatasetView(props) {
       props.dataManager.getDataset(token, datasetId, 0, 0)
       .then(
         (xhr) => {
+          let data = JSON.parse(xhr.response);
+          console.log("[TMP] license set");
+          if (data["license"] === null ||  data["license"] === undefined ||  data["license"].length === 0) {
+            data["license"] = {title: "", url: ""};
+          }
           setAllValues( prevValues => {
-             return { ...prevValues, isLoading: false, isLoaded: true, error: null, data: JSON.parse(xhr.response), status: xhr.status }
+             return { ...prevValues, isLoading: false, isLoaded: true, error: null, data: data, status: xhr.status }
           });
         },
         (xhr) => {
