@@ -50,7 +50,7 @@ function DatasetView(props) {
   const [allValues, setAllValues] = useState({
       isLoading: false,
        isLoaded: false,
-       error: false,
+       error: null,
        data: null,
        status: -1
     });
@@ -66,6 +66,9 @@ function DatasetView(props) {
           if (data["license"] === null ||  data["license"] === undefined ||  data["license"].length === 0) {
             data["license"] = {title: "", url: ""};
           }
+          if (data["licenseUrl"] !== null &&  data["licenseUrl"] !== undefined && data["licenseUrl"].length !== 0) {
+            data["license"] = JSON.parse(data["licenseUrl"].replace(/'/g,"\""));//(typeof data["licenseUrl"] === "object" ? data["licenseUrl"] : JSON.parse(data["licenseUrl"])); //data["licenseUrl"].title;//JSON.parse(data["licenseUrl"]);
+          }
           setAllValues( prevValues => {
              return { ...prevValues, isLoading: false, isLoaded: true, error: null, data: data, status: xhr.status }
           });
@@ -74,11 +77,11 @@ function DatasetView(props) {
           const error = Util.getErrFromXhr(xhr);
           props.postMessage(new Message(Message.ERROR, error.title, error.text));
             setAllValues( prevValues => {
-               return { ...prevValues, data: null, isLoading: false, isLoaded: true, error: Util.getErrFromXhr(xhr), status: xhr.status}
+               return { ...prevValues, data: null, isLoading: false, isLoaded: true, error: error, status: xhr.status}
             });
         });
       }
-    const patchDataset = (token, datasetId, field, value) =>
+    const patchDataset = (token, datasetId, field, value) => {
       props.dataManager.patchDataset(token, datasetId, field, value)
       .then(
         (xhr) => {
@@ -96,13 +99,16 @@ function DatasetView(props) {
           //    return { ...prevValues, data: null, isLoading: false, isLoaded: true, error: Util.getErrFromXhr(xhr), status: xhr.status }
           // });
         });
+      }
 
   useEffect(() => {
       if (props.keycloakReady) {
         getDataset(keycloak.token, datasetId);
+      } else {
+        getDataset(null, datasetId);
       }
     }, [props.keycloakReady]);
-  if (allValues.isLoading) {
+  if (allValues.data === null || allValues.isLoading) {
     return <div>loading...</div>
   }
   if (allValues.error !== null) {
@@ -114,7 +120,6 @@ function DatasetView(props) {
       return <div>Error</div>;
     }
   }
-    console.log(allValues.data.editablePropertiesByTheUser);
   return (
     <Fragment>
       <Breadcrumbs elems={[{text: 'Dataset information', link: "", active: true}]}/>

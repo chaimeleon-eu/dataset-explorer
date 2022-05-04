@@ -48,8 +48,9 @@ function DatasetDetailsView(props) {
                   : <Fragment /> }
             </ListGroup.Item>
             <ListGroup.Item><b>License: </b><a href={datasetDetails.data.license.url}>{datasetDetails.data.license.title}</a>
-              { datasetDetails.data.editablePropertiesByTheUser.includes("license") ?
-                    <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="license" fieldDisplay="Dataset license" oldValue={datasetDetails.data.license} patchDataset={props.patchDataset} />
+              { datasetDetails.data.editablePropertiesByTheUser.includes("license") || datasetDetails.data.editablePropertiesByTheUser.includes("licenseUrl") ?
+                    <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field={datasetDetails.data.editablePropertiesByTheUser.includes("license") ? "license" : "licenseUrl"} fieldDisplay="Dataset license" oldValue={datasetDetails.data.license}
+                      patchDataset={props.patchDataset} />
                   : <Fragment /> }
             </ListGroup.Item>
             <ListGroup.Item><b>Studies count: </b>{datasetDetails.data.studiesCount}</ListGroup.Item>

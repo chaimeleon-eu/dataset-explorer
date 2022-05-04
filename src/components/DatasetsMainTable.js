@@ -378,7 +378,6 @@ function DatasetsMainTable(props) {
         Header: 'Flags',
         Cell: ({ row }) => (
               <div className="mt-1 mb-1">
-                {console.log(row.original["public"])}
                 {( row.original["invalidated"] ? <Fragment><Badge bg="secondary">Invalidated</Badge><br /></Fragment> : <Fragment /> )}
                 {( row.original["public"] ? <Badge bg="dark">Public</Badge> : <Fragment /> )}
                 {( row.original["draft"] ? <Badge bg="light" text="dark">Draft</Badge> : <Fragment /> )}

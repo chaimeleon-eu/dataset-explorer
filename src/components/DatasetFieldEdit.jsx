@@ -17,11 +17,11 @@ function Body(props) {
   return  <div className="mb-3">
     <Button title="Restore Initial value" variant="link" onClick={(e) => updValue(props.oldValue)}>Restore original</Button><br />
     {
-      props.oldValue.length < 20 ?
+      props.oldValue === null || props.oldValue === undefined || props.oldValue.length < 20 ?
           <input type="text" className="ms-2 w-100" title="Modify field's value"
-            aria-label="Edit value" value={value} onInput={(e) => {e.preventDefault();updValue(e.target.value);}} />
+            aria-label="Edit value" value={value === undefined || value === null ? "" : value} onInput={(e) => {e.preventDefault();updValue(e.target.value);}} />
          : <textarea rows="3" wrap="hard" className="ms-2 w-100" title="Modify field's value"
-            aria-label="Edit value" value={value} onInput={(e) => {e.preventDefault();updValue(e.target.value);}} />
+            aria-label="Edit value" value={value === undefined || value === null ? "" : value} onInput={(e) => {e.preventDefault();updValue(e.target.value);}} />
     }
 
   </div>;
@@ -96,7 +96,7 @@ function DatasetFieldEdit(props) {
   //    return { ...prevValues, data: newData.data, isLoading: newData.isLoading, isLoaded: newData.isLoaded, error: newData.error, status: newData.status}}
   //  );
   let body = null;
-  if (props.field === "license") {
+  if (props.field === "license" || props.field === "licenseUrl") {
     body = <BodyLicense updValue={updValue} field={props.field} oldValue={props.oldValue} />;
   } else {
     body = <Body updValue={updValue} field={props.field} oldValue={props.oldValue} />;
