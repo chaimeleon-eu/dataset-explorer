@@ -36,9 +36,9 @@ function DatasetDetailsView(props) {
               </ListGroup.Item>
             ) : (<Fragment />)}
             <ListGroup.Item>
-              <b>PID URL: </b><a href={datasetDetails.data.pidURL}>{datasetDetails.data.pidURL}</a>
+              <b>PID URL: </b><a href={datasetDetails.data.pidUrl}>{datasetDetails.data.pidUrl}</a>
               { datasetDetails.data.editablePropertiesByTheUser.includes("pidUrl") ?
-                  <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="pidURL" fieldDisplay="PID URL" oldValue={datasetDetails.data.pidURL} patchDataset={props.patchDataset}/>
+                  <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="pidUrl" fieldDisplay="PID URL" oldValue={datasetDetails.data.pidUrl} patchDataset={props.patchDataset}/>
                   : <Fragment />
               }
             </ListGroup.Item>
