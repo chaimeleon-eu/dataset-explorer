@@ -1,4 +1,4 @@
-import { Container, Navbar, Nav, Badge } from "react-bootstrap";
+import { Container, Navbar, Nav, Badge, Button } from "react-bootstrap";
 import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect }from "react";
 
@@ -20,6 +20,7 @@ function NavbarView(props) {
             <Nav.Link href="https://github.com/chaimeleon-eu/dataset-service#api-usage">API Specs</Nav.Link>
           </Nav>
         </Navbar.Collapse>
+        <Button className="float-end me-1" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/apps/", '_blank').focus()}>App Dashboard</Button>
         <UserInfo className="float-end"/>
       </Container>
     </Navbar>);
