@@ -31,7 +31,7 @@ function getActions(token, data, patchDatasetCb) {
               {getAction(data.editablePropertiesByTheUser.includes("invalidated"),
                   () => {patchDatasetCb(token, data["id"], "invalidated", !data.invalidated)}, data.invalidated ? "Validate" : "Invalidate")}
               {getAction(data.editablePropertiesByTheUser.includes("public"),
-                  () => {patchDatasetCb(token, data["id"], "public", !data.public)}, data.public ? "Make private" : "Make public")}
+                  () => {patchDatasetCb(token, data["id"], "public", !data.public)}, data.public ? "Unpublish" : "Publish")}
               {getAction(data.editablePropertiesByTheUser.includes("draft"),
                   () => {patchDatasetCb(token, data["id"], "draft", false)}, "Release")}
             </DropdownButton>
@@ -151,7 +151,7 @@ function DatasetView(props) {
             </i>
             <span  className="container-fluid mb-0 ms-2" style={{fontSize: "1rem"}}>
               {( allValues.data.invalidated ? <Badge className="me-2" bg="secondary">Invalidated</Badge>: <Fragment /> )}
-              {( allValues.data.public ? <Badge bg="dark">Public</Badge> : <Fragment /> )}
+              {( allValues.data.public ? <Badge bg="dark">Published</Badge> : <Fragment /> )}
               {( allValues.data.draft ? <Badge bg="light" text="dark">Draft</Badge> : <Fragment /> )}
             </span>
           </h3>
