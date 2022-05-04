@@ -176,14 +176,17 @@ function DatasetView(props) {
           <Tab eventKey="details" title="Details">
             <DatasetDetailsView patchDataset={patchDataset} showDialog={props.showDialog} allValues={allValues} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
           </Tab>
-          <Tab eventKey="studies" title="Studies">
-            <DatasetStudiesView datasetId={datasetId} studiesCount={allValues.data === null ? 0 : allValues.data.studiesCount} keycloakReady={props.keycloakReady}
-              postMessage={props.postMessage} dataManager={props.dataManager}/>
-          </Tab>
+
           {keycloak.authenticated ?
-            (<Tab eventKey="history" title="History">
-                <DatasetHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
-              </Tab>) : (<Fragment />)}
+            [(
+                <Tab eventKey="studies" title="Studies">
+                  <DatasetStudiesView datasetId={datasetId} studiesCount={allValues.data === null ? 0 : allValues.data.studiesCount} keycloakReady={props.keycloakReady}
+                    postMessage={props.postMessage} dataManager={props.dataManager}/>
+                </Tab>),
+                (<Tab eventKey="history" title="History">
+                      <DatasetHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
+                </Tab>
+            )] : (<Fragment />)}
         </Tabs>
       </Container>
     </Fragment>
