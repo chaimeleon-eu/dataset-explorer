@@ -14,6 +14,16 @@ import ResourceNotFoundView from "./ResourceNotFoundView";
 import DatasetFieldEdit from "./DatasetFieldEdit";
 import Util from "../Util";
 
+function onLoadAppsDashboard(iframeDom, datasetId) {
+  console.log(iframeDom);
+  const config = { attributes: true, childList: true, subtree: true };
+  const targetNode = iframeDom.contentWindow.document.body;
+
+
+  // Start observing the target node for configured mutations
+  observer.observe(targetNode, config);
+}
+
 function getAction(condition, actionCb, txt) {
   if (condition) {
     return <Dropdown.Item href="#"
@@ -163,7 +173,7 @@ function DatasetView(props) {
           </div>
         </Col>
       </Row>
-      <Container fluid className="mt-0 mb-6">
+      <Container fluid>
         <b>Description:</b> {allValues.data.description}
         {
           allValues.data.editablePropertiesByTheUser.includes("description")
@@ -171,22 +181,27 @@ function DatasetView(props) {
           : <Fragment />
         }
       </Container>
-      <Container fluid className="">
+      <Container fluid className="w-100 h-75">
         <Tabs defaultActiveKey="details" activeKey={props.activeTab} onSelect={(k) => navigate(`/datasets/${datasetId}/${k}`)}>
           <Tab eventKey="details" title="Details">
             <DatasetDetailsView patchDataset={patchDataset} showDialog={props.showDialog} allValues={allValues} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
           </Tab>
 
           {keycloak.authenticated ?
-            [(
-                <Tab eventKey="studies" title="Studies">
+            [
+                (<Tab eventKey="studies" title="Studies" key="studies">
                   <DatasetStudiesView datasetId={datasetId} studiesCount={allValues.data === null ? 0 : allValues.data.studiesCount} keycloakReady={props.keycloakReady}
                     postMessage={props.postMessage} dataManager={props.dataManager}/>
                 </Tab>),
-                (<Tab eventKey="history" title="History">
+                (<Tab eventKey="history" title="History" key="history">
                       <DatasetHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
-                </Tab>
-            )] : (<Fragment />)}
+                </Tab>),
+                (<Tab eventKey="dashboard" title="Dashboard"  key="dashboard">
+                  <div className="w-100 h-100" style={{ height: "50vh" }}>
+                  <iframe onLoad={(e) => onLoadAppsDashboard(e.target, datasetId)} src="https://chaimeleon-eu.i3m.upv.es/apps/" style={{ width: "100%", height: "50vh" }}/>
+                  </div>
+                </Tab>)
+            ] : (<Fragment />)}
         </Tabs>
       </Container>
     </Fragment>
@@ -196,5 +211,6 @@ function DatasetView(props) {
 DatasetView.TAB_DETAILS = "details";
 DatasetView.TAB_STUDIES = "studies";
 DatasetView.TAB_HISTORY = "history";
+DatasetView.TAB_DASHBOARD = "dashboard";
 
 export default DatasetView;
