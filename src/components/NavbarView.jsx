@@ -1,6 +1,7 @@
-import { Container, Navbar, Nav, Badge, Button } from "react-bootstrap";
+import { Container, Navbar, Nav, Badge, Button, DropdownButton, Dropdown } from "react-bootstrap";
 import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect }from "react";
+import { GridFill } from 'react-bootstrap-icons';
 
 import UserInfo from "./UserInfo";
 import Config from "../config.json"
@@ -20,7 +21,22 @@ function NavbarView(props) {
             <Nav.Link href="https://github.com/chaimeleon-eu/dataset-service#api-usage">API Specs</Nav.Link>
           </Nav>
         </Navbar.Collapse>
-        <Button className="float-end me-1" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/apps/", '_blank').focus()}>App Dashboard</Button>
+        <Dropdown title="Launch CHAIMELEON Applications" className="float-end me-1" drop="start" >
+          <Dropdown.Toggle variant="success" id="dropdown-basic">
+            <GridFill />
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item title="Launch Applications Dashboard (Kubeapps)" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/apps/", '_blank').focus()}>
+              <img className="apps-logo me-2" src="/icons/kubeapps.png"/>App Dashboard
+            </Dropdown.Item>
+            <Dropdown.Item title="Launch Quibim Precision" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/omni/", '_blank').focus()}>
+              <img className="apps-logo me-2" src="/icons/quibim.png"/>Quibim Precision
+            </Dropdown.Item>
+            <Dropdown.Item title="Launch Guacamole" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/guacamole/", '_blank').focus()}>
+              <img className="apps-logo me-2" src="/icons/guacamole.png"/>Guacamole
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
         <UserInfo className="float-end"/>
       </Container>
     </Navbar>);

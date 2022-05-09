@@ -19,3 +19,9 @@ code {
   height: 100%;
   display: inline-block;
 }
+
+.apps-logo {
+    height: 2em;
+    width: 2em;
+
+}

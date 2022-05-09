@@ -18,7 +18,14 @@ function onLoadAppsDashboard(iframeDom, datasetId) {
   console.log(iframeDom);
   const config = { attributes: true, childList: true, subtree: true };
   const targetNode = iframeDom.contentWindow.document.body;
-
+  const cb = () => {
+    //console.log("change inside iframe");
+    let inp = iframeDom.contentWindow.document.body.querySelector("#datasets_list-1");
+    if (inp !== null)
+      inp.value = datasetId;
+  }
+  // Create an observer instance linked to the callback function
+  const observer = new MutationObserver(cb);
 
   // Start observing the target node for configured mutations
   observer.observe(targetNode, config);
