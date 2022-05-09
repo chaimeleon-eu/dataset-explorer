@@ -13,6 +13,7 @@ import UnauthorizedView from "./UnauthorizedView";
 import ResourceNotFoundView from "./ResourceNotFoundView";
 import DatasetFieldEdit from "./DatasetFieldEdit";
 import Util from "../Util";
+import Config from "../config.json";
 
 function onLoadAppsDashboard(iframeDom, datasetId) {
   console.log(iframeDom);
@@ -125,9 +126,6 @@ function DatasetView(props) {
         getDataset(null, datasetId);
       }
     }, [props.keycloakReady]);
-  if (allValues.data === null || allValues.isLoading) {
-    return <div>loading...</div>
-  }
   if (allValues.error !== null) {
     if (allValues.status === 401) {
       return <UnauthorizedView />
@@ -136,6 +134,10 @@ function DatasetView(props) {
     } else {
       return <div>Error</div>;
     }
+  } else {
+    if (allValues.data === null || allValues.isLoading) {
+      return <div>loading...</div>
+    }    
   }
   return (
     <Fragment>
@@ -205,7 +207,7 @@ function DatasetView(props) {
                 </Tab>),
                 (<Tab eventKey="dashboard" title="Dashboard"  key="dashboard">
                   <div className="w-100 h-100" style={{ height: "50vh" }}>
-                  <iframe onLoad={(e) => onLoadAppsDashboard(e.target, datasetId)} src="https://chaimeleon-eu.i3m.upv.es/apps/" style={{ width: "100%", height: "50vh" }}/>
+                  <iframe onLoad={(e) => onLoadAppsDashboard(e.target, datasetId)} src={Config.kubeAppsUrl} style={{ width: "100%", height: "50vh" }}/>
                   </div>
                 </Tab>)
             ] : (<Fragment />)}
