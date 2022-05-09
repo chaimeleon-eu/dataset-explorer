@@ -27,13 +27,13 @@ function NavbarView(props) {
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <Dropdown.Item title="Launch Applications Dashboard (Kubeapps)" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/apps/", '_blank').focus()}>
-              <img className="apps-logo me-2" src="/icons/kubeapps.png"/>App Dashboard
+              <img className="apps-logo me-2" src={Config.basename + "/icons/kubeapps.png"}/>App Dashboard
             </Dropdown.Item>
             <Dropdown.Item title="Launch Quibim Precision" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/omni/", '_blank').focus()}>
-              <img className="apps-logo me-2" src="/icons/quibim.png"/>Quibim Precision
+              <img className="apps-logo me-2" src={Config.basename + "/icons/quibim.png"}/>Quibim Precision
             </Dropdown.Item>
             <Dropdown.Item title="Launch Guacamole" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/guacamole/", '_blank').focus()}>
-              <img className="apps-logo me-2" src="/icons/guacamole.png"/>Guacamole
+              <img className="apps-logo me-2" src={Config.basename + "/icons/guacamole.png"}/>Guacamole
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
