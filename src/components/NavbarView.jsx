@@ -26,14 +26,14 @@ function NavbarView(props) {
             <GridFill />
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <Dropdown.Item title="Launch Applications Dashboard (Kubeapps)" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/apps/", '_blank').focus()}>
-              <img className="apps-logo me-2" src={Config.basename + "/icons/kubeapps.png"}/>App Dashboard
+            <Dropdown.Item title="Launch the applications' dashboard (Kubeapps)" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/apps/", '_blank').focus()}>
+              <img className="apps-logo me-2" src={Config.basename + "/icons/kubeapps.png"}/>Apps Dashboard
             </Dropdown.Item>
-            <Dropdown.Item title="Launch Quibim Precision" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/omni/", '_blank').focus()}>
-              <img className="apps-logo me-2" src={Config.basename + "/icons/quibim.png"}/>Quibim Precision
+            <Dropdown.Item title="Launch the case explorer (Quibim Precision)" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/omni/", '_blank').focus()}>
+              <img className="apps-logo me-2" src={Config.basename + "/icons/quibim.png"}/>Case Explorer
             </Dropdown.Item>
-            <Dropdown.Item title="Launch Guacamole" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/guacamole/", '_blank').focus()}>
-              <img className="apps-logo me-2" src={Config.basename + "/icons/guacamole.png"}/>Guacamole
+            <Dropdown.Item title="Access your desktop cluster applications (Apache Guacamole)" onClick={() => window.open("https://chaimeleon-eu.i3m.upv.es/guacamole/", '_blank').focus()}>
+              <img className="apps-logo me-2" src={Config.basename + "/icons/guacamole.png"}/>Desktop Apps Access
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
