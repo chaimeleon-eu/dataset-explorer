@@ -17,19 +17,88 @@ import Config from "../config.json";
 
 function onLoadAppsDashboard(iframeDom, datasetId) {
   console.log(iframeDom);
+
+  // Create an observer instance linked to the callback function
   const config = { attributes: true, childList: true, subtree: true };
   const targetNode = iframeDom.contentWindow.document.body;
-  const cb = () => {
+  const cb = (mutationsList, observer) => {
     //console.log("change inside iframe");
+    observer.disconnect();
     let inp = iframeDom.contentWindow.document.body.querySelector("#datasets_list-1");
-    if (inp !== null)
-      inp.value = datasetId;
+    if (inp !== null) {
+      //setTimeout(() =>{
+        let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+        nativeInputValueSetter.call(inp, datasetId);
+        /*
+        triggerFocus(inp);
+        inp.value = datasetId;
+        inp.defaultValue = datasetId;
+        let event = new Event('input', {
+            bubbles: true
+        });
+        inp.dispatchEvent(event);
+        inp.value = datasetId;
+        inp.defaultValue = datasetId;
+        */
+        //inp.oninput();
+        let event = new Event('change', {
+            bubbles: true
+        });
+        inp.dispatchEvent(event);
+        //inp.onchange();
+      //     event = new KeyboardEvent('keydown', { bubbles: true, key: 'c' });
+        //  inp.dispatchEvent(event);
+      //}, 5000)
+
+      // let id = "";
+      // for (const c of datasetId) {
+      //   let evt = new KeyboardEvent('keydown', { key: c });
+      //   inp.dispatchEvent(evt);
+      //   id += c;
+      //   inp.value = datasetId;
+      // }
+
+      //let evt = new KeyboardEvent('keydown', { key: '0' });
+      //inp.dispatchEvent(evt);
+    }
+    /*
+    let ymlLns = iframeDom.contentWindow.document.body.querySelectorAll("span.ace_meta");
+    for (const spn of ymlLns) {
+      //console.log(ymlLns);
+      if (spn.innerText === "datasets_list") {
+        //console.log(spn.parentNode)
+        let txtDom  = spn.parentNode.querySelector("span.ace_string");
+        if (txtDom !== null) {
+          txtDom.innerText = "\"" + datasetId + "\"";
+        } else {
+          spn.parentNode.insertAdjacentHTML("beforeend", `<span class="ace_string">"${datasetId}"</span>`);
+        }
+      }
+    }
+    */
+    observer.observe(targetNode, config);
   }
-  // Create an observer instance linked to the callback function
   const observer = new MutationObserver(cb);
 
   // Start observing the target node for configured mutations
   observer.observe(targetNode, config);
+}
+
+function triggerFocus(element) {
+    var eventType = "onfocusin" in element ? "focusin" : "focus",
+        bubbles = "onfocusin" in element,
+        event;
+
+    if ("createEvent" in document) {
+        event = document.createEvent("Event");
+        event.initEvent(eventType, bubbles, true);
+    }
+    else if ("Event" in window) {
+        event = new Event(eventType, { bubbles: bubbles, cancelable: true });
+    }
+
+    element.focus();
+    element.dispatchEvent(event);
 }
 
 function getAction(condition, actionCb, txt) {
@@ -137,7 +206,7 @@ function DatasetView(props) {
   } else {
     if (allValues.data === null || allValues.isLoading) {
       return <div>loading...</div>
-    }    
+    }
   }
   return (
     <Fragment>
