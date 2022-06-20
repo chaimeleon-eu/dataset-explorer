@@ -3,6 +3,7 @@ import {InputGroup, FormControl, Accordion} from "react-bootstrap";
 import { useKeycloak } from '@react-keycloak/web';
 
 import Message from "../model/Message.js";
+import Util from "../Util";
 
 function DataFilterEntry(props) {
   const [checked, setChecked] = useState(true);
@@ -49,27 +50,12 @@ function DataFilterCategory(props) {
                 props.updFilters(props.category.filterCategoryName, props.category.filterMapping(result));
               },
               (xhr) => {
-                let title = null;
-                let text = null;
-                if (!xhr.responseText) {
-                  title = Message.UNK_ERROR_TITLE;
-                  text = Message.UNK_ERROR_MSG;
-                } else {
-                  if (xhr.responseType == "text") {
-                    title = "History Error";
-                    text = xhr.response;
-
-                  } else {
-                    const err = JSON.parse(xhr.response);
-                      title = err.title;
-                      text = err.message;
-                  }
-                }
+                const error = Util.getErrFromXhr(xhr);
                 setData( prevValues => {
                   return { ...prevValues, isLoaded: true, isLoading: false, data:[],
-                    status: xhr.status, error: text }
+                    status: xhr.status, error }
                 });
-                props.postMessage(new Message(Message.ERROR, title, text));
+                props.postMessage(new Message(Message.ERROR, error.title, error.text));
             });
       }, []);
   const components = data.data.map((m, idx) => <DataFilterEntry

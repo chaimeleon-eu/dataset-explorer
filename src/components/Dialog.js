@@ -17,6 +17,7 @@ const handleClose = (onBeforeClose) => {
 
 function Dialog(props) {
   const [show, setShow] = useState(false);
+  const [data, setData] = useState(props.settings.data);
   useEffect(() => {
     /* Assign update to outside variable */
     outsideSetShow = setShow;
@@ -27,16 +28,24 @@ function Dialog(props) {
 
   useEffect(() => {
       setShow(props.settings.show);
-  }, [props.settings])
-
-  let dialogSizeClass = "";
-  if (props.settings.size === Dialog.SIZE_XL) {
-    dialogSizeClass = "modal-xl";
+  }, [props.settings]);
+  let dialogClassName = "modal-90w";
+  let size = "";
+  if (props.settings.size === Dialog.SIZE_XXL) {
+    dialogClassName = "modal-xxl";
+    size = Dialog.SIZE_XXL;
+  } else if (props.settings.size === Dialog.SIZE_LG) {
+      dialogClassName = "modal-lg";
+      size = Dialog.SIZE_LG;
+  } else if (props.settings.size === Dialog.SIZE_SM) {
+      dialogClassName = "modal-sm";
+      size = Dialog.SIZE_SM;
+  } else {
+    console.error(`unhandled dialog size ${dialogClassName}`);
   }
-
   return (
     <>
-      <Modal dialogClassName={dialogSizeClass} size={props.settings.size} show={show} onHide={() => handleClose(props.settings.onBeforeClose)}>
+      <Modal dialogClassName={dialogClassName} size={size} show={show} scrollable={props.settings.scrollable} onHide={() => handleClose(props.settings.onBeforeClose)}>
         <Modal.Header closeButton>
           <Modal.Title>{props.settings.title}</Modal.Title>
         </Modal.Header>
@@ -53,7 +62,7 @@ function Dialog(props) {
 
 Dialog.SIZE_SM = "sm";
 Dialog.SIZE_LG = "lg";
-Dialog.SIZE_XL = "xl";
+Dialog.SIZE_XXL = "xxl";
 
 Dialog.HANDLE_CLOSE = handleClose;
 export default Dialog;

@@ -19,3 +19,26 @@ code {
   height: 100%;
   display: inline-block;
 }
+
+.apps-logo {
+    height: 2em;
+    width: 2em;
+
+}
+
+.modal-xxl {
+    width: 90vw ;    /* Occupy the 90% of the screen width */
+    max-width: 90vw;
+    height: 90vh;    /* Occupy the 90% of the screen width */
+    max-height: 90vh;
+}
+
+.modal-dialog-scrollable .modal-content {
+  max-height: 100%;
+  height: 100%;
+}
+
+.modal-content {
+  max-height: 100%;
+  height: 100%;
+}

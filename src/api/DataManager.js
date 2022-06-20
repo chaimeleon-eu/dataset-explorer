@@ -10,6 +10,10 @@ export default class DataManager {
     return WebClient.getDataset(token, datasetId, studiesSkip, studiesLimit);
   }
 
+  patchDataset(token, dsId, property, value) {
+    return WebClient.patchDataset(token, dsId, property, value);
+  }
+
   getTracesDataset(token, datasetId) {
     return WebClient.getTracesDataset(token, datasetId);
   }

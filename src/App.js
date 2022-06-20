@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, Fragment } from "react";
 import {HashRouter, Routes, Route, Navigate, useParams, BrowserRouter } from "react-router-dom";
 import ReactDOM from "react-dom";
 import {DropdownButton, Dropdown, Nav, Button, Modal } from "react-bootstrap";
@@ -23,7 +23,8 @@ var dlgDefaultValues = {
   title: "DEFAULT",
   body: <div>Empty body</div>,
   size: Dialog.SIZE_LG,
-  onBeforeClose: null
+  onBeforeClose: null,
+  data: null
 };
 
 const App = (props) => {
@@ -50,11 +51,11 @@ const App = (props) => {
     setMessage(message);
   };
   return (
-      <div className="m-3">
+      <Fragment>
         <Dialog settings={dlgState} />
         <MessageView message={message} />
         <NavbarView />
-        <div>
+        <Fragment>
 
           <br />
           <BrowserRouter basename={Config.basename}>
@@ -63,9 +64,10 @@ const App = (props) => {
               <Route exact path="/fair" element={<FairView />} />
               <Route path="/datasets" element={<DatasetsView keycloakReady={props.keycloakReady} urlChangedUpdKeycloak={props.urlChangedUpdKeycloakUri}
                 dataManager={dataManager} postMessage={postMessage} />} />
-                <Route path="/datasets/:datasetId/details" element={<DatasetView keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_DETAILS}/>} />
-                <Route path="/datasets/:datasetId/studies" element={<DatasetView keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_STUDIES}/>} />
-                <Route path="/datasets/:datasetId/history" element={<DatasetView keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_HISTORY}/>} />
+                <Route path="/datasets/:datasetId/details" element={<DatasetView showDialog={showDialog} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_DETAILS}/>} />
+                <Route path="/datasets/:datasetId/studies" element={<DatasetView showDialog={showDialog} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_STUDIES}/>} />
+                <Route path="/datasets/:datasetId/history" element={<DatasetView showDialog={showDialog} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_HISTORY}/>} />
+                <Route path="/datasets/:datasetId/dashboard" element={<DatasetView showDialog={showDialog} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_DASHBOARD}/>} />
                 <Route path="*" element={
                     <main style={{ padding: "1rem" }}>
                       <p>There's nothing here!</p>
@@ -74,8 +76,8 @@ const App = (props) => {
                 />
             </Routes>
           </BrowserRouter>
-        </div>
-      </div>
+        </Fragment>
+      </Fragment>
 
   );
 };

@@ -4,7 +4,7 @@ import { Container } from "react-bootstrap";
 function FairView(props) {
 
   return (<Container fluid>
-    We respect the fair principles
+    We strive to respect the fair principles, stay tuned for details
   </Container>);
 
 }

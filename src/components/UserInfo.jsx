@@ -17,7 +17,7 @@ function UserInfo(props) {
       </Button>
     )}
 
-    {!!keycloak.authenticated && (<DropdownButton
+    {keycloak.authenticated && (<DropdownButton
       id="dropdown-basic-button"
       title={
         keycloak.idTokenParsed.name + " (" + keycloak.idTokenParsed.email + ")"
