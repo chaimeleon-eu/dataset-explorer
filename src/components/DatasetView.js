@@ -14,6 +14,7 @@ import ResourceNotFoundView from "./ResourceNotFoundView";
 import DatasetFieldEdit from "./DatasetFieldEdit";
 import Util from "../Util";
 import Config from "../config.json";
+import Dialog from "./Dialog";
 
 function onLoadAppsDashboard(iframeDom, datasetId) {
   console.log(iframeDom);
@@ -27,6 +28,7 @@ function onLoadAppsDashboard(iframeDom, datasetId) {
     let inp = iframeDom.contentWindow.document.body.querySelector("#datasets_list-1");
     if (inp !== null) {
       //setTimeout(() =>{
+        // React swallows the event, and overides the setter, we have to use the native
         let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
         nativeInputValueSetter.call(inp, datasetId);
         /*
@@ -112,18 +114,35 @@ function getAction(condition, actionCb, txt) {
   }
 }
 
-function getActions(token, data, patchDatasetCb) {
-  if (data.editablePropertiesByTheUser.some(r => ["invalidated", "public", "draft"].includes(r))) {
+function getActions(token, data, patchDatasetCb, showDialog) {
+  let entries = [];
+  //if (data.editablePropertiesByTheUser.some(r => ["invalidated", "public", "draft"].includes(r))) {
+      entries = [
+        getAction(data.editablePropertiesByTheUser.includes("invalidated"),
+            () => {patchDatasetCb(token, data["id"], "invalidated", !data.invalidated)}, data.invalidated ? "Validate" : "Invalidate"),
+        getAction(data.editablePropertiesByTheUser.includes("public"),
+            () => {patchDatasetCb(token, data["id"], "public", !data.public)}, data.public ? "Unpublish" : "Publish"),
+        getAction(data.editablePropertiesByTheUser.includes("draft"),
+                () => {patchDatasetCb(token, data["id"], "draft", false)}, "Release"),
+        getAction(!data.editablePropertiesByTheUser.includes("draft"),
+            () => {
+              showDialog({
+                show: true,
+                footer: <Fragment />,
+                body: <iframe onLoad={(e) => onLoadAppsDashboard(e.target, data["id"])} src={Config.kubeAppsUrl} style={{ width: "100%", height: "100%" }}/>,
+                title: <span>Apps Dashboard for dataset <b>{data["id"]}</b></span>,
+                size: Dialog.SIZE_XXL,
+                onBeforeClose: null
+              });
+            }, "Use on Apps Dashboard")
+      ]
+  //}
+  if (entries.length !== 0) {
     return  <DropdownButton title="Actions">
-              {getAction(data.editablePropertiesByTheUser.includes("invalidated"),
-                  () => {patchDatasetCb(token, data["id"], "invalidated", !data.invalidated)}, data.invalidated ? "Validate" : "Invalidate")}
-              {getAction(data.editablePropertiesByTheUser.includes("public"),
-                  () => {patchDatasetCb(token, data["id"], "public", !data.public)}, data.public ? "Unpublish" : "Publish")}
-              {getAction(data.editablePropertiesByTheUser.includes("draft"),
-                  () => {patchDatasetCb(token, data["id"], "draft", false)}, "Release")}
-            </DropdownButton>
+        {entries}
+            </DropdownButton>;
   }
-  return <Fragment />
+  return <Fragment />;
 }
 
 
@@ -247,7 +266,7 @@ function DatasetView(props) {
         </Col>
         <Col md={4}>
           <div className="float-end">
-            {getActions(keycloak.token, allValues.data, patchDataset)}
+            {getActions(keycloak.token, allValues.data, patchDataset, props.showDialog)}
           </div>
         </Col>
       </Row>
@@ -273,12 +292,14 @@ function DatasetView(props) {
                 </Tab>),
                 (<Tab eventKey="history" title="History" key="history">
                       <DatasetHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
-                </Tab>),
+                </Tab>)
+                /*,
                 (<Tab eventKey="dashboard" title="Dashboard"  key="dashboard">
                   <div className="w-100 h-100" style={{ height: "50vh" }}>
                   <iframe onLoad={(e) => onLoadAppsDashboard(e.target, datasetId)} src={Config.kubeAppsUrl} style={{ width: "100%", height: "50vh" }}/>
                   </div>
                 </Tab>)
+                */
             ] : (<Fragment />)}
         </Tabs>
       </Container>

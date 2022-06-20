@@ -36,12 +36,6 @@
     transform: rotate(360deg);
   }
 }
-
-.modal-xl {
-    width: 90vw;    /* Occupy the 90% of the screen width */
-    max-width: 90vw;
-}
-
 .word-wrap {
   overflow-wrap: anywhere;
   background-color: red;

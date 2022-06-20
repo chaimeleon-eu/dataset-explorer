@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+
+// Careful with the order of CSS loading, if you want to modify Bootstrap's settings
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './index.css';
 //import AppRouter from './AppRouter';
 import AppKeycloak from './AppKeycloak';
 import reportWebVitals from './reportWebVitals';
