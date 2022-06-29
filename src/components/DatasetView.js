@@ -271,10 +271,11 @@ function DatasetView(props) {
         </Col>
       </Row>
       <Container fluid>
-        <b>Description:</b> {allValues.data.description}
+        <b>Description:</b> <span dangerouslySetInnerHTML={{ __html: allValues.data.description }}></span>
         {
           allValues.data.editablePropertiesByTheUser.includes("description")
-          ? <DatasetFieldEdit datasetId={datasetId} showDialog={props.showDialog} field="description" fieldDisplay="Dataset description" oldValue={allValues.data.description} patchDataset={patchDataset}/>
+          ? <DatasetFieldEdit datasetId={datasetId} showDialog={props.showDialog} field="description" fieldDisplay="Dataset description"
+              oldValue={allValues.data.description} patchDataset={patchDataset}/>
           : <Fragment />
         }
       </Container>

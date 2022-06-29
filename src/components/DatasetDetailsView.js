@@ -5,6 +5,7 @@ import {useState, useEffect} from 'react';
 import { useKeycloak } from '@react-keycloak/web';
 import { EnvelopeFill, ClipboardPlus } from 'react-bootstrap-icons';
 
+import StaticValues from "../api/StaticValues.js";
 import Message from "../model/Message.js";
 import DatasetFieldEdit from "./DatasetFieldEdit";
 
@@ -21,6 +22,10 @@ function DatasetDetailsView(props) {
     ageLstItem = <span>Less than {datasetDetails.data.ageHigh} {datasetDetails.data.ageUnit[1]}</span>
 
   }
+  let pidUrl = datasetDetails.data.pidUrl;
+  if (pidUrl !== null && pidUrl !== undefined && pidUrl.startsWith(StaticValues.AUTO_GEN_PID_PREFIX)) {
+    pidUrl = pidUrl.substring(StaticValues.AUTO_GEN_PID_PREFIX.length);
+  }
 
   return(
     <Container fluid>
@@ -36,7 +41,7 @@ function DatasetDetailsView(props) {
               </ListGroup.Item>
             ) : (<Fragment />)}
             <ListGroup.Item>
-              <b>PID URL: </b><a href={datasetDetails.data.pidUrl}>{datasetDetails.data.pidUrl}</a>
+              <b>PID URL: </b><a href={pidUrl}>{pidUrl}</a>
               { datasetDetails.data.editablePropertiesByTheUser.includes("pidUrl") ?
                   <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="pidUrl" fieldDisplay="PID URL" oldValue={datasetDetails.data.pidUrl} patchDataset={props.patchDataset}/>
                   : <Fragment />
