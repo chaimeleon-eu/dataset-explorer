@@ -2,25 +2,50 @@ import Config from "../config.json";
 
 export default class WebClient {
 
-  static getDatasets(token) {
-    return WebClient._call("GET", Config.datasetService + "/datasets",
-      new Map([["Access-Control-Allow-Origin", "*"]]),
-                null, token, "text");
+  static getDatasets(token, skip, limit) {
+    let headers = new Map();
+    if (token != undefined) {
+      headers.set("Authorization", "Bearer " + token);
+    }
+    return WebClient._call("GET", Config.datasetService + "/datasets", headers,
+                null, "text", { skip, limit });
   }
 
-  static getDataset(token, dsId) {
-    return WebClient._call("GET", Config.datasetService + "/dataset/" + dsId,
-      new Map([["Access-Control-Allow-Origin", "*"]]),
-                null, token, "text");
+  static getDataset(token, dsId, studiesSkip, studiesLimit) {
+    let headers = new Map();
+    if (token != undefined) {
+      headers.set("Authorization", "Bearer " + token);
+    }
+    return WebClient._call("GET", Config.datasetService + "/datasets/" + dsId, headers,
+                null, "text", { studiesSkip, studiesLimit });
   }
 
-  static getTracesActions(token) {
-      return WebClient._call("GET", Config.tracerService + "/traces/actions/",
-        new Map([["Access-Control-Allow-Origin", "*"]]),
-                  null, token, "text");
+  static patchDataset(token, dsId, property, value) {
+      let headers = new Map();
+      if (token != undefined) {
+        headers.set("Authorization", "Bearer " + token);
+      }
+      headers.set("Content-Type", "application/json");
+      const payload = { property, value };
+      return WebClient._call("PATCH", Config.datasetService + "/datasets/" + dsId, headers,
+                  JSON.stringify(payload), "text", null );
   }
 
-  static _call(method, path, headers, payload, token, responseType) {
+  static getTracesActions() {
+      return WebClient._call("GET", Config.tracerService + "/static/traces/actions",
+        new Map(), null, "text", null);
+  }
+
+  static getTracesDataset(token, datasetId) {
+    let headers = new Map();
+    if (token != undefined) {
+      headers.set("Authorization", "Bearer " + token);
+    }
+      return WebClient._call("GET", Config.tracerService + "/traces",
+        headers, null, "text", { datasetId });
+  }
+
+  static _call(method, path, headers, payload, responseType, queryParams) {
 
       let request = new XMLHttpRequest();
       return new Promise(function (resolve, reject) {
@@ -42,12 +67,20 @@ export default class WebClient {
                 }
 
             };
+            if (queryParams !== null) {
+              path += "?" + Object.entries(queryParams)
+                .map(([k, v]) => encodeURIComponent(k) + "=" + encodeURIComponent(v))
+                .join("&");
+            }
+
             request.onerror = (err) => reject(err);
             request.open(method, path, true);
             request.responseType = responseType;
+
+
             for (const [k, v] of headers)
                 request.setRequestHeader(k, v);
-            request.setRequestHeader("Authorization", "Bearer " + token);
+            //request.setRequestHeader("Authorization", "Bearer " + token);
             request.send(payload);
         } catch(e) {
           console.log(e);

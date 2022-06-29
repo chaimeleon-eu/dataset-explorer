@@ -1,12 +1,22 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect } from "react";
 import {InputGroup, FormControl, Accordion} from "react-bootstrap";
+import { useKeycloak } from '@react-keycloak/web';
 
 import Message from "../model/Message.js";
+import Util from "../Util";
 
 function DataFilterEntry(props) {
+  const [checked, setChecked] = useState(true);
   return (
     <InputGroup size="sm" className="mb-2">
-      <InputGroup.Checkbox aria-label="Checkbox for following text input" />
+      <InputGroup.Checkbox defaultChecked={checked} onChange={() =>
+          {
+            props.updFilter(props.filterName,
+              props.id, !checked);
+            setChecked(!checked);
+            }
+          }
+             aria-label="Checkbox for following text input" />
       <InputGroup.Text style={{"width": "80%", "backgroundColor": "rgba(255,255,255,0)"}}>
         <span className="d-inline-block text-truncate"
           style={{"maxWidth": "100%"}}>{props.label}
@@ -17,34 +27,39 @@ function DataFilterEntry(props) {
 }
 
 function DataFilterCategory(props) {
-  var [categories, setCategories] = useState([]);
-  var [isLoaded, setIsLoaded] = useState(false);
+  const [data, setData] = useState({
+      isLoading: false,
+      isLoaded: false,
+      data: [],
+      error: null,
+      status: -1
+    });
+  let { keycloak } = useKeycloak();
   useEffect(() => {
-    props.category.categoryLoader()
-      .then(
-        (xhr) => {
-          setIsLoaded(true);
-          console.log(xhr.response);
-          const result = JSON.parse(xhr.response);
-          const mapping = props.category.categoryMapping(result);
-          setCategories(mapping);
-        },
-        (xhr) => {
-          setIsLoaded(true);
-          let title = null;
-          let text = null;
-          if (!xhr.responseText) {
-            title = Message.UNK_ERROR_TITLE;
-            text = Message.UNK_ERROR_MSG;
-          } else {
-            const err = JSON.parse(xhr.response);
-              title = err.title;
-              text = err.message;
-          }
-          //props.postMessage(new Message(Message.ERROR, title, text));
-        });
-      }, [props.category]);
-  const components = categories.map((m, idx) => <DataFilterEntry  label={m.label}/>);
+      setData( prevValues => {
+        return { ...prevValues, isLoaded: false, isLoading: true, status: -1, error: null, data: [] }
+      });
+          props.category.categoryLoader()
+            .then(
+              (xhr) => {
+                const result = JSON.parse(xhr.response);
+                const mapping = props.category.categoryMapping(result);
+                setData( prevValues => {
+                  return { ...prevValues, isLoaded: true, isLoading: false, status: xhr.status, error: null, data: mapping }
+                });
+                props.updFilters(props.category.filterCategoryName, props.category.filterMapping(result));
+              },
+              (xhr) => {
+                const error = Util.getErrFromXhr(xhr);
+                setData( prevValues => {
+                  return { ...prevValues, isLoaded: true, isLoading: false, data:[],
+                    status: xhr.status, error }
+                });
+                props.postMessage(new Message(Message.ERROR, error.title, error.text));
+            });
+      }, []);
+  const components = data.data.map((m, idx) => <DataFilterEntry
+    updFilter={props.updFilter} checked={true} filterName={m.filterName} id={m.id} label={m.label}/>);
   return (
     <Accordion.Item eventKey="0">
       <Accordion.Header>{props.category.categoryTitle}</Accordion.Header>

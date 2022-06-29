@@ -15,15 +15,15 @@ function AlertEntry(props) {
 }
 
 const MessageView = (props) => {
-  var [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]);
     const onAlertClose = useCallback((idx) => {
-      setMessages(oldArray => oldArray.splice(idx, 1));
+      setMessages(oldArray => oldArray.filter((el, i) => i !== idx));
         console.log(messages);
     }, []);
   //const [messages, setMessages] = useState(null);
   useEffect(() => {
     if (props.message !== null) {
-       setMessages([...messages, props.message]);
+       setMessages(messages => [...messages, props.message]);
      }
   }, [props.message]);
     // if (props.message !== null) {

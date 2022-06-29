@@ -9,6 +9,7 @@ import { useLocation } from "react-router-dom";
 import Message from "../model/Message.js";
 import Dialog from "./Dialog.js";
 import DatasetsMainTable from "./DatasetsMainTable.js";
+import Config from "../config.json";
 
 function handleShow() {
 
@@ -37,6 +38,8 @@ function DatasetsView (props) {
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [data, setData] = useState([]);
+  const [skip, setSkip] = useState(0);
+  const [limit, setLimit] = useState(Config.defaultLimitDatasets);
 
   // const location = useLocation();
   //
@@ -51,41 +54,50 @@ function DatasetsView (props) {
 
       //console.log(keycloak);
         useEffect(() => {
-            console.log(props.keycloakReady);
             //setTimeout(function() {
             //console.log(keycloak.authenticated);
-              props.dataManager.getDatasets(keycloak.token)
-                .then(
-                  (xhr) => {
-                    setIsLoaded(true);
-                    setData(JSON.parse(xhr.response));
-                  },
-                  (xhr) => {
-                    setIsLoaded(true);
-                    console.log(xhr);
-                    let title = null;
-                    let text = null;
-                    if (!xhr.responseText) {
-                      title = Message.UNK_ERROR_TITLE;
-                      text = Message.UNK_ERROR_MSG;
-                    } else {
-                      const err = JSON.parse(xhr.response);
-                        title = err.title;
-                        text = err.message;
-                    }
-                    props.postMessage(new Message(Message.ERROR, title, text));
-                  });
+            //if (props.keycloakReady) {
+                let modLimit = limit;
+                if (data.length === limit+1) {
+                  modLimit += 1;
+                }
+                  props.dataManager.getDatasets(keycloak.token, skip, modLimit)
+                    .then(
+                      (xhr) => {
+                        setIsLoaded(true);
+                        setData(JSON.parse(xhr.response));
+                      },
+                      (xhr) => {
+                        setIsLoaded(true);
+                        console.log(xhr);
+                        let title = null;
+                        let text = null;
+                        if (!xhr.responseText) {
+                          title = Message.UNK_ERROR_TITLE;
+                          text = Message.UNK_ERROR_MSG;
+                        } else {
+                          const err = JSON.parse(xhr.response);
+                            title = err.title;
+                            text = err.message;
+                        }
+                        props.postMessage(new Message(Message.ERROR, title, text));
+                      });
+                //}
 
         }, //1000);},
-        [props.keycloakReady]);
+        [props.keycloakReady, skip, limit]);
 
       return (
         <Container fluid>
           <Row>
-            <DatasetsMainTable data={data} showDialog={props.showDialog}
+            <DatasetsMainTable data={data.slice(0, limit)} showDialog={props.showDialog}
               dataManager={props.dataManager}
               postMessage={props.postMessage}/>
           </Row>
+          <div className="w-100" >
+            <Button className="position-relative start-50 me-4" disabled={skip == 0 ? true : false} onClick={(e) => setSkip(skip - limit)}>Previous</Button>
+            <Button className="position-relative start-50"  disabled={data.length <= limit ? true : false} onClick={(e) => setSkip(skip + limit)}>Next</Button>
+          </div>
         </Container>
       );
 }

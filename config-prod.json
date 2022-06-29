@@ -2,6 +2,10 @@
   "appVersion": "<replace_me>",
   "datasetService": "https://chaimeleon-eu.i3m.upv.es/dataset-service/api",
   "tracerService": "https://chaimeleon-eu.i3m.upv.es/tracer-service/tracer/api/v1",
+  "basename": "/dataset-service",
+  "defaultLimitDatasets": 30,
+  "defaultLimitStudies": 30,
+  "kubeAppsUrl": "https://chaimeleon-eu.i3m.upv.es/apps/",
   "keycloak": {
     "url": "https://chaimeleon-eu.i3m.upv.es/auth/",
     "realm": "CHAIMELEON",
@@ -9,6 +13,6 @@
     "checkLoginIframe": false,
     "clientId": "dataset-service-ui",
     "onLoad": "check-sso",
-    "redirectUri": "https://chaimeleon-eu.i3m.upv.es/dataset-service/"
+    "redirectUri": "https://chaimeleon-eu.i3m.upv.es/dataset-service"
   }
 }

@@ -1,11 +1,13 @@
-import React from "react";
+import { Fragment } from "react";
 import { useParams } from "react-router-dom";
 import { ListGroup, Button, InputGroup, FormControl, Container, Row, Col} from 'react-bootstrap';
 import {useState, useEffect} from 'react';
 import { useKeycloak } from '@react-keycloak/web';
 import { EnvelopeFill, ClipboardPlus } from 'react-bootstrap-icons';
 
+import StaticValues from "../api/StaticValues.js";
 import Message from "../model/Message.js";
+import DatasetFieldEdit from "./DatasetFieldEdit";
 
 
 function DatasetDetailsView(props) {
@@ -20,23 +22,42 @@ function DatasetDetailsView(props) {
     ageLstItem = <span>Less than {datasetDetails.data.ageHigh} {datasetDetails.data.ageUnit[1]}</span>
 
   }
+  let pidUrl = datasetDetails.data.pidUrl;
+  if (pidUrl !== null && pidUrl !== undefined && pidUrl.startsWith(StaticValues.AUTO_GEN_PID_PREFIX)) {
+    pidUrl = pidUrl.substring(StaticValues.AUTO_GEN_PID_PREFIX.length);
+  }
 
   return(
     <Container fluid>
       <Row>
         <Col>
           <ListGroup>
-            <ListGroup.Item>
-            {keycloak.authorized ? (
+            {keycloak.authenticated ? (
               <ListGroup.Item><b>Author: </b>
                 {datasetDetails.data.authorName}
                 <a className="ms-1" href={"mailto:" + datasetDetails.data.authorEmail }>
                   <EnvelopeFill />
                 </a>
               </ListGroup.Item>
-            ) : (<React.Fragment />)}
+            ) : (<Fragment />)}
+            <ListGroup.Item>
+              <b>PID URL: </b><a href={pidUrl}>{pidUrl}</a>
+              { datasetDetails.data.editablePropertiesByTheUser.includes("pidUrl") ?
+                  <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="pidUrl" fieldDisplay="PID URL" oldValue={datasetDetails.data.pidUrl} patchDataset={props.patchDataset}/>
+                  : <Fragment />
+              }
             </ListGroup.Item>
-            <ListGroup.Item><b>Public: </b>{datasetDetails.data.public ? "YES" : "NO"}</ListGroup.Item>
+            <ListGroup.Item><b>Contact Information: </b>{datasetDetails.data.contactInfo}
+              { datasetDetails.data.editablePropertiesByTheUser.includes("contactInfo") ?
+                    <DatasetFieldEdit  datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="contactInfo" fieldDisplay="Contact information" oldValue={datasetDetails.data.contactInfo} patchDataset={props.patchDataset} />
+                  : <Fragment /> }
+            </ListGroup.Item>
+            <ListGroup.Item><b>License: </b><a href={datasetDetails.data.license.url}>{datasetDetails.data.license.title}</a>
+              { datasetDetails.data.editablePropertiesByTheUser.includes("license") || datasetDetails.data.editablePropertiesByTheUser.includes("licenseUrl") ?
+                    <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field={datasetDetails.data.editablePropertiesByTheUser.includes("license") ? "license" : "licenseUrl"} fieldDisplay="Dataset license" oldValue={datasetDetails.data.license}
+                      patchDataset={props.patchDataset} />
+                  : <Fragment /> }
+            </ListGroup.Item>
             <ListGroup.Item><b>Studies count: </b>{datasetDetails.data.studiesCount}</ListGroup.Item>
             <ListGroup.Item><b>Subjects count: </b>{datasetDetails.data.subjectsCount}</ListGroup.Item>
             <ListGroup.Item><b>Age range: </b>{ageLstItem}</ListGroup.Item>

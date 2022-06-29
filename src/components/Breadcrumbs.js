@@ -10,9 +10,9 @@ function Breadcrumbs(props) {
    }, [location])
 
   return (<Breadcrumb>
-    <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/" }}>Home</Breadcrumb.Item>
+    <Breadcrumb.Item key="1" linkAs={Link} linkProps={{ to: "/" }}>Home</Breadcrumb.Item>
     {props.elems.map((value, index) => {
-          return <Breadcrumb.Item {...(value.active ? {active: true} : {})}
+          return <Breadcrumb.Item key={index + 1} {...(value.active ? {active: true} : {})}
             linkAs={Link} linkProps={{ to: value.link }}>{value.text}</Breadcrumb.Item>;
         })}
   </Breadcrumb>);
