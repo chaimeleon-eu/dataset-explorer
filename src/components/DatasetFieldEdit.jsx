@@ -1,8 +1,9 @@
-import { Button, InputGroup, FormControl, Container } from "react-bootstrap";
+import { Button, InputGroup, FormControl, Container, Form } from "react-bootstrap";
 import { PencilFill, ArrowCounterclockwise } from 'react-bootstrap-icons';
 import { useRef, useState, useEffect, Fragment } from "react";
 import { useKeycloak } from '@react-keycloak/web';
 
+import StaticValues from "../api/StaticValues.js";
 import Dialog from "./Dialog";
 import Message from "../model/Message.js";
 import licenses from "../licenses.json";
@@ -24,6 +25,41 @@ function Body(props) {
             aria-label="Edit value" value={value === undefined || value === null ? "" : value} onInput={(e) => {e.preventDefault();updValue(e.target.value);}} />
     }
 
+  </div>;
+}
+
+function BodyPid(props) {
+  const [value, setValue] = useState(props.oldValue);
+  const isAuto = value.startsWith(StaticValues.AUTO_GEN_PID_PREFIX);
+  const [customValue, setCustomValue] = useState(isAuto ? "" : value );
+  const [editType, setEditType] = useState(isAuto ? StaticValues.AUTO_GEN_PID_PREFIX : "manual");
+
+  const updValue = (newVal) => {
+    console.log(newVal);
+    setValue(newVal);
+    props.updValue(newVal);
+  }
+
+  return  <div className="mb-3">
+      <Form>
+        <Form.Group onChange={e => {
+          setEditType(e.target.value);
+          if (e.target.value === StaticValues.AUTO_GEN_PID_PREFIX) {
+            updValue(StaticValues.AUTO_GEN_PID_PREFIX);
+          } else if (e.target.value === "manual") {
+            updValue(customValue);
+          } else {
+            throw new Error(`Unhandled option ${e.target.value }`);
+          }
+        }
+        }>
+          <Form.Check type="radio" label="Generate automatically" name="pid" defaultChecked={isAuto ? true : false} value={StaticValues.AUTO_GEN_PID_PREFIX}/>
+          <Form.Check type="radio" label="Manually set PID (edit URL bellow)" name="pid" defaultChecked={isAuto ? false : true} value="manual"/>
+        </Form.Group>
+        <input disabled={editType === "manual" ? false : true} type="text" className="ms-2 w-100" title="Enter custom PID url"
+          aria-label="Enter custom PID url" value={customValue}
+          onInput={(e) => {e.preventDefault();setCustomValue(e.target.value);updValue(e.target.value);}} />
+      </Form>
   </div>;
 }
 
@@ -63,8 +99,6 @@ function BodyLicense(props) {
           </div>
         : <Fragment />
     }
-
-
   </div>;
 }
 
@@ -98,6 +132,8 @@ function DatasetFieldEdit(props) {
   let body = null;
   if (props.field === "license" || props.field === "licenseUrl") {
     body = <BodyLicense updValue={updValue} field={props.field} oldValue={props.oldValue} />;
+  } else if (props.field === "pidUrl") {
+    body = <BodyPid updValue={updValue} field={props.field} oldValue={props.oldValue} />;
   } else {
     body = <Body updValue={updValue} field={props.field} oldValue={props.oldValue} />;
   }
