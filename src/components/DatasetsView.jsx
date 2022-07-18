@@ -4,7 +4,7 @@ import { Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} 
 import { Search as SearchIc, FilePlus as FilePlusIc } from "react-bootstrap-icons";
 import { useTable, useRowSelect } from 'react-table';
 import { useKeycloak } from '@react-keycloak/web';
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams, useNavigate } from "react-router-dom";
 
 import Message from "../model/Message.js";
 import Dialog from "./Dialog.js";
@@ -18,7 +18,15 @@ function handleShow() {
 
 
 
-const SearchComponent = () => {
+const SearchComponent = ({initValue, setSearchString}) => {
+  const [input, setInput] = useState(initValue);
+  useEffect(() => {
+    setInput(initValue);
+  }, [initValue]);
+  // const updInput = (newVal) => {
+  //   setInput(newVal);
+  //   setSearchString(input);
+  // }
 
   return (
     <InputGroup className="mb-3">
@@ -26,8 +34,17 @@ const SearchComponent = () => {
         placeholder="Dataset search"
         aria-label="Dataset search"
         aria-describedby="basic-addon2"
+        //defaultValue={props.initValue}
+        style={{fontWeight: "bold"}}
+        onChange={(e) => setInput(e.target.value)}
+        value={input}
+        onKeyDown={(e) => {
+          if(e.key === 'Enter') {
+              setSearchString(e.target.value);
+          }
+        }}
       />
-      <Button variant="outline-secondary" size="sm" id="button-addon2">
+      <Button variant="outline-secondary" size="sm" className="search-btn" onClick={() =>setSearchString(input)}>
         <SearchIc />
       </Button>
     </InputGroup>
@@ -35,11 +52,27 @@ const SearchComponent = () => {
 }
 
 function DatasetsView (props) {
+  let navigate = useNavigate();
+  //const [search] = useSearchParams();
+  //const searchStringParam = search.get('searchString') === null ? "" : search.get('searchString');
+  //console.log(`searchStringParam is ${searchStringParam}`);
+
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [data, setData] = useState([]);
   const [skip, setSkip] = useState(0);
   const [limit, setLimit] = useState(Config.defaultLimitDatasets);
+  const [searchParams, setSearchParams] = useSearchParams("");
+  const searchString = searchParams.get("searchString") === null ? "" : searchParams.get("searchString");
+  console.log(`searchString is ${searchString}`);
+  const setSearchString = (newVal) => {
+    //setSearchParams(`searchString=${encodeURIComponent(newVal)}`);
+    const qPs = newVal !== null && newVal !== undefined && newVal.length > 0 ? `?searchString=${encodeURIComponent(newVal)}` : "";
+    navigate({
+      pathname: './',
+      search: qPs,
+    });
+  }
 
   // const location = useLocation();
   //
@@ -61,7 +94,8 @@ function DatasetsView (props) {
                 if (data.length === limit+1) {
                   modLimit += 1;
                 }
-                  props.dataManager.getDatasets(keycloak.token, skip, modLimit)
+                console.log(searchString);
+                  props.dataManager.getDatasets(keycloak.token, skip, modLimit, searchString)
                     .then(
                       (xhr) => {
                         setIsLoaded(true);
@@ -85,10 +119,13 @@ function DatasetsView (props) {
                 //}
 
         }, //1000);},
-        [props.keycloakReady, skip, limit]);
+        [props.keycloakReady, skip, limit, searchString]);
 
       return (
         <Container fluid>
+          <Row>
+            <SearchComponent initValue={searchString} setSearchString={setSearchString}/>
+          </Row>
           <Row>
             <DatasetsMainTable data={data.slice(0, limit)} showDialog={props.showDialog}
               dataManager={props.dataManager}

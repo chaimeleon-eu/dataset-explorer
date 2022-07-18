@@ -42,3 +42,9 @@ code {
   max-height: 100%;
   height: 100%;
 }
+
+
+.search-btn {
+  padding-left: 2em;
+  padding-right: 2em;
+}
