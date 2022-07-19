@@ -31,6 +31,7 @@ const SearchComponent = ({initValue, setSearchString}) => {
   return (
     <InputGroup className="mb-3">
       <FormControl
+        type="search"
         placeholder="Dataset search"
         aria-label="Dataset search"
         aria-describedby="basic-addon2"
