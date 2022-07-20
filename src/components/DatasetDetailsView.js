@@ -22,9 +22,13 @@ function DatasetDetailsView(props) {
     ageLstItem = <span>Less than {datasetDetails.data.ageHigh} {datasetDetails.data.ageUnit[1]}</span>
 
   }
-  let pidUrl = datasetDetails.data.pidUrl;
-  if (pidUrl !== null && pidUrl !== undefined && pidUrl.startsWith(StaticValues.AUTO_GEN_PID_PREFIX)) {
-    pidUrl = pidUrl.substring(StaticValues.AUTO_GEN_PID_PREFIX.length);
+  let pids = datasetDetails.data.pids;
+  let pidUrl = "";
+  //let pidsPatch = Object.create(null);
+  //pidsPatch["preferred"] = pids["preferred"];
+  if (pids["preferred"] !== null) {
+    pidUrl = pids["urls"][pids["preferred"]];
+    ///pidsPatch[pids["preferred"]] = pids["url"]
   }
 
   return(
@@ -42,8 +46,9 @@ function DatasetDetailsView(props) {
             ) : (<Fragment />)}
             <ListGroup.Item>
               <b>PID URL: </b><a href={pidUrl}>{pidUrl}</a>
-              { datasetDetails.data.editablePropertiesByTheUser.includes("pidUrl") ?
-                  <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="pidUrl" fieldDisplay="PID URL" oldValue={datasetDetails.data.pidUrl} patchDataset={props.patchDataset}/>
+              { datasetDetails.data.editablePropertiesByTheUser.includes("pids") ?
+                  <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="pids" fieldDisplay="Permanent ID (PID) URL"
+                    oldValue={pids} patchDataset={props.patchDataset}/>
                   : <Fragment />
               }
             </ListGroup.Item>

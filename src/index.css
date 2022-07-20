@@ -48,3 +48,11 @@ code {
   padding-left: 2em;
   padding-right: 2em;
 }
+
+.overflow-ellipsis {
+  list-style-position: inside;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
