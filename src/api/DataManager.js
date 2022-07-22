@@ -2,8 +2,8 @@ import WebClient from "./WebClient.js";
 
 export default class DataManager {
 
-  getDatasets(token, skip, limit) {
-    return WebClient.getDatasets(token, skip, limit);
+  getDatasets(token, skip, limit, searchString) {
+    return WebClient.getDatasets(token, skip, limit, searchString );
   }
 
   getDataset(token, datasetId, studiesSkip, studiesLimit) {

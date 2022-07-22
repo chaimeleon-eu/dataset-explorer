@@ -282,7 +282,8 @@ function DatasetView(props) {
       <Container fluid className="w-100 h-75">
         <Tabs defaultActiveKey="details" activeKey={props.activeTab} onSelect={(k) => navigate(`/datasets/${datasetId}/${k}`)}>
           <Tab eventKey="details" title="Details">
-            <DatasetDetailsView patchDataset={patchDataset} showDialog={props.showDialog} allValues={allValues} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
+            <DatasetDetailsView patchDataset={patchDataset} showDialog={props.showDialog} 
+              allValues={allValues} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
           </Tab>
 
           {keycloak.authenticated ?

@@ -1,4 +1,4 @@
-import { Button, InputGroup, FormControl, Container, Form } from "react-bootstrap";
+import { Button, InputGroup, FormControl, Container, Form, Row, Col } from "react-bootstrap";
 import { PencilFill, ArrowCounterclockwise } from 'react-bootstrap-icons';
 import { useRef, useState, useEffect, Fragment } from "react";
 import { useKeycloak } from '@react-keycloak/web';
@@ -30,35 +30,101 @@ function Body(props) {
 
 function BodyPid(props) {
   const [value, setValue] = useState(props.oldValue);
-  const isAuto = value.startsWith(StaticValues.AUTO_GEN_PID_PREFIX);
-  const [customValue, setCustomValue] = useState(isAuto ? "" : value );
-  const [editType, setEditType] = useState(isAuto ? StaticValues.AUTO_GEN_PID_PREFIX : "manual");
+  //console.log(`value is ${JSON.stringify(value)}`);
+  //console.log(`props.oldValue is ${JSON.stringify(props.oldValue)}`);
+  const isAuto = props.oldValue["preferred"] === null || props.oldValue["preferred"] === StaticValues.DS_PID_ZENODO;
+  const [customValue, setCustomValue] = useState(props.oldValue["urls"]["custom"] === null ? "" :  props.oldValue["urls"]["custom"]);
+  const [editType, setEditType] = useState(isAuto ? StaticValues.DS_PID_ZENODO : StaticValues.DS_PID_CUSTOM);
+  const [expanded, setExpanded] = useState(false);
 
   const updValue = (newVal) => {
-    console.log(newVal);
+    setEditType(newVal["preferred"]);
     setValue(newVal);
     props.updValue(newVal);
   }
 
+  if (value["preferred"] === null) {
+    updValue({...value, preferred: StaticValues.DS_PID_ZENODO});
+
+  }
+  console.log(` value is ${JSON.stringify(value)}`);
+
+  let cssMsgAutoPid = "d-inline-block mt-2 fst-italic";
+  let msgAutoPid = "The dataset's metadata and index (not the images nor clinical data) will be deposited in <a href=\"zenodo.org\">Zenodo.org</a> in order to obtain a DOI.\n"
+    + "Metadata includes the content of \"Details\" tab: author, contact information, creation date, license, etc.\n"
+    + "Index includes the content of \"Studies\" tab: study id, study name, subject and series.";
+  if (!expanded) {
+    cssMsgAutoPid += " overflow-ellipsis";
+  } else {
+    msgAutoPid = msgAutoPid.replace(/(?:\r\n|\r|\n)/g, '<br>');
+  }
   return  <div className="mb-3">
       <Form>
         <Form.Group onChange={e => {
-          setEditType(e.target.value);
-          if (e.target.value === StaticValues.AUTO_GEN_PID_PREFIX) {
-            updValue(StaticValues.AUTO_GEN_PID_PREFIX);
-          } else if (e.target.value === "manual") {
-            updValue(customValue);
-          } else {
-            throw new Error(`Unhandled option ${e.target.value }`);
+          //console.log(`${e.target.value}`)
+          //setEditType(e.target.value);
+
+          /// IGNORE input changes
+          if (e.target.nodeName === 'INPUT' && e.target.type === "radio") {
+            if (e.target.value === StaticValues.DS_PID_ZENODO) {
+              updValue({
+                preferred: StaticValues.DS_PID_ZENODO,
+                urls: value["urls"]
+              });
+            } else if (e.target.value === StaticValues.DS_PID_CUSTOM) {
+              let newUrls = {...value["urls"]};
+              newUrls[StaticValues.DS_PID_CUSTOM] = customValue;
+              updValue({
+                preferred: StaticValues.DS_PID_CUSTOM,
+                urls: newUrls
+              });
+            } else {
+              throw new Error(`Unhandled option ${e.target.value }`);
+            }
           }
         }
         }>
-          <Form.Check type="radio" label="Generate automatically" name="pid" defaultChecked={isAuto ? true : false} value={StaticValues.AUTO_GEN_PID_PREFIX}/>
-          <Form.Check type="radio" label="Manually set PID (edit URL bellow)" name="pid" defaultChecked={isAuto ? false : true} value="manual"/>
+          <Form.Check type="radio" id={StaticValues.DS_PID_ZENODO} style={{marginBottom: "2em"}}>            
+            <Form.Check.Input id={StaticValues.DS_PID_ZENODO} type="radio" isValid name="pid" defaultChecked={isAuto ? true : false} value={StaticValues.DS_PID_ZENODO} />
+            <Form.Check.Label htmlFor={StaticValues.DS_PID_ZENODO}>
+              {  
+                value["urls"][StaticValues.DS_PID_ZENODO] !== null ? "Use automatically generated PID" : "Generate PID automatically"
+              }
+            </Form.Check.Label>
+            {
+              value["urls"][StaticValues.DS_PID_ZENODO] !== null ?
+                <div  className="ms-2 w-100"><a href={props.oldValue["urls"][StaticValues.DS_PID_ZENODO]} title="Custom Zenodo PID URL">
+                  {props.oldValue["urls"][StaticValues.DS_PID_ZENODO]}
+                </a></div>
+                : <div className="ms-2 w-100 d-flex">
+                    <div className={cssMsgAutoPid} dangerouslySetInnerHTML={{__html: msgAutoPid}}></div>
+                    <div className="d-inline-block">
+                      <Button title="Expand" className="fs-3 float-end m-0 p-0 ms-3" style={{textDecoration: "none"}} variant="link" onClick={() => setExpanded(!expanded)}>
+                        {expanded ? "-" : "+"}
+                      </Button></div>
+                  </div>
+            }
+          </Form.Check>
+
+
+          <Form.Check type="radio" id={StaticValues.DS_PID_CUSTOM}>            
+            <Form.Check.Input id={StaticValues.DS_PID_CUSTOM} type="radio" isValid name="pid" defaultChecked={isAuto ? false : true} value={StaticValues.DS_PID_CUSTOM} />
+            <Form.Check.Label htmlFor={StaticValues.DS_PID_CUSTOM}>Use custom PID - edit URL below</Form.Check.Label>
+            <input disabled={editType === StaticValues.DS_PID_CUSTOM ? false : true} type="text" className="ms-2 w-100" title="Enter custom PID URL"
+              aria-label="Enter custom PID URL" value={customValue}
+              onInput={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                //e.target.value =
+                setCustomValue(e.target.value);
+                let newVal = {...value};
+                newVal["preferred"] =  StaticValues.DS_PID_CUSTOM;
+                newVal["urls"][StaticValues.DS_PID_CUSTOM] = e.target.value;
+                updValue(newVal);
+              }} />
+          </Form.Check>
         </Form.Group>
-        <input disabled={editType === "manual" ? false : true} type="text" className="ms-2 w-100" title="Enter custom PID url"
-          aria-label="Enter custom PID url" value={customValue}
-          onInput={(e) => {e.preventDefault();setCustomValue(e.target.value);updValue(e.target.value);}} />
+        
       </Form>
   </div>;
 }
@@ -69,7 +135,6 @@ function BodyLicense(props) {
   const [customValue, setCustomValue] = useState(isCustom ? value : {title: "", url: ""});
 
   const updValue = (newVal) => {
-    console.log(newVal);
     setValue(prev => {
       return {...prev, ...newVal};
     });
@@ -113,27 +178,45 @@ function Footer(props) {
   </div>
 }
 
+function transformValue(field, value) {
+  if (field === "pids") {
+    let sVal = Object.create(null);
+    sVal["preferred"] = value["preferred"];
+    if (value["preferred"] === StaticValues.DS_PID_CUSTOM) {
+      sVal["urls"] = Object.create(null);
+      sVal["urls"][StaticValues.DS_PID_CUSTOM] = value["urls"][StaticValues.DS_PID_CUSTOM];
+    }
+    return sVal;
+  } else 
+    return value;
+}
+
 
 function DatasetFieldEdit(props) {
   let [value, setValue] = useState(props.oldValue);
+  useEffect(() => setValue(props.oldValue), [props.oldValue]);
+  let { keycloak } = useKeycloak();
+  //console.log(`props.oldValue is ${JSON.stringify(props.oldValue)}`);
+  //console.log(`dfe value is ${JSON.stringify(value)}`);
   const [isPatchValue, setIsPatchValue] = useState(false);
   const updValue = (newVal) => {setValue(newVal);};
-  let { keycloak } = useKeycloak();
-  var patchDataset = () => setIsPatchValue(true);
+  const patchDataset = () => setIsPatchValue(true);
   useEffect(() => {
     if (isPatchValue) {
-      props.patchDataset(keycloak.token, props.datasetId, props.field, value);
+      let sVal = transformValue(props.field, value);
+      props.patchDataset(keycloak.token, props.datasetId, props.field, sVal);
       setIsPatchValue(false);
     }
   }, [isPatchValue]);
   // const patchDatasetCb = (newData) => setData( prevValues => {
   //    return { ...prevValues, data: newData.data, isLoading: newData.isLoading, isLoaded: newData.isLoaded, error: newData.error, status: newData.status}}
   //  );
+  
   let body = null;
   if (props.field === "license" || props.field === "licenseUrl") {
     body = <BodyLicense updValue={updValue} field={props.field} oldValue={props.oldValue} />;
-  } else if (props.field === "pidUrl") {
-    body = <BodyPid updValue={updValue} field={props.field} oldValue={props.oldValue} />;
+  } else if (props.field === "pids") {
+    body = <BodyPid updValue={updValue} field={props.field} oldValue={value} />;
   } else {
     body = <Body updValue={updValue} field={props.field} oldValue={props.oldValue} />;
   }

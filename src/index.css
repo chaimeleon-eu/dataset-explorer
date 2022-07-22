@@ -42,3 +42,21 @@ code {
   max-height: 100%;
   height: 100%;
 }
+
+
+.search-btn {
+  padding-left: 2em;
+  padding-right: 2em;
+}
+
+.overflow-ellipsis {
+  list-style-position: inside;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.pre-text {
+  white-space: pre-wrap;
+}
