@@ -149,14 +149,14 @@ function DatasetHistoryView(props) {
         Header: 'Blockchain',
         accessor: 'blockchain'
       }
-      // ,
-      // {
-      //   Header: 'Created',
-      //   Cell: ({ row }) => (
-      //       new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
-      //         .format(row.original["created"])
-      //       )
-      // }
+      ,
+      {
+        Header: 'Created',
+        Cell: ({ row }) => (
+            new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
+              .format(row.original["created"])
+            )
+      }
     ]);
     if (data.isLoading) {
       return <LoadingView what="dataset history" />;
