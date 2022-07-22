@@ -42,9 +42,21 @@ function BodyPid(props) {
     setValue(newVal);
     props.updValue(newVal);
   }
+
+  if (value["preferred"] === null) {
+    updValue({...value, preferred: StaticValues.DS_PID_ZENODO});
+
+  }
+  console.log(` value is ${JSON.stringify(value)}`);
+
   let cssMsgAutoPid = "d-inline-block mt-2 fst-italic";
+  let msgAutoPid = "The dataset's metadata and index (not the images nor clinical data) will be deposited in <a href=\"zenodo.org\">Zenodo.org</a> in order to obtain a DOI.\n"
+    + "Metadata includes the content of \"Details\" tab: author, contact information, creation date, license, etc.\n"
+    + "Index includes the content of \"Studies\" tab: study id, study name, subject and series.";
   if (!expanded) {
     cssMsgAutoPid += " overflow-ellipsis";
+  } else {
+    msgAutoPid = msgAutoPid.replace(/(?:\r\n|\r|\n)/g, '<br>');
   }
   return  <div className="mb-3">
       <Form>
@@ -85,11 +97,7 @@ function BodyPid(props) {
                   {props.oldValue["urls"][StaticValues.DS_PID_ZENODO]}
                 </a></div>
                 : <div className="ms-2 w-100 d-flex">
-                    <div className={cssMsgAutoPid}>
-                      The dataset's metadata and index (not the images nor clinical data) will be deposited in <a href="zenodo.org">Zenodo.org</a> in order to obtain a DOI.
-                      Metadata includes the content of "Details" tab: author, contact information, creation date, license, etc.
-                      Index includes the content of "Studies" tab: study id, study name, subject and series.
-                    </div>
+                    <div className={cssMsgAutoPid} dangerouslySetInnerHTML={{__html: msgAutoPid}}></div>
                     <div className="d-inline-block">
                       <Button title="Expand" className="fs-3 float-end m-0 p-0 ms-3" style={{textDecoration: "none"}} variant="link" onClick={() => setExpanded(!expanded)}>
                         {expanded ? "-" : "+"}

@@ -54,5 +54,9 @@ code {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-overflow: ellipsis;
+}
+
+
+.pre-text {
+  white-space: pre-wrap;
 }
