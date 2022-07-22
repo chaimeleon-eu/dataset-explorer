@@ -323,11 +323,13 @@ function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDe
               textAlign: 'left',
             }}
           >
-            <GlobalFilter
+            {/*
+              <GlobalFilter
               preGlobalFilteredRows={preGlobalFilteredRows}
               globalFilter={state.globalFilter}
               setGlobalFilter={setGlobalFilter}
             />
+            */}
           </th>
         </tr>
       </thead>

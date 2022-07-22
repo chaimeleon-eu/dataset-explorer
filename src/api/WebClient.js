@@ -2,13 +2,13 @@ import Config from "../config.json";
 
 export default class WebClient {
 
-  static getDatasets(token, skip, limit) {
+  static getDatasets(token, skip, limit, searchString) {
     let headers = new Map();
     if (token != undefined) {
       headers.set("Authorization", "Bearer " + token);
     }
     return WebClient._call("GET", Config.datasetService + "/datasets", headers,
-                null, "text", { skip, limit });
+                null, "text", { skip, limit, searchString });
   }
 
   static getDataset(token, dsId, studiesSkip, studiesLimit) {
