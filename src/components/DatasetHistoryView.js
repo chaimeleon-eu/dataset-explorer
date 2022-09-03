@@ -96,8 +96,9 @@ function DatasetHistoryView(props) {
                     const rawTraces = JSON.parse(xhr.response).traces;
                     for (let rt of rawTraces) {
                       for (let t of rt.traces) {
-                          let d = new Date(0);
-                          d.setUTCMilliseconds(t.id);
+                          let d = new Date(t.timestamp);
+                          //console.log(t.timestamp);
+                          //d.setUTCMilliseconds(t.timestamp);
                           traces.push({blockchain: rt.blockchain, action: t.userAction, user: t.userId,
                             created: d});
                       }
