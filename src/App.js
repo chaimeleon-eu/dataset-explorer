@@ -62,8 +62,9 @@ const App = (props) => {
             <Routes>
               <Route exact path="/" element={<Navigate to="/datasets" replace />} />
               <Route exact path="/fair" element={<FairView />} />
-              <Route path="/datasets" element={<DatasetsView keycloakReady={props.keycloakReady} urlChangedUpdKeycloak={props.urlChangedUpdKeycloakUri}
-                dataManager={dataManager} postMessage={postMessage} />} />
+              <Route path="/datasets" element={<DatasetsView keycloakReady={props.keycloakReady} 
+                  urlChangedUpdKeycloak={props.urlChangedUpdKeycloakUri}
+                  dataManager={dataManager} postMessage={postMessage} />} />
                 <Route path="/datasets/:datasetId/details" element={<DatasetView showDialog={showDialog} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_DETAILS}/>} />
                 <Route path="/datasets/:datasetId/studies" element={<DatasetView showDialog={showDialog} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_STUDIES}/>} />
                 <Route path="/datasets/:datasetId/history" element={<DatasetView showDialog={showDialog} keycloakReady={props.keycloakReady} postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_HISTORY}/>} />

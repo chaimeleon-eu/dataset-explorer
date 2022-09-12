@@ -114,28 +114,38 @@ function getAction(condition, actionCb, txt) {
   }
 }
 
-function getActions(token, data, patchDatasetCb, showDialog) {
+function Actions({data, patchDatasetCb, showDialog}) {
+
+  let { keycloak } = useKeycloak();
   let entries = [];
   //if (data.editablePropertiesByTheUser.some(r => ["invalidated", "public", "draft"].includes(r))) {
       entries = [
-        getAction(data.editablePropertiesByTheUser.includes("invalidated"),
-            () => {patchDatasetCb(token, data["id"], "invalidated", !data.invalidated)}, data.invalidated ? "Validate" : "Invalidate"),
-        getAction(data.editablePropertiesByTheUser.includes("public"),
-            () => {patchDatasetCb(token, data["id"], "public", !data.public)}, data.public ? "Unpublish" : "Publish"),
-        getAction(data.editablePropertiesByTheUser.includes("draft"),
-                () => {patchDatasetCb(token, data["id"], "draft", false)}, "Release"),
         getAction(!data.editablePropertiesByTheUser.includes("draft"),
             () => {
-              showDialog({
-                show: true,
-                footer: <Fragment />,
-                body: <iframe onLoad={(e) => onLoadAppsDashboard(e.target, data["id"])} src={Config.kubeAppsUrl} style={{ width: "100%", height: "100%" }}/>,
-                title: <span>Apps Dashboard for dataset <b>{data["id"]}</b></span>,
-                size: Dialog.SIZE_XXL,
-                onBeforeClose: null
-              });
+              if (keycloak.authenticated) {
+                showDialog({
+                  show: true,
+                  footer: <Fragment />,
+                  body: <iframe onLoad={(e) => onLoadAppsDashboard(e.target, data["id"])} src={Config.kubeAppsUrl} style={{ width: "100%", height: "100%" }}/>,
+                  title: <span>Apps Dashboard for dataset <b>{data["id"]}</b></span>,
+                  size: Dialog.SIZE_XXL,
+                  onBeforeClose: null
+                });
+              } else {
+                keycloak.login();
+              }
             }, "Use on Apps Dashboard")
       ]
+      if (keycloak.authenticated) {
+        entries.push(
+          getAction(data.editablePropertiesByTheUser.includes("invalidated"),
+            () => {patchDatasetCb(keycloak.token, data["id"], "invalidated", !data.invalidated)}, data.invalidated ? "Validate" : "Invalidate"),
+          getAction(data.editablePropertiesByTheUser.includes("public"),
+              () => {patchDatasetCb(keycloak.token, data["id"], "public", !data.public)}, data.public ? "Unpublish" : "Publish"),
+          getAction(data.editablePropertiesByTheUser.includes("draft"),
+                  () => {patchDatasetCb(keycloak.token, data["id"], "draft", false)}, "Release")
+        );
+      }
   //}
   if (entries.length !== 0) {
     return  <DropdownButton title="Actions">
@@ -266,7 +276,7 @@ function DatasetView(props) {
         </Col>
         <Col md={4}>
           <div className="float-end">
-            {getActions(keycloak.token, allValues.data, patchDataset, props.showDialog)}
+            <Actions data={allValues.data} patchDatasetCb={patchDataset} showDialog={props.showDialog}/>
           </div>
         </Col>
       </Row>
