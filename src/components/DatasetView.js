@@ -114,28 +114,59 @@ function getAction(condition, actionCb, txt) {
   }
 }
 
-function getActions(token, data, patchDatasetCb, showDialog) {
+function showDialogAppDashhboard(datasetId, showDialog, onBeforeClose) {
+  showDialog({
+    show: true,
+    footer: <Fragment />,
+    body: <iframe onLoad={(e) => onLoadAppsDashboard(e.target, datasetId)} src={Config.kubeAppsUrl} style={{ width: "100%", height: "100%" }}/>,
+    title: <span>Apps Dashboard for dataset <b>{datasetId}</b></span>,
+    size: Dialog.SIZE_XXL,
+    onBeforeClose: () => onBeforeClose()
+  });
+}
+
+function popPath(path) {
+  let pS = path.split("/");
+  pS.pop();
+  return pS.join("/");
+}
+
+function Actions({data, patchDatasetCb, showDialog}) {
+
+  let { keycloak } = useKeycloak();
+  const navigate = useNavigate();
+  const location = useLocation();
   let entries = [];
   //if (data.editablePropertiesByTheUser.some(r => ["invalidated", "public", "draft"].includes(r))) {
       entries = [
-        getAction(data.editablePropertiesByTheUser.includes("invalidated"),
-            () => {patchDatasetCb(token, data["id"], "invalidated", !data.invalidated)}, data.invalidated ? "Validate" : "Invalidate"),
-        getAction(data.editablePropertiesByTheUser.includes("public"),
-            () => {patchDatasetCb(token, data["id"], "public", !data.public)}, data.public ? "Unpublish" : "Publish"),
-        getAction(data.editablePropertiesByTheUser.includes("draft"),
-                () => {patchDatasetCb(token, data["id"], "draft", false)}, "Release"),
         getAction(!data.editablePropertiesByTheUser.includes("draft"),
             () => {
-              showDialog({
-                show: true,
-                footer: <Fragment />,
-                body: <iframe onLoad={(e) => onLoadAppsDashboard(e.target, data["id"])} src={Config.kubeAppsUrl} style={{ width: "100%", height: "100%" }}/>,
-                title: <span>Apps Dashboard for dataset <b>{data["id"]}</b></span>,
-                size: Dialog.SIZE_XXL,
-                onBeforeClose: null
-              });
+              const path = location.pathname;
+              // if (keycloak.authenticated) {
+              //   navigate(`${path}/${DatasetView.SHOW_DLG_APP_DASHBOARD}`);
+              //   showDialogAppDashhboard(data["id"], showDialog, () => {
+              //     navigate(popPath(path));
+              //   })
+              // } else {
+                if (path.endsWith(DatasetView.SHOW_DLG_APP_DASHBOARD))
+                  keycloak.login();
+                else {
+                  navigate(`${path}/${DatasetView.SHOW_DLG_APP_DASHBOARD}`);
+                  keycloak.login();
+                }
+              //}
             }, "Use on Apps Dashboard")
       ]
+      if (keycloak.authenticated) {
+        entries.push(
+          getAction(data.editablePropertiesByTheUser.includes("invalidated"),
+            () => {patchDatasetCb(keycloak.token, data["id"], "invalidated", !data.invalidated)}, data.invalidated ? "Validate" : "Invalidate"),
+          getAction(data.editablePropertiesByTheUser.includes("public"),
+              () => {patchDatasetCb(keycloak.token, data["id"], "public", !data.public)}, data.public ? "Unpublish" : "Publish"),
+          getAction(data.editablePropertiesByTheUser.includes("draft"),
+                  () => {patchDatasetCb(keycloak.token, data["id"], "draft", false)}, "Release")
+        );
+      }
   //}
   if (entries.length !== 0) {
     return  <DropdownButton title="Actions">
@@ -209,7 +240,18 @@ function DatasetView(props) {
 
   useEffect(() => {
       if (props.keycloakReady) {
+        console.log(`props.showdDlgOpt ${props.showdDlgOpt}`);
         getDataset(keycloak.token, datasetId);
+        if (props.showdDlgOpt === DatasetView.SHOW_DLG_APP_DASHBOARD) {
+          if (keycloak.authenticated) {
+            console.log("show dialog " + DatasetView.SHOW_DLG_APP_DASHBOARD);
+            showDialogAppDashhboard(datasetId, props.showDialog, () => {
+              navigate(popPath(location.pathname));
+            })
+          } else {
+            keycloak.login();
+          }
+        }
       } else {
         getDataset(null, datasetId);
       }
@@ -227,6 +269,7 @@ function DatasetView(props) {
       return <div>loading...</div>
     }
   }
+
   return (
     <Fragment>
       <Breadcrumbs elems={[{text: 'Dataset information', link: "", active: true}]}/>
@@ -266,7 +309,7 @@ function DatasetView(props) {
         </Col>
         <Col md={4}>
           <div className="float-end">
-            {getActions(keycloak.token, allValues.data, patchDataset, props.showDialog)}
+            <Actions data={allValues.data} patchDatasetCb={patchDataset} showDialog={props.showDialog}/>
           </div>
         </Col>
       </Row>
@@ -312,6 +355,8 @@ function DatasetView(props) {
 DatasetView.TAB_DETAILS = "details";
 DatasetView.TAB_STUDIES = "studies";
 DatasetView.TAB_HISTORY = "history";
-DatasetView.TAB_DASHBOARD = "dashboard";
+//DatasetView.TAB_DASHBOARD = "dashboard";
+
+DatasetView.SHOW_DLG_APP_DASHBOARD = "dlg-app-dashboard"
 
 export default DatasetView;
