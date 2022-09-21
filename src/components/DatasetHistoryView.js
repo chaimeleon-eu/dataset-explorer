@@ -100,7 +100,7 @@ function DatasetHistoryView(props) {
                           //console.log(t.timestamp);
                           //d.setUTCMilliseconds(t.timestamp);
                           traces.push({blockchain: rt.blockchain, action: t.userAction, user: t.userId,
-                            created: d});
+                            created: d, details: t.details});
                       }
                     }
                     traces.sort((a,b) => b.created - a.created);
@@ -157,6 +157,10 @@ function DatasetHistoryView(props) {
             new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
               .format(row.original["created"])
             )
+      },
+      {
+        Header: 'Details',
+        accessor: 'details'
       }
     ]);
     if (data.isLoading) {
