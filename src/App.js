@@ -16,6 +16,7 @@ import DatasetDetailsView from "./components/DatasetDetailsView";
 import DatasetHistoryView from "./components/DatasetHistoryView";
 import FairView from "./components/FairView";
 import NavbarView from "./components/NavbarView";
+import Footer from "./components/Footer";
 
 var dlgDefaultValues = {
   show: false,
@@ -68,7 +69,7 @@ const App = (props) => {
         <Dialog settings={dlgState} />
         <MessageView message={message} />
         <NavbarView />
-        <Fragment>
+        <div className="flex-grow-1 align-items-stretch ms-3 me-3">
 
           <br />
           <BrowserRouter basename={Config.basename}>
@@ -101,7 +102,8 @@ const App = (props) => {
                 />
             </Routes>
           </BrowserRouter>
-        </Fragment>
+        </div>
+        <Footer />
       </Fragment>
 
   );

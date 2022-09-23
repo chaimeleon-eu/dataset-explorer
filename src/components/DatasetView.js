@@ -114,6 +114,38 @@ function getAction(condition, actionCb, txt) {
   }
 }
 
+function showDialogPublishDs(token, patchDatasetCb, showDialog,  data) {
+  if (!data["public"]) {
+    const  showZenodo = data["pids"]["preferred"] == null;
+    showDialog({
+      show: true,
+      footer: <div>
+          <Button className="m-2" onClick={e => {patchDatasetCb(token, data["id"], "public", !data.public);Dialog.HANDLE_CLOSE();}}>Publish</Button>
+          <Button className="m-2" onClick={e => Dialog.HANDLE_CLOSE()}>Cancel</Button>
+        </div>,
+      body: <div>
+          The published dataset:
+          <ul>
+            <li>will be visible and usable by registered users out of CHAIMELEON consortium</li>
+            <li>will be visible (the metadata, never the contents) by unregistered users</li>
+            {showZenodo ? <li>the metadata and a small index of studies will be deposited publicly in Zenodo.org in order to obtain a DOI*</li> : <Fragment />}
+          </ul>
+          {showZenodo ?
+              <div className="mt-4">
+                *Metadata includes the content of "Details" tab: author, creation date, contact information, license and statistical info.
+                Index of studies includes some content of "Studies" tab: study id, study name, subject name and series name.
+              </div>
+              : <Fragment/>}
+        </div>,
+      title: <div>Publish dataset <b>{data["name"]}</b> (<i>{data["id"]}</i>)</div>,
+      size: Dialog.SIZE_LG,
+      onBeforeClose: null
+    });
+  } else {
+    patchDatasetCb(token, data["id"], "public", !data.public);
+  }
+}
+
 function showDialogAppDashhboard(datasetId, showDialog, onBeforeClose) {
   showDialog({
     show: true,
@@ -157,12 +189,13 @@ function Actions({data, patchDatasetCb, showDialog}) {
               //}
             }, "Use on Apps Dashboard")
       ]
+      console.log(`data.editablePropertiesByTheUser ${data.editablePropertiesByTheUser}`);
       if (keycloak.authenticated) {
         entries.push(
           getAction(data.editablePropertiesByTheUser.includes("invalidated"),
             () => {patchDatasetCb(keycloak.token, data["id"], "invalidated", !data.invalidated)}, data.invalidated ? "Validate" : "Invalidate"),
           getAction(data.editablePropertiesByTheUser.includes("public"),
-              () => {patchDatasetCb(keycloak.token, data["id"], "public", !data.public)}, data.public ? "Unpublish" : "Publish"),
+              () => showDialogPublishDs(keycloak.token, patchDatasetCb, showDialog,  data), data.public ? "Unpublish" : "Publish"),
           getAction(data.editablePropertiesByTheUser.includes("draft"),
                   () => {patchDatasetCb(keycloak.token, data["id"], "draft", false)}, "Release")
         );
