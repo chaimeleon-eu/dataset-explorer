@@ -1,7 +1,5 @@
 const fs = require('fs');
 var pjson = require('./package.json');
-const MODE_DEV = 'dev';
-const MODE_PROD = 'prod';
 
 if (process.argv.length != 3) {
   console.error("This script requires an argument, either dev (for development execution) or prod (for production release)");
@@ -9,24 +7,20 @@ if (process.argv.length != 3) {
 }
 
 const modeS = process.argv[2];
-let mode = null;
+console.log("Configuring app for mode: " + modeS);
+const conf = `config-${modeS.toLowerCase()}.json`;
+if (!fs.existsSync(conf)) {
+  throw `Conf file  ${conf} not  found`;
+}
 
-if (modeS.toUpperCase() === 'DEV') {
-  mode = MODE_DEV;
-  console.log("Configuring app for mode: " + mode);
-  copyConfig(process.cwd() + '/config-dev.json');
-} else if (modeS.toUpperCase() === 'PROD') {
-  mode = MODE_PROD;
-  console.log("Configuring app for mode: " + mode);
-  const path = copyConfig('config-prod.json');
+const path = copyConfig(conf);
+if (modeS.toUpperCase() === 'PROD' || modeS.toUpperCase() === 'PROD-TEST') {
   let rawdata = fs.readFileSync(path);
-  let conf = JSON.parse(rawdata);
-  conf.appVersion = pjson.version;
-  console.log(conf);
-  fs.writeFileSync(path, JSON.stringify(conf));
+  let confD = JSON.parse(rawdata);
+  confD.appVersion = pjson.version;
+  console.log(confD);
+  fs.writeFileSync(path, JSON.stringify(confD));
 
-} else {
-  console.error("Mode " + modeS + " not supported. Use either dev (for development execution) or prod (for production release)")
 }
 
 function copyConfig(source) {

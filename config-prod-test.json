@@ -1,0 +1,18 @@
+{
+  "appVersion": "<replace_me>",
+  "datasetService": "https://chaimeleon-test.grycap.i3m.upv.es/dataset-service/api",
+  "tracerService": "https://chaimeleon-test.grycap.i3m.upv.es/tracer-service/tracer/api/v1",
+  "basename": "/dataset-service",
+  "defaultLimitDatasets": 30,
+  "defaultLimitStudies": 30,
+  "kubeAppsUrl": "https://chaimeleon-test.grycap.i3m.upv.es/apps/",
+  "keycloak": {
+    "url": "https://chaimeleon-test.grycap.i3m.upv.es/auth/",
+    "realm": "CHAIMELEON",
+    "responseMode": "query",
+    "checkLoginIframe": false,
+    "clientId": "dataset-explorer",
+    "onLoad": "check-sso",
+    "redirectUri": "https://chaimeleon-test.grycap.i3m.upv.es/dataset-service"
+  }
+}

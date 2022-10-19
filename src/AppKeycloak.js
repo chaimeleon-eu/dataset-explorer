@@ -38,7 +38,7 @@ function AppKeycloak() {
           onEvent={eventLogger}
           onTokens={tokenLogger}
           // initOptions={{
-          //           onLoad: "login-required",
+          //           adapter: "default",
           //       }}
           //      LoadingComponent={<Loading />}
           >

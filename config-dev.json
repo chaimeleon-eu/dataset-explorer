@@ -11,7 +11,7 @@
     "responseMode": "fragment",
     "checkLoginIframe": false,
     "realm": "CHAIMELEON",
-    "clientId": "dataset-service-ui",
+    "clientId": "dataset-explorer",
     "onLoad": "login-required",
     "redirectUri": "http://asaserver.i3m.upv.es:3005/"
   }
