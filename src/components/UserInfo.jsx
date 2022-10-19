@@ -2,6 +2,9 @@ import { useState, useCallback, Fragment } from "react";
 import { Button, Dropdown, DropdownButton } from "react-bootstrap";
 import { useKeycloak } from '@react-keycloak/web';
 
+
+import Config from "../config.json";
+
 function UserInfo(props) {
   let {keycloak} = useKeycloak();
 
@@ -26,7 +29,27 @@ function UserInfo(props) {
       <Dropdown.Item
         href="#"
         onClick={() => {
-          keycloak.logout();
+             // workaround for changes with oidc logout in Keycloak 18.0.0
+        // See https://www.keycloak.org/docs/latest/upgrading/index.html#openid-connect-logout
+      //   console.log(`old logout url: ${keycloak.createLogoutUrl()}` );
+      //   keycloak.createLogoutUrl = function(options) 
+      //   {
+      //     let url = keycloak.endpoints.logout()
+      //     + '?client_id=' + encodeURIComponent(keycloak.clientId)
+      //     + '&post_logout_redirect_uri=' + encodeURIComponent(window.location.protocol + "//" + window.location.host + "/" + Config.basename);
+
+      //     if (keycloak.idToken) {
+      //         url += '&id_token_hint=' + encodeURIComponent(keycloak.idToken);
+      //     }
+
+      //     return url;
+      //   }
+       const url = window.location.protocol + "//" + window.location.host + Config.basename;
+       //console.log("Logout redir url: " + url);
+      // console.log(keycloak);
+          keycloak.logout({
+            redirectUri: url
+          });
         }}
       >
         Log Out
