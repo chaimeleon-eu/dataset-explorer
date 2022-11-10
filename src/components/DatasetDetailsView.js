@@ -8,6 +8,7 @@ import { EnvelopeFill, ClipboardPlus } from 'react-bootstrap-icons';
 import StaticValues from "../api/StaticValues.js";
 import Message from "../model/Message.js";
 import DatasetFieldEdit from "./DatasetFieldEdit";
+import DatasetDetailsBox from "./DatasetDetailsBox";
 
 
 function DatasetDetailsView(props) {
@@ -33,43 +34,69 @@ function DatasetDetailsView(props) {
 
   return(
     <Container fluid>
+
       <Row>
-        <Col>
-          <ListGroup>
-            {keycloak.authenticated ? (
-              <ListGroup.Item><b>Author: </b>
-                {datasetDetails.data.authorName}
-                <a className="ms-1" href={"mailto:" + datasetDetails.data.authorEmail }>
-                  <EnvelopeFill />
-                </a>
-              </ListGroup.Item>
-            ) : (<Fragment />)}
-            <ListGroup.Item>
-              <b>PID URL: </b><a href={pidUrl}>{pidUrl}</a>
-              { datasetDetails.data.editablePropertiesByTheUser.includes("pids") ?
-                  <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="pids" fieldDisplay="Permanent ID (PID) URL"
-                    oldValue={pids} patchDataset={props.patchDataset}/>
-                  : <Fragment />
+        <Col md={8}>
+          <p>
+            <b className="h5">Description:</b>
+            {
+              datasetDetails.data.editablePropertiesByTheUser.includes("description")
+              ? <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="description" fieldDisplay="Dataset description"
+                  oldValue={datasetDetails.data.description} patchDataset={props.patchDataset}/>
+              : <Fragment />
+            }
+            <br></br>
+            <span className="ms-4" dangerouslySetInnerHTML={{ __html: datasetDetails.data.description }}></span>
+            
+          </p>
+
+          <p>
+          <b className="h5">Contact Information: </b>
+                { datasetDetails.data.editablePropertiesByTheUser.includes("contactInfo") ?
+                      <DatasetFieldEdit  datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="contactInfo" fieldDisplay="Contact information" oldValue={datasetDetails.data.contactInfo} patchDataset={props.patchDataset} />
+                    : <Fragment /> }
+          <br></br>
+            <span className="ms-4">{datasetDetails.data.contactInfo}</span>
+          </p>
+          <div className="pt-2 pb-2 ps-1 pe-1 bg-light bg-gradient">
+            <p>
+            { pidUrl.length > 0 ?
+              <Fragment><i>Cite this dataset as </i><b><a href={pidUrl}>{pidUrl}</a></b></Fragment> : 
+                (datasetDetails.data.editablePropertiesByTheUser.includes("pids") ? <i>Add a PID URL to allow citations </i> : <Fragment/> ) }
+
+            { datasetDetails.data.editablePropertiesByTheUser.includes("pids") ?
+                      <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="pids" 
+                          fieldDisplay="Permanent ID (PID) URL"
+                        oldValue={pids} patchDataset={props.patchDataset}/>
+                      : <Fragment/>
+            }            
+            </p>
+            <p>
+              {
+                datasetDetails.data.license.title === null || datasetDetails.data.license.title.length === 0
+                  || datasetDetails.data.license.url === null || datasetDetails.data.license.url.length === 0 ?
+                  (
+                    datasetDetails.data.editablePropertiesByTheUser.includes("license")  ?
+                      <i>Add a license </i> : <i>The dataset license has yet to be set.</i>
+                  )
+                  : 
+                  <Fragment>
+                    <i>This dataset is offered under the following license: </i>
+                    <b><a href={datasetDetails.data.license.url}>{datasetDetails.data.license.title}</a></b>
+                  </Fragment>
               }
-            </ListGroup.Item>
-            <ListGroup.Item><b>Contact Information: </b>{datasetDetails.data.contactInfo}
-              { datasetDetails.data.editablePropertiesByTheUser.includes("contactInfo") ?
-                    <DatasetFieldEdit  datasetId={datasetDetails.data.id} showDialog={props.showDialog} field="contactInfo" fieldDisplay="Contact information" oldValue={datasetDetails.data.contactInfo} patchDataset={props.patchDataset} />
-                  : <Fragment /> }
-            </ListGroup.Item>
-            <ListGroup.Item><b>License: </b><a href={datasetDetails.data.license.url}>{datasetDetails.data.license.title}</a>
-              { datasetDetails.data.editablePropertiesByTheUser.includes("license") || datasetDetails.data.editablePropertiesByTheUser.includes("licenseUrl") ?
-                    <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} field={datasetDetails.data.editablePropertiesByTheUser.includes("license") ? "license" : "licenseUrl"} fieldDisplay="Dataset license" oldValue={datasetDetails.data.license}
-                      patchDataset={props.patchDataset} />
-                  : <Fragment /> }
-            </ListGroup.Item>
-            <ListGroup.Item><b>Studies count: </b>{datasetDetails.data.studiesCount}</ListGroup.Item>
-            <ListGroup.Item><b>Subjects count: </b>{datasetDetails.data.subjectsCount}</ListGroup.Item>
-            <ListGroup.Item><b>Age range: </b>{ageLstItem}</ListGroup.Item>
-            <ListGroup.Item><b>Sex: </b>{datasetDetails.data.sex !== null ? datasetDetails.data.sex.join(", ") : "-"}</ListGroup.Item>
-            <ListGroup.Item><b>Modality: </b>{datasetDetails.data.modality !== null ? datasetDetails.data.modality.join(", ") : "-"}</ListGroup.Item>
-            <ListGroup.Item><b>Body part(s): </b>{datasetDetails.data.bodyPart !== null ? datasetDetails.data.bodyPart.join(", ") : "-"}</ListGroup.Item>
-          </ListGroup>
+              
+              { datasetDetails.data.editablePropertiesByTheUser.includes("license")  ?
+                          <DatasetFieldEdit datasetId={datasetDetails.data.id} showDialog={props.showDialog} 
+                              field={datasetDetails.data.editablePropertiesByTheUser.includes("license") ? "license" : "licenseUrl"} 
+                              fieldDisplay="Dataset license" oldValue={datasetDetails.data.license}
+                            patchDataset={props.patchDataset} />
+                        : <Fragment /> }
+            </p>
+          </div>
+        </Col>
+        <Col md={4}>
+          <DatasetDetailsBox datasetDetails={datasetDetails} />
         </Col>
       </Row>
     </Container>

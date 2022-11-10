@@ -1,4 +1,4 @@
-import {Tabs, Tab, Button, Row, Col, Container, Badge, DropdownButton, Dropdown } from "react-bootstrap";
+import {Tabs, Tab, Button, Row, Col, Container, Badge, DropdownButton, Dropdown, Nav } from "react-bootstrap";
 import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, Fragment }from "react";
 import { useKeycloak } from '@react-keycloak/web';
@@ -307,8 +307,8 @@ function DatasetView(props) {
     <Fragment>
       <Breadcrumbs elems={[{text: 'Dataset information', link: "", active: true}]}/>
       <Row className="mb-4 mt-4">
-        <Col md={8}>
-          <h3 className="container-fluid">
+        <Col md={11}>
+          <span className="h3">
               <b className="me-1">{allValues.data.name}
               {
                 allValues.data.editablePropertiesByTheUser.includes("draft")
@@ -316,70 +316,76 @@ function DatasetView(props) {
                 : <Fragment />
               }
               </b>
-              (
-                <i>{allValues.data.id}</i>
-                <Button variant="link" className="m-0 ms-1 p-0" onClick={() =>
-                    {navigator.clipboard.writeText(allValues.data.id).then(function() {
-                      console.log('Async: Copying to clipboard was successful!');
-                    }, function(err) {
-                      console.error('Async: Could not copy text: ', err);
-                    });}} >
-                  <ClipboardPlus />
-                </Button>
-              )
-          </h3>
-          <h3 className="container-fluid mb-0 ms-2" style={{fontSize: "1rem"}}>
-            <i>Created on {new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
-                .format(Date.parse(allValues.data.creationDate))}
-            </i>
-            <span  className="container-fluid mb-0 ms-2" style={{fontSize: "1rem"}}>
+          </span>
+            <sup  className="container-fluid ms-0" style={{fontSize: "0.9rem"}}>
               {( allValues.data.invalidated ? <Badge className="me-2" bg="secondary">Invalidated</Badge>: <Fragment /> )}
               {( allValues.data.public ? <Badge bg="dark">Published</Badge> : <Fragment /> )}
               {( allValues.data.draft ? <Badge bg="light" text="dark">Draft</Badge> : <Fragment /> )}
-            </span>
-          </h3>
+            </sup>
+            <div>
+              <i>Created on </i> 
+                {new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
+                    .format(Date.parse(allValues.data.creationDate))}
+                {keycloak.authenticated ? (
+                <Fragment>
+                  <i> by </i>
+                    {allValues.data.authorName}
+                    <a className="ms-1" title="Send an email to the dataset author" href={"mailto:" + allValues.data.authorEmail }>
+                      <EnvelopeFill />
+                    </a>
+                    </Fragment>
+                ) : (<Fragment />)}
+              </div>
 
         </Col>
-        <Col md={4}>
+        <Col md={1}>
           <div className="float-end">
             <Actions data={allValues.data} patchDatasetCb={patchDataset} showDialog={props.showDialog}/>
           </div>
         </Col>
       </Row>
-      <Container fluid>
-        <b>Description:</b> <span dangerouslySetInnerHTML={{ __html: allValues.data.description }}></span>
-        {
-          allValues.data.editablePropertiesByTheUser.includes("description")
-          ? <DatasetFieldEdit datasetId={datasetId} showDialog={props.showDialog} field="description" fieldDisplay="Dataset description"
-              oldValue={allValues.data.description} patchDataset={patchDataset}/>
-          : <Fragment />
-        }
-      </Container>
       <Container fluid className="w-100 h-75">
-        <Tabs defaultActiveKey="details" activeKey={props.activeTab} onSelect={(k) => navigate(`/datasets/${datasetId}/${k}`)}>
-          <Tab eventKey="details" title="Details">
-            <DatasetDetailsView patchDataset={patchDataset} showDialog={props.showDialog} 
-              allValues={allValues} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
-          </Tab>
 
-          {keycloak.authenticated ?
-            [
-                (<Tab eventKey="studies" title="Studies" key="studies">
-                  <DatasetStudiesView datasetId={datasetId} studiesCount={allValues.data === null ? 0 : allValues.data.studiesCount} keycloakReady={props.keycloakReady}
-                    postMessage={props.postMessage} dataManager={props.dataManager}/>
-                </Tab>),
-                (<Tab eventKey="history" title="History" key="history">
+        <Tab.Container defaultActiveKey="details" activeKey={props.activeTab} onSelect={(k) => navigate(`/datasets/${datasetId}/${k}`)}>
+          <Row>
+            <Col sm={2}>
+              <Nav variant="pills" className="flex-column mb-5">
+                <Nav.Item>
+                  <Nav.Link eventKey="details">Details</Nav.Link>
+                </Nav.Item>
+                {keycloak.authenticated ?
+                  [
+                      (<Nav.Item>
+                        <Nav.Link eventKey="studies" key="studies">Studies</Nav.Link>
+                      </Nav.Item>),
+                      (<Nav.Item>
+                        <Nav.Link eventKey="history">History</Nav.Link>
+                      </Nav.Item>)
+                  ] : (<Fragment />)}
+              </Nav>
+
+            </Col>
+            <Col sm={10}>
+              <Tab.Content>
+                <Tab.Pane eventKey="details">
+                  <DatasetDetailsView patchDataset={patchDataset} showDialog={props.showDialog} 
+                    allValues={allValues} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
+                </Tab.Pane>
+
+                {keycloak.authenticated ?
+                  [
+                    (<Tab.Pane eventKey="studies">
+                      <DatasetStudiesView datasetId={datasetId} studiesCount={allValues.data === null ? 0 : allValues.data.studiesCount} keycloakReady={props.keycloakReady}
+                        postMessage={props.postMessage} dataManager={props.dataManager}/>
+                    </Tab.Pane>),
+                    (<Tab.Pane eventKey="history">
                       <DatasetHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
-                </Tab>)
-                /*,
-                (<Tab eventKey="dashboard" title="Dashboard"  key="dashboard">
-                  <div className="w-100 h-100" style={{ height: "50vh" }}>
-                  <iframe onLoad={(e) => onLoadAppsDashboard(e.target, datasetId)} src={Config.kubeAppsUrl} style={{ width: "100%", height: "50vh" }}/>
-                  </div>
-                </Tab>)
-                */
-            ] : (<Fragment />)}
-        </Tabs>
+                    </Tab.Pane>)
+                  ] : (<Fragment />)}
+              </Tab.Content>
+            </Col>
+          </Row>
+        </Tab.Container>
       </Container>
     </Fragment>
   );
