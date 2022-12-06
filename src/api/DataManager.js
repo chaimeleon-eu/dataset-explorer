@@ -14,8 +14,8 @@ export default class DataManager {
     return WebClient.patchDataset(token, dsId, property, value);
   }
 
-  getTracesDataset(token, datasetId) {
-    return WebClient.getTracesDataset(token, datasetId);
+  getTracesDataset(token, datasetId, skip,  limit) {
+    return WebClient.getTracesDataset(token, datasetId, skip,  limit);
   }
 
   getTracesActions() {

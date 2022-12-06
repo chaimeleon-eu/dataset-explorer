@@ -5,6 +5,7 @@
   "basename": "/dataset-service",
   "defaultLimitDatasets": 30,
   "defaultLimitStudies": 30,
+  "defaultLimitTraces": 15,
   "kubeAppsUrl": "https://chaimeleon-eu.i3m.upv.es/apps/",
   "keycloak": {
     "url": "https://chaimeleon-eu.i3m.upv.es/auth/",

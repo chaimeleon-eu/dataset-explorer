@@ -134,7 +134,7 @@ function DatasetStudiesView(props) {
   }, [props.keycloakReady, skip, limit, props.studiesCount]);
   const lastPage = Number(props.studiesCount) % Number(limit) === 0 ? 0 : 1;
   let numPages = Math.floor(Number(props.studiesCount) / Number(limit)) + lastPage;
-  if (numPages == 0)
+  if (numPages === 0)
     numPages = 1;
 
   const page = Number(skip) / Number(limit) + 1;
@@ -180,9 +180,9 @@ function DatasetStudiesView(props) {
           </Col>
       </Row>
       <div className="w-100" >
-        <Button className="position-relative me-4" disabled={page == 1 ? true : false}
+        <Button className="position-relative me-4" disabled={page === 1 ? true : false}
           onClick={(e) => setSkip(skip - limit)}>Previous</Button>
-        <Button className="position-relative me-4"  disabled={page == numPages ? true : false}
+        <Button className="position-relative me-4"  disabled={page === numPages ? true : false}
           onClick={(e) => setSkip(skip + limit)}>Next</Button>
         <span>Page <b>{page}</b> of <b>{numPages}</b></span>
       </div>

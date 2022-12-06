@@ -19,6 +19,7 @@ function NavbarView(props) {
             <Nav.Link href={Config.basename + "/datasets"}>Datasets</Nav.Link>
             <Nav.Link href={Config.basename + "/fair"}>Fair Principles</Nav.Link>
             <Nav.Link href="https://github.com/chaimeleon-eu/dataset-service#api-usage">API Specs</Nav.Link>
+            <Nav.Link href={Config.basename + "/support"}>Support</Nav.Link>
           </Nav>
         </Navbar.Collapse>
         <Dropdown title="Launch CHAIMELEON Applications" className="float-end me-1" drop="start" >
