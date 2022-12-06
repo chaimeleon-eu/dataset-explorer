@@ -15,6 +15,7 @@ import DatasetView from "./components/DatasetView";
 import DatasetDetailsView from "./components/DatasetDetailsView";
 import DatasetHistoryView from "./components/DatasetHistoryView";
 import FairView from "./components/FairView";
+import SupportView from "./components/SupportView";
 import NavbarView from "./components/NavbarView";
 import Footer from "./components/Footer";
 
@@ -76,6 +77,7 @@ const App = (props) => {
             <Routes>
               <Route exact path="/" element={<Navigate to="/datasets" replace />} />
               <Route exact path="/fair" element={<FairView />} />
+              <Route exact path="/support" element={<SupportView />} />
               <Route path="/datasets" element={<DatasetsView keycloakReady={props.keycloakReady} 
                   urlChangedUpdKeycloak={props.urlChangedUpdKeycloakUri}
                   dataManager={dataManager} postMessage={postMessage} />} />
