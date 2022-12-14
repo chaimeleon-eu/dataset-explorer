@@ -60,7 +60,7 @@ function TableComponent({ columns, data,
 }
 
 function generateSeriesCellView(series, seriesLimit) {
-  return series.slice(0, seriesLimit).join(", ");
+  return series.map(s => s["folderName"]).slice(0, seriesLimit).join(", ");
 }
 
 function generateSeriesCell(series, seriesLimit, onclickCb) {
