@@ -11,6 +11,7 @@ import DatasetFieldEdit from "./DatasetFieldEdit";
 
 
 function DatasetDetailsBox(props) {
+    //const [bgCopyId]
     const datasetDetails = props.datasetDetails;
     let { keycloak } = useKeycloak();
     let ageLstItem = <span>-</span>;
@@ -32,26 +33,27 @@ function DatasetDetailsBox(props) {
     }
   
     return(
-      <Container fluid>
-        <p>
-              <b>ID: </b>
-              {datasetDetails.data.id}
-              <Button variant="link" className="m-0 p-0 ms-1" onClick={() =>
-                  {navigator.clipboard.writeText(datasetDetails.data.id).then(function() {
-                    console.log('Async: Copying to clipboard was successful!');
-                  }, function(err) {
-                    console.error('Async: Could not copy text: ', err);
-                  });}} >
-                <ClipboardPlus />
-              </Button>
-              </p>
-              <p><b>Studies/Subjects count: </b>{datasetDetails.data.studiesCount}/{datasetDetails.data.subjectsCount}</p>
-              <p><b>Age range: </b>{ageLstItem}</p>
-              <p><b>Sex: </b>{datasetDetails.data.sex !== null ? datasetDetails.data.sex.join(", ") : "-"}</p>
-              <p><b>Modality: </b>{datasetDetails.data.modality !== null ? datasetDetails.data.modality.join(", ") : "-"}</p>
-              <p><b>Body part(s): </b>{datasetDetails.data.bodyPart !== null ? datasetDetails.data.bodyPart.join(", ") : "-"}
-              </p>
-        </Container>
+      <Container fluid className="pt-3 pb-1 bg-secondary bg-gradient text-white">
+        <p><b>ID: </b>{datasetDetails.data.id}
+              {
+              //   <Button variant="link" className="m-0 p-0 ps-1 pe-1 ms-1 bg-warning" onClick={(e) =>
+              //     {navigator.clipboard.writeText(datasetDetails.data.id).then(function() {
+              //       console.log('Async: Copying to clipboard was successful!');
+              //     }, function(err) {
+              //       console.error('Async: Could not copy text: ', err);
+              //     });}} >
+              //   <ClipboardPlus />
+              // </Button>
+}
+        </p>
+        <p><b>Studies/Subjects count: </b>{datasetDetails.data.studiesCount}/{datasetDetails.data.subjectsCount}</p>
+        <p><b>Age range: </b>{ageLstItem}</p>
+        <p><b>Sex: </b>{datasetDetails.data.sex !== null && datasetDetails.data.sex !== undefined ? datasetDetails.data.sex.join(", ") : "-"}</p>
+        <p><b>Modality: </b>{datasetDetails.data.modality !== null && datasetDetails.data.modality !== undefined && datasetDetails.data.modality.length > 0  ? datasetDetails.data.modality.join(", ") : "-"}</p>
+        <p><b>Body part(s): </b>{datasetDetails.data.bodyPart !== null && datasetDetails.data.bodyPart !== undefined && datasetDetails.data.bodyPart.length > 0  ? datasetDetails.data.bodyPart.join(", ") : "-"}</p>
+        <p><b>Series tags: </b>{datasetDetails.data.seriesTags !== null && datasetDetails.data.seriesTags !== undefined && datasetDetails.data.seriesTags.length > 0 ? 
+          datasetDetails.data.seriesTags.map(t => <Badge pill bg="light" text="dark" className="ms-1 me-1">{t}</Badge>) : "-"}</p>
+      </Container>
     );
 }
 

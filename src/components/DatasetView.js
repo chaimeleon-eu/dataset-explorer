@@ -318,9 +318,9 @@ function DatasetView(props) {
               </b>
           </span>
             <sup  className="container-fluid ms-0" style={{fontSize: "0.9rem"}}>
-              {( allValues.data.invalidated ? <Badge className="me-2" bg="secondary">Invalidated</Badge>: <Fragment /> )}
-              {( allValues.data.public ? <Badge bg="dark">Published</Badge> : <Fragment /> )}
-              {( allValues.data.draft ? <Badge bg="light" text="dark">Draft</Badge> : <Fragment /> )}
+              {( allValues.data.invalidated ? <Badge pill className="me-2" bg="secondary">Invalidated</Badge>: <Fragment /> )}
+              {( allValues.data.public ? <Badge pill bg="dark">Published</Badge> : <Fragment /> )}
+              {( allValues.data.draft ? <Badge pill bg="light" text="dark">Draft</Badge> : <Fragment /> )}
             </sup>
             <div>
               <i>Created on </i> 
