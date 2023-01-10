@@ -95,43 +95,45 @@ function DatasetStudiesView(props) {
          return { ...prevValues, isLoading: true, isLoaded: false, error: null,
            data: [], status: -1 }
       });
-      props.dataManager.getDataset(keycloak.token, props.datasetId, skip, limit)
-        .then(
-          (xhr) => {
-            let studies = JSON.parse(xhr.response).studies;
-            for (let study of studies) {
-                study.visibleSeriesLimit = STUDY_VISIBLE_SERIES;
-            }
-            setData( prevValues => {
-               return { ...prevValues, isLoading: false, isLoaded: true, error: null,
-                 data: JSON.parse(xhr.response).studies, status: xhr.status }
-            });
-          },
-          (xhr) => {
-            //setIsLoaded(true);
-            let title = null;
-            let text = null;
-            if (!xhr.responseText) {
-              if (xhr.statusText !== undefined && xhr.statusText !== null) {
-                  title = xhr.statusText;
-                  text = "Error loading data from " + xhr.responseURL;
-              } else {
-                title = Message.UNK_ERROR_TITLE;
-                text =  "Error loading data from " + xhr.responseURL;
+      if (props.keycloakReady && keycloak.authenticated) {
+        props.dataManager.getDataset(keycloak.token, props.datasetId, skip, limit)
+          .then(
+            (xhr) => {
+              let studies = JSON.parse(xhr.response).studies;
+              for (let study of studies) {
+                  study.visibleSeriesLimit = STUDY_VISIBLE_SERIES;
               }
-            } else {
-              const err = JSON.parse(xhr.response);
-                title = err.title;
-                text = err.message;
-            }
-            setData( prevValues => {
-               return { ...prevValues, isLoading: false, isLoaded: true, error: text,
-                 data: [], status: xhr.status }
+              setData( prevValues => {
+                return { ...prevValues, isLoading: false, isLoaded: true, error: null,
+                  data: JSON.parse(xhr.response).studies, status: xhr.status }
+              });
+            },
+            (xhr) => {
+              //setIsLoaded(true);
+              let title = null;
+              let text = null;
+              if (!xhr.responseText) {
+                if (xhr.statusText !== undefined && xhr.statusText !== null) {
+                    title = xhr.statusText;
+                    text = "Error loading data from " + xhr.responseURL;
+                } else {
+                  title = Message.UNK_ERROR_TITLE;
+                  text =  "Error loading data from " + xhr.responseURL;
+                }
+              } else {
+                const err = JSON.parse(xhr.response);
+                  title = err.title;
+                  text = err.message;
+              }
+              setData( prevValues => {
+                return { ...prevValues, isLoading: false, isLoaded: true, error: text,
+                  data: [], status: xhr.status }
+              });
+              props.postMessage(new Message(Message.ERROR, title, text));
             });
-            props.postMessage(new Message(Message.ERROR, title, text));
-          });
+        }
       }
-  }, [props.keycloakReady, skip, limit, props.studiesCount]);
+  }, [props.keycloakReady, keycloak.authenticated, skip, limit, props.studiesCount]);
   const lastPage = Number(props.studiesCount) % Number(limit) === 0 ? 0 : 1;
   let numPages = Math.floor(Number(props.studiesCount) / Number(limit)) + lastPage;
   if (numPages === 0)

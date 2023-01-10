@@ -17,8 +17,6 @@ import Config from "../config.json";
 import Dialog from "./Dialog";
 
 function onLoadAppsDashboard(iframeDom, datasetId) {
-  console.log(iframeDom);
-
   // Create an observer instance linked to the callback function
   const config = { attributes: true, childList: true, subtree: true };
   const targetNode = iframeDom.contentWindow.document.body;
@@ -27,57 +25,23 @@ function onLoadAppsDashboard(iframeDom, datasetId) {
     observer.disconnect();
     let inp = iframeDom.contentWindow.document.body.querySelector("#datasets_list-1");
     if (inp !== null) {
-      //setTimeout(() =>{
         // React swallows the event, and overides the setter, we have to use the native
         let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
         nativeInputValueSetter.call(inp, datasetId);
-        /*
-        triggerFocus(inp);
-        inp.value = datasetId;
-        inp.defaultValue = datasetId;
-        let event = new Event('input', {
-            bubbles: true
-        });
-        inp.dispatchEvent(event);
-        inp.value = datasetId;
-        inp.defaultValue = datasetId;
-        */
-        //inp.oninput();
         let event = new Event('change', {
             bubbles: true
         });
         inp.dispatchEvent(event);
-        //inp.onchange();
-      //     event = new KeyboardEvent('keydown', { bubbles: true, key: 'c' });
-        //  inp.dispatchEvent(event);
-      //}, 5000)
-
-      // let id = "";
-      // for (const c of datasetId) {
-      //   let evt = new KeyboardEvent('keydown', { key: c });
-      //   inp.dispatchEvent(evt);
-      //   id += c;
-      //   inp.value = datasetId;
-      // }
-
-      //let evt = new KeyboardEvent('keydown', { key: '0' });
-      //inp.dispatchEvent(evt);
     }
-    /*
-    let ymlLns = iframeDom.contentWindow.document.body.querySelectorAll("span.ace_meta");
-    for (const spn of ymlLns) {
-      //console.log(ymlLns);
-      if (spn.innerText === "datasets_list") {
-        //console.log(spn.parentNode)
-        let txtDom  = spn.parentNode.querySelector("span.ace_string");
-        if (txtDom !== null) {
-          txtDom.innerText = "\"" + datasetId + "\"";
-        } else {
-          spn.parentNode.insertAdjacentHTML("beforeend", `<span class="ace_string">"${datasetId}"</span>`);
-        }
+    // Set all links in the Installation Notes section to be openable in a new tab
+    const appnotes = iframeDom.contentWindow.document.body.querySelector(".application-notes");
+    if (appnotes !== null) {
+      const links = appnotes.querySelectorAll("a");
+      console.log(links);
+      for (let a of links) {
+        a.target = "_blank";
       }
     }
-    */
     observer.observe(targetNode, config);
   }
   const observer = new MutationObserver(cb);
