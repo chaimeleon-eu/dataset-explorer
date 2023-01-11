@@ -27,4 +27,35 @@ export default class Util {
     }
     return { title, text };
   }
+
+
+  static parseK8sNames(uNameKeycloak, truncate) {
+    let uNameKube = uNameKeycloak.toLowerCase()
+      .replaceAll("_","--").replaceAll("@","-at-")
+      .replaceAll(".","-dot-").replaceAll('"', '' )
+      .replaceAll('\\', '' ).replaceAll('..', '')
+      .replaceAll('%', '-perc-').replaceAll(" ","");
+    if (truncate) {
+      let start = 0
+      let end = uNameKube.length - 1
+      while (!uNameKube.charAt(start).match(/^[0-9a-z]+$/) && start < end) {
+          start += 1 ;
+      }
+      while (!uNameKube.charAt(end).match(/^[0-9a-z]+$/) && end > start) {
+          end -= 1;
+      }
+      if (start === end) {
+          console.error(`parse_k8s_names -> Cannot convert ${uNameKube} to a valid name to k8s`);
+          uNameKube = null;
+      } else {  
+        uNameKube = uNameKube.substring(start, end + 1);
+      }
+    }
+  
+    if (uNameKube.length >= 63) {
+      uNameKube = uNameKube.substring(0, 63);
+    }
+    return uNameKube;
+  
+  }
 }
