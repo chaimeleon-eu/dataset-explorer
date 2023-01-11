@@ -5,13 +5,14 @@
   "basename": "/dataset-service",
   "defaultLimitDatasets": 30,
   "defaultLimitStudies": 30,
-  "kubeAppsUrl": "https://chaimeleon-test.grycap.i3m.upv.es/apps/",
+  "defaultLimitTraces": 15,
+  "kubeAppsUrl": "https://chaimeleon-eu.i3m.upv.es/apps/",
   "keycloak": {
-    "url": "https://chaimeleon-test.grycap.i3m.upv.es/auth/",
+    "url": "https://chaimeleon-eu.i3m.upv.es/auth/",
     "realm": "CHAIMELEON",
     "responseMode": "query",
     "checkLoginIframe": false,
-    "clientId": "dataset-explorer",
+    "clientId": "dataset-explorer-test",
     "onLoad": "check-sso",
     "redirectUri": "https://chaimeleon-test.grycap.i3m.upv.es/dataset-service"
   }

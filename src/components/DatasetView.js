@@ -16,13 +16,40 @@ import Util from "../Util";
 import Config from "../config.json";
 import Dialog from "./Dialog";
 
-function onLoadAppsDashboard(iframeDom, datasetId) {
+
+
+function onLoadAppsDashboard(iframeDom, datasetId, uNameKeycloak) {
   // Create an observer instance linked to the callback function
   const config = { attributes: true, childList: true, subtree: true };
   const targetNode = iframeDom.contentWindow.document.body;
+  let uNameKube = null;
+  if (uNameKeycloak !== null && uNameKeycloak !== undefined) {
+    uNameKube = Util.parseK8sNames(uNameKeycloak, true);
+  }
+  console.log(uNameKube);
   const cb = (mutationsList, observer) => {
     //console.log("change inside iframe");
     observer.disconnect();
+    // const cContext = iframeDom.contentWindow.document.body.querySelector("div.kubeapps-dropdown-section > span.kubeapps-dropdown-header");
+    // if (cContext !== null) {
+    //   console.log(cContext);
+    //   cContext.dispatchEvent( new Event('click',{
+    //     bubbles: true
+    //   }) );
+    //   if (uNameKube !== null) {
+    //     const selectNamespace = iframeDom.contentWindow.document.body.querySelector(".application-notes");
+    //     if (selectNamespace !== null) {
+    //       console.log(selectNamespace);
+    //       selectNamespace.value = uNameKube;
+    //       // const opts = selectNamespace.querySelectorAll("a");
+    //       // for (const o of opts) {
+    //       //   if (o.value === uNameKube) {
+    //       //     selectNamespace.value = 
+    //       //   }
+    //       // }
+    //     }
+    //   }
+    // }
     let inp = iframeDom.contentWindow.document.body.querySelector("#datasets_list-1");
     if (inp !== null) {
         // React swallows the event, and overides the setter, we have to use the native
@@ -42,6 +69,7 @@ function onLoadAppsDashboard(iframeDom, datasetId) {
         a.target = "_blank";
       }
     }
+
     observer.observe(targetNode, config);
   }
   const observer = new MutationObserver(cb);
@@ -110,11 +138,11 @@ function showDialogPublishDs(token, patchDatasetCb, showDialog,  data) {
   }
 }
 
-function showDialogAppDashhboard(datasetId, showDialog, onBeforeClose) {
+function showDialogAppDashhboard(datasetId, showDialog, onBeforeClose, uNameKeycloak) {
   showDialog({
     show: true,
     footer: <Fragment />,
-    body: <iframe onLoad={(e) => onLoadAppsDashboard(e.target, datasetId)} src={Config.kubeAppsUrl} style={{ width: "100%", height: "100%" }}/>,
+    body: <iframe onLoad={(e) => onLoadAppsDashboard(e.target, datasetId, uNameKeycloak)} src={Config.kubeAppsUrl} style={{ width: "100%", height: "100%" }}/>,
     title: <span>Apps Dashboard for dataset <b>{datasetId}</b></span>,
     size: Dialog.SIZE_XXL,
     onBeforeClose: () => onBeforeClose()
@@ -209,10 +237,14 @@ function DatasetView(props) {
         },
         (xhr) => {
           const error = Util.getErrFromXhr(xhr);
-          props.postMessage(new Message(Message.ERROR, error.title, error.text));
-            setAllValues( prevValues => {
-               return { ...prevValues, data: null, isLoading: false, isLoaded: true, error: error, status: xhr.status}
-            });
+          if (xhr.status === 401) {
+            keycloak.login();
+          } else {
+            props.postMessage(new Message(Message.ERROR, error.title, error.text));
+              setAllValues( prevValues => {
+                return { ...prevValues, data: null, isLoading: false, isLoaded: true, error: error, status: xhr.status}
+              });
+          }
         });
       }
     const patchDataset = (token, datasetId, field, value) => {
@@ -241,17 +273,19 @@ function DatasetView(props) {
         getDataset(keycloak.token, datasetId);
         if (props.showdDlgOpt === DatasetView.SHOW_DLG_APP_DASHBOARD) {
           if (keycloak.authenticated) {
-            console.log("show dialog " + DatasetView.SHOW_DLG_APP_DASHBOARD);
             showDialogAppDashhboard(datasetId, props.showDialog, () => {
               navigate(popPath(location.pathname));
-            })
+            },
+            keycloak.idTokenParsed.preferred_username
+            )
           } else {
             keycloak.login();
           }
         }
-      } else {
-        getDataset(null, datasetId);
-      }
+      } 
+      // else {
+      //   getDataset(null, datasetId);
+      // }
     }, [props.keycloakReady]);
   if (allValues.error !== null) {
     if (allValues.status === 401) {
