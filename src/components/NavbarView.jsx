@@ -5,17 +5,36 @@ import { GridFill } from 'react-bootstrap-icons';
 
 import UserInfo from "./UserInfo";
 import Config from "../config.json"
+import Util from "../Util.js";
+
+function getReleaseConf() {
+  const release = Util.getReleaseType(Config);
+  switch (release) {
+    case Util.RELEASE_DEV: return {t: "Development", bg: "bg-dark", tc: "text-white"};
+    case Util.RELEASE_PROD_TEST: return {t: "Test", bg: "bg-warning", tc: "text-dark"};
+    case Util.RELEASE_PROD: return {t: "Production", bg: "bg-transparent", tc: "text-dark"};
+    default: console.error(`Unkwnon release type ${release}`);return {t: "", bg: "bg-transparent", tc: ""};
+  }
+
+}
 
 function NavbarView(props) {
-
+  const rc = getReleaseConf();
   return(
     <Navbar bg="light" expand="lg" sticky="top">
       <Container fluid>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Navbar.Brand href={Config.basename + "/"}><b className="m-4">Dataset Explorer</b>
-              <span className="app-version">{Config.appVersion}</span></Navbar.Brand>
+            <Navbar.Brand className={`p-1 ${rc.bg} ${rc.tc}`} href={Config.basename + "/"}>
+              <div className="d-flex flex-row">
+                <b className="fs-4">Dataset Explorer</b>
+                <div className="d-flex flex-column ms-2">
+                  <Badge style={{"font-size": "50%"}} className={`p-1 ${rc.bg} ${rc.tc}`}>{rc.t}</Badge>
+                  <span className="app-version ms-1">{Config.appVersion}</span>
+                </div>
+                </div>
+            </Navbar.Brand>
             <Nav.Link href={Config.basename + "/datasets"}>Datasets</Nav.Link>
             <Nav.Link href={Config.basename + "/fair"}>Fair Principles</Nav.Link>
             <Nav.Link href="https://github.com/chaimeleon-eu/dataset-service#api-usage">API Specs</Nav.Link>

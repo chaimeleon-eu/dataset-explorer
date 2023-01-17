@@ -14,14 +14,13 @@ if (!fs.existsSync(conf)) {
 }
 
 const path = copyConfig(conf);
-if (modeS.toUpperCase() === 'PROD' || modeS.toUpperCase() === 'PROD-TEST') {
+//if (modeS.toUpperCase() === 'PROD' || modeS.toUpperCase() === 'PROD-TEST') {
   let rawdata = fs.readFileSync(path);
   let confD = JSON.parse(rawdata);
   confD.appVersion = pjson.version;
   console.log(confD);
   fs.writeFileSync(path, JSON.stringify(confD));
-
-}
+//}
 
 function copyConfig(source) {
   const path = process.cwd() + '/src/config.json';
