@@ -3,6 +3,11 @@ import Message from "./model/Message.js";
 
 export default class Util {
 
+  static RELEASE_DEV = "dev";
+  static RELEASE_PROD = "prod";
+  static RELEASE_PROD_TEST= "prod-test";
+  static RELEASE_UNDEFINED = undefined;
+
   static getErrFromXhr(xhr) {
     let title = null;
     let text = null;
@@ -57,5 +62,14 @@ export default class Util {
     }
     return uNameKube;
   
+  }
+
+  static getReleaseType(configJson) {
+    switch (configJson.release) {
+      case Util.RELEASE_PROD: return Util.RELEASE_PROD;
+      case Util.RELEASE_DEV: return Util.RELEASE_DEV;
+      case Util.RELEASE_PROD_TEST: return Util.RELEASE_PROD_TEST;
+      default: return Util.RELEASE_UNDEFINED;
+    }
   }
 }

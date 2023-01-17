@@ -1,5 +1,6 @@
 {
   "appVersion": "dev10000000000",
+  "release": "dev",
   "datasetService": "http://asaserver.i3m.upv.es:8000/api/v1",
   "tracerService": "http://asaserver.i3m.upv.es:8000/api/v1/tracer-service",
   "basename": "",
@@ -8,7 +9,7 @@
   "defaultLimitTraces": 4,
   "kubeAppsUrl": "http://asaserver.i3m.upv.es:3005/",
   "keycloak": {
-    "url": "https://asaserver.i3m.upv.es:20000/auth/",
+    "url": "https://asaserver.i3m.upv.es:20000/auth",
     "responseMode": "fragment",
     "checkLoginIframe": false,
     "realm": "CHAIMELEON",
