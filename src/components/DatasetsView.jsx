@@ -7,8 +7,8 @@ import { useKeycloak } from '@react-keycloak/web';
 import { useLocation, useSearchParams, useNavigate } from "react-router-dom";
 
 import Message from "../model/Message.js";
-import Dialog from "./Dialog.js";
-import DatasetsMainTable from "./DatasetsMainTable.js";
+import Dialog from "./Dialog";
+import DatasetsMainTable from "./DatasetsMainTable";
 import Config from "../config.json";
 
 function handleShow() {

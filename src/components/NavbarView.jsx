@@ -1,6 +1,6 @@
 import { Container, Navbar, Nav, Badge, Button, DropdownButton, Dropdown } from "react-bootstrap";
 import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect }from "react";
+import { useMemo, useId }from "react";
 import { GridFill } from 'react-bootstrap-icons';
 
 import UserInfo from "./UserInfo";
@@ -19,18 +19,19 @@ function getReleaseConf() {
 }
 
 function NavbarView(props) {
-  const rc = getReleaseConf();
+  const rc = useMemo(() => getReleaseConf());
+  const nbCollapseId = useId();
   return(
     <Navbar bg="light" expand="lg" sticky="top">
       <Container fluid>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
+        <Navbar.Collapse id={nbCollapseId}>
           <Nav className="me-auto">
             <Navbar.Brand className={`p-1 ${rc.bg} ${rc.tc}`} href={Config.basename + "/"}>
               <div className="d-flex flex-row">
                 <b className="fs-4">Dataset Explorer</b>
                 <div className="d-flex flex-column ms-2">
-                  <Badge style={{"font-size": "50%"}} className={`p-1 ${rc.bg} ${rc.tc}`}>{rc.t}</Badge>
+                  <Badge style={{"fontSize": "50%"}} className={`p-1 ${rc.bg} ${rc.tc}`}>{rc.t}</Badge>
                   <span className="app-version ms-1">{Config.appVersion}</span>
                 </div>
                 </div>

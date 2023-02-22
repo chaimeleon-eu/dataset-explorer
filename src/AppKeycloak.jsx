@@ -1,28 +1,25 @@
 
-import {useKeycloak, ReactKeycloakProvider } from "@react-keycloak/web";
+import { ReactKeycloakProvider } from "@react-keycloak/web";
 import keycloakConfig from './keycloak';
-import {useState} from "react";
-//import Keycloak from 'keycloak-js';
-import Config from "./config.json";
+import React, {useState} from "react";
 
 import App from "./App";
 
-
-//const keycloakConfig = Keycloak(Config.keycloak);
 
 function AppKeycloak() {
   const [keycloakReady, setKeycloakReady] = useState(false);
   // const [keycloakProviderInitConfig, setKeycloakProviderInitConfig] = useState(
   //   {"redirectUri": window.location.href});
-  const eventLogger = (event: unknown, error: unknown) => {
+  const eventLogger = (event, //error
+      ) => {
     //console.log('onKeycloakEvent', event, error)
           if (event && event === 'onReady'){
               setKeycloakReady(true);
           }
   }
 
-  const tokenLogger = (tokens: unknown) => {
-    //console.log('onKeycloakTokens', tokens)
+  const tokenLogger = (tokens) => {
+    console.log('onKeycloakTokens', tokens)
   }
   // const urlChangedUpdKeycloakUri = (newUri) => {
   //   const uri = window.location.origin + newUri;

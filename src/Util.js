@@ -1,6 +1,4 @@
 
-import Message from "./model/Message.js";
-
 export default class Util {
 
   static RELEASE_DEV = "dev";
