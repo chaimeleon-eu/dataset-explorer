@@ -1,14 +1,11 @@
-import ReactDOM from 'react-dom';
 import { Link } from "react-router-dom";
-import { Badge, Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} from 'react-bootstrap';
-import { Search as SearchIc, FilePlus as FilePlusIc } from "react-bootstrap-icons";
+import { Badge, Button, Table as BTable } from 'react-bootstrap';
+import { Search as SearchIc, FilePlus as FilePlusIc, ClipboardPlus } from "react-bootstrap-icons";
 import { useTable, useRowSelect, useFilters, useGlobalFilter, useAsyncDebounce } from 'react-table';
 import { Fragment, useState, useEffect, useRef, useMemo, forwardRef } from 'react';
 import {matchSorter} from 'match-sorter';
-import { EnvelopeFill, ClipboardPlus } from 'react-bootstrap-icons';
 
-import Message from "../model/Message.js";
-import Dialog from "./Dialog.js";
+import Dialog from "./Dialog";
 
 
 const NoDataConst = props => (

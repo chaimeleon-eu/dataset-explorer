@@ -6,8 +6,8 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 
-import Message from "../model/Message.js";
-import DataFilterView from "./DataFilterView.js";
+import Message from "../model/Message";
+import DataFilterView from "./DataFilterView";
 import LoadingView from "./LoadingView";
 import Config from "../config.json";
 

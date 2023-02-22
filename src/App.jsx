@@ -1,40 +1,44 @@
-import { useState, useCallback, Fragment } from "react";
-import {HashRouter, Routes, Route, Navigate, useParams, BrowserRouter } from "react-router-dom";
-import ReactDOM from "react-dom";
-import {DropdownButton, Dropdown, Nav, Button, Modal } from "react-bootstrap";
-import {useKeycloak, ReactKeycloakProvider } from "@react-keycloak/web";
+import  React, { useState, Fragment, useCallback } from "react";
+import {Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
+import { Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import PropTypes from "prop-types";
 
 import DatasetsView from "./components/DatasetsView";
 import Config from "./config.json";
 import DataManager from "./api/DataManager.js";
-import MessageView from "./components/MessageView.js";
-import Dialog from "./components/Dialog.js";
-import Login from "./components/Login";
+import MessageView from "./components/MessageView";
+import Dialog from "./components/Dialog";
 import DatasetView from "./components/DatasetView";
-import DatasetDetailsView from "./components/DatasetDetailsView";
-import DatasetHistoryView from "./components/DatasetHistoryView";
 import FairView from "./components/FairView";
 import SupportView from "./components/SupportView";
 import NavbarView from "./components/NavbarView";
 import Footer from "./components/Footer";
-
-var dlgDefaultValues = {
-  show: false,
-  footer: <Button onClick={() => Dialog.HANDLE_CLOSE()}>Close</Button>,
-  title: "DEFAULT",
-  body: <div>Empty body</div>,
-  size: Dialog.SIZE_LG,
-  onBeforeClose: null,
-  data: null
-};
+//import { Nav } from "react-bootstrap";
 
 function getDSV({tab, sdo, dataManager, keycloakReady, postMessage, showDialog}) {
-  return <DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
+  return (
+    <DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
     postMessage={postMessage} dataManager={dataManager} activeTab={tab} showdDlgOpt={sdo}/>
+    );
 }
 
-const App = (props) => {
+App.propTypes = {
+  keycloakReady: PropTypes.bool
+}
+
+function App(props) {
+  const keycloakReady = props.keycloakReady;
+  const handleClose = useCallback(() => Dialog.HANDLE_CLOSE());
+  let dlgDefaultValues = {
+    show: false,
+    footer: <Button onClick={handleClose}>Close</Button>,
+    title: "DEFAULT",
+    body: <div>Empty body</div>,
+    size: Dialog.SIZE_LG,
+    onBeforeClose: null,
+    data: null
+  };
   const [dlgState, setDlgState] = useState(dlgDefaultValues);
   const showDialog = dlgProps => {
     setDlgState({
@@ -47,19 +51,14 @@ const App = (props) => {
       onBeforeClose: dlgProps.onBeforeClose
     });
   };
-
-
-
-
-  let {keycloak} = useKeycloak();
-  const [dataManager, setDataManager] = useState(new DataManager());
+  const [dataManager] = useState(new DataManager());
   const [message, setMessage] = useState(null);
   const postMessage = message => {
     setMessage(message);
   };
   let opt = {
     dataManager,
-    keycloakReady: props.keycloakReady,
+    keycloakReady,
     postMessage,
     showDialog,
     sdo: null,
@@ -79,7 +78,6 @@ const App = (props) => {
               <Route exact path="/fair" element={<FairView />} />
               <Route exact path="/support" element={<SupportView />} />
               <Route path="/datasets" element={<DatasetsView keycloakReady={props.keycloakReady} 
-                  urlChangedUpdKeycloak={props.urlChangedUpdKeycloakUri}
                   dataManager={dataManager} postMessage={postMessage} />} />
                 <Route path="/datasets/:datasetId/details" 
                   element={<DatasetView showDialog={showDialog} keycloakReady={props.keycloakReady} 
@@ -98,7 +96,7 @@ const App = (props) => {
                   element={getDSV({...opt, tab: DatasetView.TAB_HISTORY, sdo: DatasetView.SHOW_DLG_APP_DASHBOARD })} />
                 <Route path="*" element={
                     <main style={{ padding: "1rem" }}>
-                      <p>There's nothing here!</p>
+                      <p>There is nothing here!</p>
                     </main>
                   }
                 />
@@ -109,6 +107,6 @@ const App = (props) => {
       </Fragment>
 
   );
-};
+}
 
 export default App;

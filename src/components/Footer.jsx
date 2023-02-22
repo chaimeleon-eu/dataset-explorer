@@ -8,7 +8,7 @@ import Config from "../config.json";
 function Footer(props) {
 
     return (
-        <div className="d-flex justify-content-between w-100 p-1 text-black bg-light bg-gradient mt-4 " style={{"font-size":"0.75em"}}>
+        <div className="d-flex justify-content-between w-100 p-1 text-black bg-light bg-gradient mt-4 " style={{"fontSize":"0.75em"}}>
             <span className="ms-2"><img src={Config["basename"] + "/icons/eu.svg"} 
                 style={{height:"0.75em"}}/><b className="ms-2">CHAIMELEON Project</b>, DOI <a href="https://doi.org/10.3030/952172">10.3030/952172</a></span>
             <span>Copyright© <a href="https://www.upv.es/en">UPV</a> 2020-2024</span>
