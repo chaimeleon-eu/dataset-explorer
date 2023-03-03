@@ -1,19 +1,18 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 // Careful with the order of CSS loading, if you want to modify Bootstrap's settings
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
-import AppKeycloak from './AppKeycloak';
+import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const Loading = () => <div>Loading, please wait...</div>
 
-ReactDOM.render(
-  <React.StrictMode>
-      <AppKeycloak />
-  </React.StrictMode>,
-  document.getElementById('root')
+const domNode = document.getElementById('root');
+const root = createRoot(domNode);
+root.render(
+      <App />
 );
 
 // If you want to start measuring performance in your app, pass a function

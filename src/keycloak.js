@@ -1,6 +1,6 @@
 import Keycloak from 'keycloak-js';
 import Config from "./config.json";
 
-const keycloak = Keycloak(Config.keycloak);
+const keycloak = new Keycloak(Config.keycloak);
 
 export default keycloak;
