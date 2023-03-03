@@ -237,7 +237,7 @@ function DatasetView(props) {
     }, []);
 
     let { keycloak } = useKeycloak();
-    const getDataset = function(token, datasetId) {
+    const getDataset = useCallback((token, datasetId) => {
 
       props.dataManager.getDataset(token, datasetId, 0, 0)
       .then(
@@ -265,7 +265,7 @@ function DatasetView(props) {
               });
           }
         });
-      }
+      }, [props.dataManager, keycloak]);
     const patchDataset = (token, datasetId, field, value) => {
       props.dataManager.patchDataset(token, datasetId, field, value)
       .then(
@@ -304,7 +304,7 @@ function DatasetView(props) {
       // else {
       //   getDataset(null, datasetId);
       // }
-    }, [props.keycloakReady]);
+    }, [props.keycloakReady, keycloak.authenticated]);
   if (allValues.error !== null) {
     if (allValues.status === 401) {
       return <UnauthorizedView />

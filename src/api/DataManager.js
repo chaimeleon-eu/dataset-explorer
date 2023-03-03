@@ -22,4 +22,8 @@ export default class DataManager {
     return WebClient.getTracesActions();
   }
 
+  getDatasetCreationStatus(token, datasetId) {
+    return WebClient.getDatasetCreationStatus(token, datasetId);
+  }
+
 }

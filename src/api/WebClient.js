@@ -4,7 +4,7 @@ export default class WebClient {
 
   static getDatasets(token, skip, limit, searchString) {
     let headers = new Map();
-    if (token != undefined) {
+    if (token) {
       headers.set("Authorization", "Bearer " + token);
     }
     const qTmp = this._prepQueryParams({skip, limit, searchString});
@@ -14,7 +14,7 @@ export default class WebClient {
 
   static getDataset(token, dsId, studiesSkip, studiesLimit) {
     let headers = new Map();
-    if (token != undefined) {
+    if (token) {
       headers.set("Authorization", "Bearer " + token);
     }
     return WebClient._call("GET", Config.datasetService + "/datasets/" + dsId, headers,
@@ -23,7 +23,7 @@ export default class WebClient {
 
   static patchDataset(token, dsId, property, value) {
       let headers = new Map();
-      if (token != undefined) {
+      if (token) {
         headers.set("Authorization", "Bearer " + token);
       }
       headers.set("Content-Type", "application/json");
@@ -39,12 +39,21 @@ export default class WebClient {
 
   static getTracesDataset(token, datasetId, skipTraces, limitTraces) {
     let headers = new Map();
-    if (token != undefined) {
+    if (token) {
       headers.set("Authorization", "Bearer " + token);
     }
     const qTmp = this._prepQueryParams({ datasetId, skipTraces, limitTraces });
     return WebClient._call("GET", Config.tracerService + "/traces",
       headers, null, "text", qTmp);
+  }
+
+  static getDatasetCreationStatus(token, dsId) {
+    let headers = new Map();
+    if (token) {
+      headers.set("Authorization", "Bearer " + token);
+    }
+    return WebClient._call("GET", Config.datasetService + `/datasets/${dsId}/creationStatus`, headers,
+                null, "text", null);
   }
 
   static _prepQueryParams(qTmp) {
