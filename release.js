@@ -5,6 +5,7 @@ const os = require('os');
 const axios = require('axios');
 const http = require('http');
 const fs = require('fs');
+const child_process = require('child_process');
 const { createHttpTerminator } = require('http-terminator');
 
 if (process.argv.length !== 4) {
@@ -48,37 +49,48 @@ const server = http.createServer(function (req, response) {
         response.end(content, 'utf-8');
     });
 }).listen(3005);
-
-execSync(`cd ${__dirname} \
-    && npm run build-${release} \
-    && cd build/ \
-    && zip -r ./build.zip ./*`
-    , {stdio: 'inherit'});
-
-var config = {
-    method: 'post',
-    url: `${dsServer}/set-ui`,
-    headers: { 
-        devToken: token
-    },
-    data : `http://${ip}:3005/build/build.zip`
-    };
-    
-    axios(config)
-    .then(function (response) {
-    console.log(JSON.stringify(response.data));
-    })
-    .catch(function (error) {
-    console.log(error);
-    })
-    .finally(() => {              
-        console.log("Stopping py server");
-        //pyServerProc.kill();
-        const httpTerminator = createHttpTerminator({
-            server,
+try {
+    let res = child_process.spawnSync("bash",
+        ["-c", 
+        `cd ${__dirname} \
+        && npm run build-${release} \
+        && cd build \
+        && zip -r ./build.zip ./*`
+    ]
+        , {
+            stdio: 'inherit',
+            encoding: 'utf-8'
         });
-        
-        httpTerminator.terminate();
-    });
+        console.log('status: ' + res.status);
+    var config = {
+            method: 'post',
+            url: `${dsServer}/set-ui`,
+            headers: { 
+                devToken: token
+            },
+            data : `http://${ip}:3005/build/build.zip`
+            };
+            
+        axios(config)
+            .then(function (response) {
+                console.log(JSON.stringify(response.data));
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+            .finally(() => {              
+                console.log("Stopping py server");
+                //pyServerProc.kill();
+                const httpTerminator = createHttpTerminator({
+                    server,
+                });
+                
+                httpTerminator.terminate();
+            });
+} catch (e) {
+    console.error(e);
+}
+
+
 
 
