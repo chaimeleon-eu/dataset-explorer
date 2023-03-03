@@ -35,7 +35,7 @@ function DatasetDetailsView(props) {
   return(
     <Container fluid>
       <Row>
-        <MessageBox dataset={datasetDetails.data} />
+        <MessageBox postMessage={props.postMessage} keycloakReady={props.keycloakReady} dataManager={props.dataManager} dataset={datasetDetails.data} />
       </Row>
 
       <Row>
