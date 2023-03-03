@@ -8,13 +8,18 @@
   "defaultLimitStudies": 30,
   "defaultLimitTraces": 15,
   "kubeAppsUrl": "https://chaimeleon-eu.i3m.upv.es/apps/",
+  "refreshDatasetCreate": 15000,
   "keycloak": {
-    "url": "https://chaimeleon-eu.i3m.upv.es/auth/",
-    "realm": "CHAIMELEON",
-    "responseMode": "query",
-    "checkLoginIframe": false,
-    "clientId": "dataset-explorer-test",
-    "onLoad": "check-sso",
-    "redirectUri": "https://chaimeleon-test.grycap.i3m.upv.es/dataset-service"
+    "config": {
+      "url": "https://chaimeleon-eu.i3m.upv.es/auth/",
+      "realm": "CHAIMELEON",
+      "clientId": "dataset-explorer-test"
+    }, 
+    "initOptions": {
+      "responseMode": "query",
+      "checkLoginIframe": false,
+      "onLoad": "check-sso",
+      "redirectUri": "https://chaimeleon-test.grycap.i3m.upv.es/dataset-service"
+    }
   }
 }
