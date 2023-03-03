@@ -3,9 +3,9 @@ import { ListGroup, Button, InputGroup, FormControl, Table as BTable, Container,
 import { useTable, useRowSelect } from 'react-table';
 import { useKeycloak } from '@react-keycloak/web';
 
-import Config from "../config.json";
-import Message from "../model/Message";
-import LoadingView from "./LoadingView";
+import Config from "../../../config.json";
+import Message from "../../../model/Message";
+import LoadingView from "../../LoadingView";
 
 const STUDY_VISIBLE_SERIES = 1;
 

@@ -1,66 +1,72 @@
 import { Link } from "react-router-dom";
 import { Badge, Button, Table as BTable } from 'react-bootstrap';
-import { Search as SearchIc, FilePlus as FilePlusIc, ClipboardPlus } from "react-bootstrap-icons";
-import { useTable, useRowSelect, useFilters, useGlobalFilter, useAsyncDebounce } from 'react-table';
-import { Fragment, useState, useEffect, useRef, useMemo, forwardRef } from 'react';
+import { ClipboardPlus } from "react-bootstrap-icons";
+import { useTable, useRowSelect, useFilters, useGlobalFilter } from 'react-table';
+import React, { Fragment, useMemo } from 'react';
 import {matchSorter} from 'match-sorter';
+import PropTypes from "prop-types";
 
 import Dialog from "./Dialog";
 
+/* eslint react/prop-types: 0 */
 
-const NoDataConst = props => (
+const NoDataConst = () => (
   <div>No data.</div>
 );
 
-const IndeterminateCheckbox = forwardRef(
-  ({ indeterminate, ...rest }, ref) => {
-    const defaultRef = useRef()
-    const resolvedRef = ref || defaultRef
+// const IndeterminateCheckbox = forwardRef(
+//   ({ indeterminate, ...rest }, ref) => {
+//     const defaultRef = useRef()
+//     const resolvedRef = ref || defaultRef
 
-    useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate
-    }, [resolvedRef, indeterminate])
+//     useEffect(() => {
+//       resolvedRef.current.indeterminate = indeterminate
+//     }, [resolvedRef, indeterminate])
 
-    return (
-      <>
-        <input type="checkbox" ref={resolvedRef} {...rest} />
-      </>
-    )
-  }
-)
+//     return (
+//       <>
+//         <input type="checkbox" ref={resolvedRef} {...rest} />
+//       </>
+//     )
+//   }
+// )
 
 // Define a default UI for filtering
-function GlobalFilter({
-  preGlobalFilteredRows,
-  globalFilter,
-  setGlobalFilter,
-}) {
-  const count = preGlobalFilteredRows.length
-  const [value, setValue] = useState(globalFilter)
-  const onChange = useAsyncDebounce(value => {
-    setGlobalFilter(value || undefined)
-  }, 200)
+// function GlobalFilter({
+//   preGlobalFilteredRows,
+//   globalFilter,
+//   setGlobalFilter,
+// }) {
+//   const count = preGlobalFilteredRows.length
+//   const [value, setValue] = useState(globalFilter)
+//   const onChange = useAsyncDebounce(value => {
+//     setGlobalFilter(value || undefined)
+//   }, 200)
 
-  return (
-    <span>
-      Search:{' '}
-      <input
-        value={value || ""}
-        onChange={e => {
-          setValue(e.target.value);
-          onChange(e.target.value);
-        }}
-        placeholder={`${count} records...`}
-        style={{
-          fontSize: '1.1rem',
-          border: '0',
-        }}
-      />
-    </span>
-  )
+//   return (
+//     <span>
+//       Search:{' '}
+//       <input
+//         value={value || ""}
+//         onChange={e => {
+//           setValue(e.target.value);
+//           onChange(e.target.value);
+//         }}
+//         placeholder={`${count} records...`}
+//         style={{
+//           fontSize: '1.1rem',
+//           border: '0',
+//         }}
+//       />
+//     </span>
+//   )
+// }
+
+// Define a default UI for filtering
+DefaultColumnFilter.propTypes = {
+  column: PropTypes.object
 }
 
-// Define a default UI for filtering
 function DefaultColumnFilter({
   column: { filterValue, preFilteredRows, setFilter },
 }) {
@@ -79,6 +85,10 @@ function DefaultColumnFilter({
 
 // This is a custom filter UI for selecting
 // a unique option from a list
+SelectColumnFilter.propTypes = {
+  column: PropTypes.object
+}
+
 function SelectColumnFilter({
   column: { filterValue, setFilter, preFilteredRows, id },
 }) {
@@ -113,6 +123,10 @@ function SelectColumnFilter({
 // This is a custom filter UI that uses a
 // slider to set the filter value between a column's
 // min and max values
+SliderColumnFilter.propTypes = {
+  column: PropTypes.object
+}
+
 function SliderColumnFilter({
   column: { filterValue, setFilter, preFilteredRows, id },
 }) {
@@ -148,6 +162,10 @@ function SliderColumnFilter({
 // This is a custom UI for our 'between' or number range
 // filter. It uses two number boxes and filters rows to
 // ones that have values between the two
+NumberRangeColumnFilter.propTypes = {
+  column: PropTypes.object
+}
+
 function NumberRangeColumnFilter({
   column: { filterValue = [], preFilteredRows, setFilter, id },
 }) {
@@ -213,13 +231,64 @@ function filterGreaterThan(rows, id, filterValue) {
   })
 }
 
+MoreLink.propTypes = {
+  row: PropTypes.object
+}
+
+function MoreLink({row}) {
+  return  (
+    <div>
+      <Link className="btn btn-link" to={`/datasets/${row.original["id"]}/details`}>More</Link>
+    </div>
+  );
+}
+
 // This is an autoRemove method on the filter function that
 // when given the new filter value and returns true, the filter
 // will be automatically removed. Normally this is just an undefined
 // check, but here, we want to remove the filter if it's not a number
 filterGreaterThan.autoRemove = val => typeof val !== 'number'
 
-function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDetailsClose }) {
+ColIdRender.propTypes = {
+  row: PropTypes.object
+}
+
+function ColIdRender({row}) {
+  return (
+    <Fragment>
+    {row.original["id"]}
+    <Button variant="link" className="m-0 p-0 ms-1" onClick={() =>
+        {navigator.clipboard.writeText(row.original["id"]).then(function() {
+          console.log('Async: Copying to clipboard was successful!');
+        }, function(err) {
+          console.error('Async: Could not copy text: ', err);
+        });}} >
+        <ClipboardPlus />
+      </Button>
+      </Fragment>
+  );
+}
+
+ColFlagsRender.propTypes = {
+  row: PropTypes.object
+}
+
+function ColFlagsRender({row}) {
+  return (
+      <div className="mt-1 mb-1">
+        {( row.original["invalidated"] ? <Fragment><Badge pill bg="secondary">Invalidated</Badge><br /></Fragment> : <Fragment /> )}
+        {( row.original["public"] ? <Badge pill bg="dark">Published</Badge> : <Fragment /> )}
+        {( row.original["draft"] ? <Badge pill bg="light" text="dark">Draft</Badge> : <Fragment /> )}
+      </div>
+  );
+}
+Table.propTypes = {
+  data: PropTypes.array,
+  columns: PropTypes.array
+}
+
+function Table({ columns, data//, showDialog, dataManager, postMessage, onDialogDetailsClose 
+    }) {
   const filterTypes = useMemo(
     () => ({
       // Add a new fuzzyTextFilterFn filter type.
@@ -250,13 +319,14 @@ function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDe
 
   // Use the state and functions returned from useTable to build your UI
   const { getTableProps, headerGroups, rows, prepareRow,
-    selectedFlatRows,
-      getTableBodyProps,
-      state,
+    //selectedFlatRows,
+     // getTableBodyProps,
+     // state,
       //state: { selectedRowIds, globalFilter },
       visibleColumns,
-      preGlobalFilteredRows,
-      setGlobalFilter } = useTable({
+     // preGlobalFilteredRows,
+     // setGlobalFilter 
+    } = useTable({
       columns,
       data,
       defaultColumn, // Be sure to pass the defaultColumn option
@@ -268,33 +338,29 @@ function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDe
     hooks => {
       hooks.visibleColumns.push(columns => [
         // Let's make a column for selection
-        {
-          id: 'selection',
-          // The header can use the table's getToggleAllRowsSelectedProps method
-          // to render a checkbox
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-            </div>
-          ),
-          // The cell can use the individual row's getToggleRowSelectedProps method
-          // to the render a checkbox
-          Cell: ({ row }) => (
-            <div>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            </div>
-          ),
-        },
+        // {
+        //   id: 'selection',
+        //   // The header can use the table's getToggleAllRowsSelectedProps method
+        //   // to render a checkbox
+        //   Header: ({ getToggleAllRowsSelectedProps }) => (
+        //     <div>
+        //       <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+        //     </div>
+        //   ),
+        //   // The cell can use the individual row's getToggleRowSelectedProps method
+        //   // to the render a checkbox
+        //   Cell: ({ row }) => (
+        //     <div>
+        //       <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+        //     </div>
+        //   ),
+        // },
 
         ...columns,
         {
           id: 'operations',
           Header: () => (<Fragment/>),
-          Cell: ({ row }) => (
-            <div>
-              <Link className="btn btn-link" to={`/datasets/${row.original["id"]}/details`}>More</Link>
-            </div>
-          )
+          Cell: ({row}) => <MoreLink row={row}/>
         }
       ])
     }
@@ -305,9 +371,9 @@ function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDe
     <BTable striped bordered hover size="sm" {...getTableProps()}>
       <thead>
         {headerGroups.map(headerGroup => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
+          <tr key="header" {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map(column => (
-              <th {...column.getHeaderProps()}>
+              <th key={`th-${Math.random().toString(16).slice(2)}`} {...column.getHeaderProps()}>
                 {column.render('Header')}
               </th>
             ))}
@@ -331,13 +397,13 @@ function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDe
         </tr>
       </thead>
       <tbody>
-        {rows.map((row, i) => {
+        {rows.map(row => {
           prepareRow(row)
           return (
-            <tr {...row.getRowProps()}>
+            <tr key={`tr-${Math.random().toString(16).slice(2)}`} {...row.getRowProps()}>
               {row.cells.map(cell => {
                 return (
-                  <td {...cell.getCellProps()}>
+                  <td key={`td-${Math.random().toString(16).slice(2)}`} {...cell.getCellProps()}>
                     {cell.render('Cell')}
                   </td>
                 )
@@ -350,59 +416,49 @@ function Table({ columns, data, showDialog, dataManager, postMessage, onDialogDe
   )
 }
 
+DatasetsMainTable.propTypes = {
+  data: PropTypes.array,
+  showDialog: PropTypes.func,
+  dataManager: PropTypes.object,
+  postMessage: PropTypes.func
+}
+
+
 function DatasetsMainTable(props) {
-  const columns = useMemo(
-    () => [
-      {
-        Header: 'ID',
-        Cell: ({ row }) => (
-              <Fragment>
-              {row.original["id"]}
-              <Button variant="link" className="m-0 p-0 ms-1" onClick={() =>
-                  {navigator.clipboard.writeText(row.original["id"]).then(function() {
-                    console.log('Async: Copying to clipboard was successful!');
-                  }, function(err) {
-                    console.error('Async: Could not copy text: ', err);
-                  });}} >
-                <ClipboardPlus />
-              </Button>
-              </Fragment>
-          )
-      },
-      {
-        Header: 'Dataset',
-        accessor: 'name'
-      },
-      {
-        Header: 'Flags',
-        Cell: ({ row }) => (
-              <div className="mt-1 mb-1">
-                {( row.original["invalidated"] ? <Fragment><Badge pill bg="secondary">Invalidated</Badge><br /></Fragment> : <Fragment /> )}
-                {( row.original["public"] ? <Badge pill bg="dark">Published</Badge> : <Fragment /> )}
-                {( row.original["draft"] ? <Badge pill bg="light" text="dark">Draft</Badge> : <Fragment /> )}
-              </div>
-          )
-      },
-      {
-        Header: 'Author',
-        accessor: 'authorName'
-      },
-      {
-        Header: 'Created',
-        Cell: ({ row }) => (
-            new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
-              .format(Date.parse(row.original["creationDate"]))
-          )
-      },
-      {
-        Header: 'Studies',
-        accessor: 'studiesCount'
-      },
-      {
-        Header: 'Subjects',
-        accessor: 'subjectsCount'
-      }
-    ]);
+
+  const columns = useMemo(() => [
+    {
+      Header: 'ID',
+      Cell: ({row}) => <ColIdRender  row={row}/> 
+    },
+    {
+      Header: 'Dataset',
+      accessor: 'name'
+    },
+    {
+      Header: 'Flags',
+      Cell: ({row}) => <ColFlagsRender   row={row}/> 
+    },
+    {
+      Header: 'Author',
+      accessor: 'authorName'
+    },
+    {
+      Header: 'Created',
+      Cell: ({ row }) => (
+          new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
+            .format(Date.parse(row.original["creationDate"]))
+        )
+    },
+    {
+      Header: 'Studies',
+      accessor: 'studiesCount'
+    },
+    {
+      Header: 'Subjects',
+      accessor: 'subjectsCount'
+    }
+  ]);
     return <Table columns={columns} data={props.data} NoDataComponent={NoDataConst}
       showDialog={props.showDialog} dataManager={props.dataManager}
       postMessage={props.postMessage}

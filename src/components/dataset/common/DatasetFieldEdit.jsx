@@ -3,10 +3,10 @@ import { PencilFill, ArrowCounterclockwise } from 'react-bootstrap-icons';
 import { useRef, useState, useEffect, Fragment } from "react";
 import { useKeycloak } from '@react-keycloak/web';
 
-import StaticValues from "../api/StaticValues.js";
-import Dialog from "./Dialog";
-import Message from "../model/Message.js";
-import licenses from "../licenses.json";
+import StaticValues from "../../../api/StaticValues.js";
+import Dialog from "../../Dialog";
+import Message from "../../../model/Message.js";
+import licenses from "../../../licenses.json";
 
 function Body(props) {
   const [value, setValue] = useState(props.oldValue);

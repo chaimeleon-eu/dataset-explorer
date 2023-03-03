@@ -19,6 +19,7 @@ function getReleaseConf() {
 }
 
 function NavbarView(props) {
+  console.log("navbar");
   const rc = useMemo(() => getReleaseConf());
   const nbCollapseId = useId();
   return(

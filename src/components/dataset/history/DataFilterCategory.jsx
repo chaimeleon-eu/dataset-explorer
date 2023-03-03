@@ -2,8 +2,8 @@ import React, {useState, useEffect } from "react";
 import {InputGroup, FormControl, Accordion} from "react-bootstrap";
 import { useKeycloak } from '@react-keycloak/web';
 
-import Message from "../model/Message.js";
-import Util from "../Util";
+import Message from "../../../model/Message.js";
+import Util from "../../../Util";
 
 function DataFilterEntry(props) {
   const [checked, setChecked] = useState(true);

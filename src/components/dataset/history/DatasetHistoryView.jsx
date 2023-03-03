@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { ListGroup, Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} from 'react-bootstrap';
 import { useTable, useRowSelect } from 'react-table';
 import { useKeycloak } from '@react-keycloak/web';
@@ -6,10 +6,10 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 
-import Message from "../model/Message";
+import Message from "../../../model/Message";
 import DataFilterView from "./DataFilterView";
-import LoadingView from "./LoadingView";
-import Config from "../config.json";
+import LoadingView from "../../LoadingView";
+import Config from "../../../config.json";
 
 const NoDataConst = props => (
   <div>No data.</div>
@@ -89,64 +89,65 @@ function DatasetHistoryView(props) {
   //   }
   // ];
   let { keycloak } = useKeycloak();
-
+  const handlePostMsg = useCallback((msgType, title, text) => {
+    props.postMessage(new Message(msgType, title, text));
+  }, []);
   //console.log(keycloak);
     useEffect(() => {
         setData( prevValues => {
-           return { ...prevValues, isLoaded: false, isLoading: true, status: -1, error: null }
-           });
+          return { ...prevValues, isLoaded: false, isLoading: true, status: -1, error: null }
+          });
         if (props.keycloakReady && keycloak.authenticated) {
+          props.dataManager.getTracesDataset(keycloak.token, props.datasetId, skip, limit)
+            .then(
+              (xhr) => {
+                let totalTracesCnt = 0;
+                let traces  = [];
+                const rawTraces = JSON.parse(xhr.response).traces;
+                for (let rt of rawTraces) {
+                  console.log(rt.countAllTraces);
+                  if (rt.countAllTraces !== undefined)
+                    totalTracesCnt += rt.countAllTraces;
+                  for (let t of rt.traces) {
+                      let d = new Date(t.timestamp);
+                      //console.log(t.timestamp);
+                      //d.setUTCMilliseconds(t.timestamp);
+                      traces.push({blockchain: rt.blockchain, action: t.userAction, user: t.userId,
+                        created: d, details: t.details});
+                  }
+                }
+                traces.sort((a,b) => b.created - a.created);
+                setData( prevValues => {
+                    return { ...prevValues, totalTracesCnt, isLoaded: true, traces: traces, isLoading: false, status: xhr.status, error: null }
+                    });
+              },
+              (xhr) => {
+                let title = null;
+                let text = null;
+                if (!xhr.responseText) {
+                  title = Message.UNK_ERROR_TITLE;
+                  text = Message.UNK_ERROR_MSG;
+                } else {
+                  if (xhr.responseType == "text") {
+                    title = "History Error";
+                    text = xhr.response;
 
-              props.dataManager.getTracesDataset(keycloak.token, props.datasetId, skip, limit)
-                .then(
-                  (xhr) => {
-                    let totalTracesCnt = 0;
-                    let traces  = [];
-                    const rawTraces = JSON.parse(xhr.response).traces;
-                    for (let rt of rawTraces) {
-                      console.log(rt.countAllTraces);
-                      if (rt.countAllTraces !== undefined)
-                        totalTracesCnt += rt.countAllTraces;
-                      for (let t of rt.traces) {
-                          let d = new Date(t.timestamp);
-                          //console.log(t.timestamp);
-                          //d.setUTCMilliseconds(t.timestamp);
-                          traces.push({blockchain: rt.blockchain, action: t.userAction, user: t.userId,
-                            created: d, details: t.details});
-                      }
-                    }
-                    traces.sort((a,b) => b.created - a.created);
-                    setData( prevValues => {
-                       return { ...prevValues, totalTracesCnt, isLoaded: true, traces: traces, isLoading: false, status: xhr.status, error: null }
-                       });
-                  },
-                  (xhr) => {
-                    let title = null;
-                    let text = null;
-                    if (!xhr.responseText) {
-                      title = Message.UNK_ERROR_TITLE;
-                      text = Message.UNK_ERROR_MSG;
-                    } else {
-                      if (xhr.responseType == "text") {
-                        title = "History Error";
-                        text = xhr.response;
-
-                      } else {
-                        const err = JSON.parse(xhr.response);
-                          title = err.title;
-                          text = err.message;
-                      }
-                    }
-                    setData( prevValues => {
-                       return { ...prevValues, totalTracesCnt: 0,  isLoaded: true, traces: [], isLoading: false,
-                          status: xhr.status, error: text }
-                       });
-                    props.postMessage(new Message(Message.ERROR, title, text));
-                  });
+                  } else {
+                    const err = JSON.parse(xhr.response);
+                      title = err.title;
+                      text = err.message;
+                  }
+                }
+                handlePostMsg(Message.ERROR, title, text);
+                setData( prevValues => {
+                   return { ...prevValues, totalTracesCnt: 0,  isLoaded: true, traces: [], isLoading: false,
+                      status: xhr.status, error: text }
+                   });
+              });
             }
 
     }, //1000);},
-    [props.keycloakReady, keycloak.authenticated,  searchParams]);
+    [props.keycloakReady, keycloak.authenticated, searchParams]);
 
   const columns = useMemo(
     () => [
@@ -188,9 +189,9 @@ function DatasetHistoryView(props) {
         <Container fluid>
           <Row>
             <Col lg={3} md={12}>
-              <DataFilterView traces={data.traces} updFilteredData={updFilteredData} 
+              {/* <DataFilterView traces={data.traces} updFilteredData={updFilteredData} 
                 keycloakReady={props.keycloakReady} dataManager={props.dataManager} 
-                postMessage={props.postMessage}/>
+                postMessage={props.postMessage}/> */}
             </Col>
             <Col lg={9} md={12} className="d-flex flex-column">
               <TableComponent columns={columns} data={data.tracesFiltered} NoDataComponent={NoDataConst} />
