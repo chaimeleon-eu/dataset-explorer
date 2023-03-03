@@ -1,20 +1,21 @@
-import {Tabs, Tab, Button, Row, Col, Container, Badge, DropdownButton, Dropdown, Nav } from "react-bootstrap";
-import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect, Fragment }from "react";
+import {Tab, Button, Row, Col, Container, Badge, DropdownButton, Dropdown, Nav } from "react-bootstrap";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect, Fragment, useCallback }from "react";
 import { useKeycloak } from '@react-keycloak/web';
-import { EnvelopeFill, ClipboardPlus, PencilFill } from 'react-bootstrap-icons';
+import { EnvelopeFill } from 'react-bootstrap-icons';
+import PropTypes from "prop-types";
 
-import DatasetDetailsView from "./DatasetDetailsView";
-import DatasetHistoryView from "./DatasetHistoryView";
-import DatasetStudiesView from "./DatasetStudiesView";
-import Message from "../model/Message.js";
-import Breadcrumbs from "./Breadcrumbs";
-import UnauthorizedView from "./UnauthorizedView";
-import ResourceNotFoundView from "./ResourceNotFoundView";
-import DatasetFieldEdit from "./DatasetFieldEdit";
-import Util from "../Util";
-import Config from "../config.json";
-import Dialog from "./Dialog";
+import DatasetDetailsView from "./details/DatasetDetailsView";
+import DatasetHistoryView from "./history/DatasetHistoryView";
+import DatasetStudiesView from "./studies/DatasetStudiesView";
+import Message from "../../model/Message.js";
+import Breadcrumbs from "../Breadcrumbs";
+import UnauthorizedView from "../UnauthorizedView";
+import ResourceNotFoundView from "../ResourceNotFoundView";
+import DatasetFieldEdit from "./common/DatasetFieldEdit";
+import Util from "../../Util";
+import Config from "../../config.json";
+import Dialog from "../Dialog";
 
 
 
@@ -78,26 +79,26 @@ function onLoadAppsDashboard(iframeDom, datasetId, uNameKeycloak) {
   observer.observe(targetNode, config);
 }
 
-function triggerFocus(element) {
-    var eventType = "onfocusin" in element ? "focusin" : "focus",
-        bubbles = "onfocusin" in element,
-        event;
+// function triggerFocus(element) {
+//     var eventType = "onfocusin" in element ? "focusin" : "focus",
+//         bubbles = "onfocusin" in element,
+//         event;
 
-    if ("createEvent" in document) {
-        event = document.createEvent("Event");
-        event.initEvent(eventType, bubbles, true);
-    }
-    else if ("Event" in window) {
-        event = new Event(eventType, { bubbles: bubbles, cancelable: true });
-    }
+//     if ("createEvent" in document) {
+//         event = document.createEvent("Event");
+//         event.initEvent(eventType, bubbles, true);
+//     }
+//     else if ("Event" in window) {
+//         event = new Event(eventType, { bubbles: bubbles, cancelable: true });
+//     }
 
-    element.focus();
-    element.dispatchEvent(event);
-}
+//     element.focus();
+//     element.dispatchEvent(event);
+// }
 
-function getAction(condition, actionCb, txt) {
+function getAction(condition, actionCb, txt, keyName) {
   if (condition) {
-    return <Dropdown.Item href="#"
+    return <Dropdown.Item eventKey={keyName} key={keyName} href="#"
             onClick={() => {
               actionCb();
             }}>{txt}</Dropdown.Item>
@@ -112,8 +113,8 @@ function showDialogPublishDs(token, patchDatasetCb, showDialog,  data) {
     showDialog({
       show: true,
       footer: <div>
-          <Button className="m-2" onClick={e => {patchDatasetCb(token, data["id"], "public", !data.public);Dialog.HANDLE_CLOSE();}}>Publish</Button>
-          <Button className="m-2" onClick={e => Dialog.HANDLE_CLOSE()}>Cancel</Button>
+          <Button className="m-2" onClick={() => {patchDatasetCb(token, data["id"], "public", !data.public);Dialog.HANDLE_CLOSE();}}>Publish</Button>
+          <Button className="m-2" onClick={() => Dialog.HANDLE_CLOSE()}>Cancel</Button>
         </div>,
       body: <div>
           The published dataset:
@@ -124,8 +125,8 @@ function showDialogPublishDs(token, patchDatasetCb, showDialog,  data) {
           </ul>
           {showZenodo ?
               <div className="mt-4">
-                *Metadata includes the content of "Details" tab: author, creation date, contact information, license and statistical info.
-                Index of studies includes some content of "Studies" tab: study id, study name, subject name and series name.
+                *Metadata includes the content of &quot;Details&quot; tab: author, creation date, contact information, license and statistical info.
+                Index of studies includes some content of &quot;Studies&quot; tab: study id, study name, subject name and series name.
               </div>
               : <Fragment/>}
         </div>,
@@ -155,6 +156,12 @@ function popPath(path) {
   return pS.join("/");
 }
 
+Actions.propTypes = {
+  data: PropTypes.object,
+  patchDatasetCb: PropTypes.func,
+  showDialog: PropTypes.func
+}
+
 function Actions({data, patchDatasetCb, showDialog}) {
 
   let { keycloak } = useKeycloak();
@@ -179,29 +186,38 @@ function Actions({data, patchDatasetCb, showDialog}) {
                   keycloak.login();
                 }
               //}
-            }, "Use on Apps Dashboard")
+            }, "Use on Apps Dashboard", "action-use-dashboard")
       ]
       console.log(`data.editablePropertiesByTheUser ${data.editablePropertiesByTheUser}`);
       if (keycloak.authenticated) {
         entries.push(
           getAction(data.editablePropertiesByTheUser.includes("invalidated"),
-            () => {patchDatasetCb(keycloak.token, data["id"], "invalidated", !data.invalidated)}, data.invalidated ? "Validate" : "Invalidate"),
+            () => {patchDatasetCb(keycloak.token, data["id"], "invalidated", 
+                !data.invalidated)}, data.invalidated ? "Validate" : "Invalidate", "action-invalidate"),
           getAction(data.editablePropertiesByTheUser.includes("public"),
-              () => showDialogPublishDs(keycloak.token, patchDatasetCb, showDialog,  data), data.public ? "Unpublish" : "Publish"),
+              () => showDialogPublishDs(keycloak.token, patchDatasetCb, showDialog,  data), 
+                  data.public ? "Unpublish" : "Publish", "action-publish"),
           getAction(data.editablePropertiesByTheUser.includes("draft"),
-                  () => {patchDatasetCb(keycloak.token, data["id"], "draft", false)}, "Release")
+                  () => {patchDatasetCb(keycloak.token, data["id"], "draft", false)}, "Release", "action-release")
         );
       }
   //}
   if (entries.length !== 0) {
-    return  <DropdownButton title="Actions">
+    return  <DropdownButton key="actions-drop" title="Actions">
         {entries}
             </DropdownButton>;
   }
   return <Fragment />;
 }
 
-
+DatasetView.propTypes = {
+  dataManager: PropTypes.object,
+  postMessage: PropTypes.func,
+  showDialog: PropTypes.func,
+  keycloakReady: PropTypes.bool,
+  showdDlgOpt: PropTypes.string,
+  activeTab: PropTypes.string
+}
 
 function DatasetView(props) {
    let location = useLocation();
@@ -216,6 +232,9 @@ function DatasetView(props) {
        data: null,
        status: -1
     });
+    const handlePostMsg = useCallback((msgType, title, text) => {
+      props.postMessage(new Message(msgType, title, text));
+    }, []);
 
     let { keycloak } = useKeycloak();
     const getDataset = function(token, datasetId) {
@@ -250,7 +269,7 @@ function DatasetView(props) {
     const patchDataset = (token, datasetId, field, value) => {
       props.dataManager.patchDataset(token, datasetId, field, value)
       .then(
-        (xhr) => {
+        () => {
           getDataset(token, datasetId);
           // setAllValues( prevValues => {
           //   let data = JSON.parse(JSON.stringify(prevValues));
@@ -266,7 +285,6 @@ function DatasetView(props) {
           // });
         });
       }
-
   useEffect(() => {
       if (props.keycloakReady) {
         console.log(`props.showdDlgOpt ${props.showdDlgOpt}`);
@@ -353,10 +371,10 @@ function DatasetView(props) {
                 </Nav.Item>
                 {keycloak.authenticated ?
                   [
-                      (<Nav.Item>
+                      (<Nav.Item key="studies-nav">
                         <Nav.Link eventKey="studies" key="studies">Studies</Nav.Link>
                       </Nav.Item>),
-                      (<Nav.Item>
+                      (<Nav.Item key="history-nav">
                         <Nav.Link eventKey="history">History</Nav.Link>
                       </Nav.Item>)
                   ] : (<Fragment />)}
@@ -372,13 +390,13 @@ function DatasetView(props) {
 
                 {keycloak.authenticated ?
                   [
-                    (<Tab.Pane eventKey="studies">
+                    (<Tab.Pane eventKey="studies"  key="studies-pane">
                       <DatasetStudiesView datasetId={datasetId} studiesCount={allValues.data === null ? 0 : allValues.data.studiesCount} keycloakReady={props.keycloakReady}
                         postMessage={props.postMessage} dataManager={props.dataManager}/>
                     </Tab.Pane>),
-                    (<Tab.Pane eventKey="history">
+                    (<Tab.Pane eventKey="history" key="history-pane" >
                       <DatasetHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
-                    </Tab.Pane>)
+                     </Tab.Pane>)
                   ] : (<Fragment />)}
               </Tab.Content>
             </Col>
