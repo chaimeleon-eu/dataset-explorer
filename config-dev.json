@@ -8,13 +8,18 @@
   "defaultLimitStudies": 4,
   "defaultLimitTraces": 4,
   "kubeAppsUrl": "http://asaserver.i3m.upv.es:3005/",
+  "refreshDatasetCreate": 1000,
   "keycloak": {
-    "url": "https://asaserver.i3m.upv.es:20000/auth",
-    "responseMode": "fragment",
-    "checkLoginIframe": false,
-    "realm": "CHAIMELEON",
-    "clientId": "dataset-explorer",
-    "onLoad": "login-required",
-    "redirectUri": "http://asaserver.i3m.upv.es:3005/"
+    "config": {
+      "url": "https://asaserver.i3m.upv.es:20000/auth",
+      "realm": "CHAIMELEON",
+      "clientId": "dataset-explorer"
+    },
+    "initOptions": {
+      "responseMode": "query",
+      "checkLoginIframe": false,
+      "onLoad": "check-sso",
+      "redirectUri": "http://asaserver.i3m.upv.es:3005/"
+    }
   }
 }

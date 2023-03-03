@@ -15,6 +15,7 @@ import Footer from "./components/Footer";import DatasetsView from "./components/
 import Config from "./config.json";
 import FairView from "./components/FairView";
 import SupportView from "./components/SupportView"; 
+import Message from "./model/Message";
 
 
 const dlgDefaultValues = {
@@ -66,9 +67,14 @@ function App() {
   //   {"redirectUri": window.location.href});
   const onEvent = useCallback((event, error) => {
     console.log('onKeycloakEvent', event);
-          if (event && event === 'onReady'){
+          if (event && (event === 'onReady')) {
               setKeycloakReady(true);
           }
+          if (error) {
+            console.error(error);
+            postMessage(new Message(Message.ERROR, "Keycloak provider error", error.error))
+          }
+          console.log('keycloak ready', keycloakReady);
   }, []);
 
   const tokenLogger = (tokens) => {
@@ -121,7 +127,7 @@ function App() {
                     }
                     />
                 </Routes>
-    </BrowserRouter>;
+    </BrowserRouter>
             </div>
             <Footer />
     </ReactKeycloakProvider>
