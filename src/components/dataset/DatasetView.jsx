@@ -384,7 +384,7 @@ function DatasetView(props) {
             <Col sm={10}>
               <Tab.Content>
                 <Tab.Pane eventKey="details">
-                  <DatasetDetailsView patchDataset={patchDataset} showDialog={props.showDialog} 
+                  <DatasetDetailsView patchDataset={patchDataset} showDialog={props.showDialog} getDataset={getDataset}
                     allValues={allValues} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
                 </Tab.Pane>
 
