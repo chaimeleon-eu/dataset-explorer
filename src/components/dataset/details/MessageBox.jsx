@@ -1,5 +1,6 @@
 import { useKeycloak } from "@react-keycloak/web";
 import React, { Fragment, useState, useEffect } from "react";
+import { useCallback } from "react";
 import { Alert } from "react-bootstrap";
 
 import RouteFactory from "../../../api/RouteFactory";
@@ -11,7 +12,7 @@ const MSG_INVALIDATED = 1;
 const MSG_NEXT_ID = 2;
 const MSG_CREATION_STAT = 3;
 
-function MessageBox({postMessage, keycloakReady, dataManager, dataset}) {
+function MessageBox({postMessage, keycloakReady, dataManager, dataset, getDataset}) {
     const [msgs, setMsgs] = useState({});
     const { keycloak } = useKeycloak();
     useEffect(() => {
@@ -27,23 +28,34 @@ function MessageBox({postMessage, keycloakReady, dataManager, dataset}) {
                 }
             }
         }, [dataset, keycloakReady]);
+    const getCreationStatus = useCallback(() => {
+        dataManager.getDatasetCreationStatus(keycloak.token, dataset.id)
+            .then(xhr => {
+                const stat = JSON.parse(xhr.response);
+                let msg = `Dataset creation in progress with last message: ${stat.lastMessage}`;
+                if ((stat.status === "finished" || stat.status === "error")) {
+                    getDataset(keycloak.token, dataset.id);
+                    msg = `Dataset creation finished with last message: ${stat.lastMessage}`;
+                }
+                setMsgs(prevM => { return {...prevM, [MSG_CREATION_STAT]: msg};});
+            })
+            .catch(xhr => {
+                const error = Util.getErrFromXhr(xhr);
+                postMessage(new Message(Message.ERROR, "Unable to refresh dataset creation status", error.text));
+
+            });
+      }, [msgs]);
+      useEffect(() => {
+        if (dataset && dataset.draft  && keycloakReady && dataset.creating) {
+                getCreationStatus();
+            }
+
+      }, [dataset]);
     useEffect(() => {
         let intervalStat = null;
         if (dataset && dataset.draft  && keycloakReady) {
             if (dataset.creating) {
-                intervalStat = setInterval(() => {
-                    console.log(`This will run every ${Config.refreshDatasetCreate}`);
-                    dataManager.getDatasetCreationStatus(keycloak.token, dataset.id)
-                        .then(xhr => {
-                            const lastMsg = JSON.parse(xhr.response).lastMessage;
-                            setMsgs(prevM => { return {...prevM, [MSG_CREATION_STAT]: `Dataset creation in progress with last message: ${lastMsg}`};});
-                        })
-                        .catch(xhr => {
-                            const error = Util.getErrFromXhr(xhr);
-                            postMessage(new Message(Message.ERROR, "Unable to refresh dataset creation status", error.text));
-
-                        });
-                  }, Config.refreshDatasetCreate);
+                intervalStat = setInterval(() => getCreationStatus(intervalStat), Config.refreshDatasetCreate);
             } else {
                 if (intervalStat) {
                     clearInterval(intervalStat);
@@ -52,7 +64,7 @@ function MessageBox({postMessage, keycloakReady, dataManager, dataset}) {
         }
         return () => { if (intervalStat) clearInterval(intervalStat); };
 
-    });
+    }, [dataset]);
     if (Object.values(msgs).length > 0) {
         return <Alert variant="warning">
                 <ul>
