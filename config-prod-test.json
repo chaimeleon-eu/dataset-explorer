@@ -8,7 +8,7 @@
   "defaultLimitStudies": 30,
   "defaultLimitTraces": 15,
   "kubeAppsUrl": "https://chaimeleon-eu.i3m.upv.es/apps/",
-  "refreshDatasetCreate": 15000,
+  "refreshDatasetCreate": 5000,
   "keycloak": {
     "config": {
       "url": "https://chaimeleon-eu.i3m.upv.es/auth/",
@@ -16,10 +16,9 @@
       "clientId": "dataset-explorer-test"
     }, 
     "initOptions": {
-      "responseMode": "query",
-      "checkLoginIframe": false,
-      "onLoad": "check-sso",
-      "redirectUri": "https://chaimeleon-test.grycap.i3m.upv.es/dataset-service"
+      "responseMode": "fragment",
+      "checkLoginIframe": true,
+      "onLoad": "check-sso"
     }
   }
 }

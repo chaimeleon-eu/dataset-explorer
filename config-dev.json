@@ -8,7 +8,7 @@
   "defaultLimitStudies": 4,
   "defaultLimitTraces": 4,
   "kubeAppsUrl": "http://asaserver.i3m.upv.es:3005/",
-  "refreshDatasetCreate": 1000,
+  "refreshDatasetCreate": 5000,
   "keycloak": {
     "config": {
       "url": "https://asaserver.i3m.upv.es:20000/auth",
@@ -16,10 +16,9 @@
       "clientId": "dataset-explorer"
     },
     "initOptions": {
-      "responseMode": "query",
-      "checkLoginIframe": false,
-      "onLoad": "check-sso",
-      "redirectUri": "http://asaserver.i3m.upv.es:3005/"
+      "responseMode": "fragment",
+      "checkLoginIframe": true,
+      "onLoad": "check-sso"
     }
   }
 }

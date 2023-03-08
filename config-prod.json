@@ -16,10 +16,9 @@
       "clientId": "dataset-explorer"
     },
     "initOptions": {
-      "responseMode": "query",
-      "checkLoginIframe": false,
-      "onLoad": "check-sso",
-      "redirectUri": "https://chaimeleon-eu.i3m.upv.es/dataset-service"
+      "responseMode": "fragment",
+      "checkLoginIframe": true,
+      "onLoad": "check-sso"
       }
   }
 }

@@ -3,6 +3,6 @@ import Config from "./config.json";
 
 const keycloak = new Keycloak(Config.keycloak.config);
 
-keycloak.init(Config.keycloak.initOptions);
+//keycloak.init(Config.keycloak.initOptions);
 
 export default keycloak;
