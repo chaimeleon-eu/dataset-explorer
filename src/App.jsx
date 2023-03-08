@@ -1,7 +1,5 @@
 
-import { ReactKeycloakProvider } from "@react-keycloak/web";
-import keycloakConfig from './keycloak';
-import  React, { useState, useCallback } from "react";
+import  React, { useState, useCallback, Fragment } from "react";
 import { Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
@@ -35,8 +33,7 @@ function getDSV({tab, sdo, dataManager, keycloakReady, postMessage, showDialog})
     );
 }
 
-function App() { 
-  const [keycloakReady, setKeycloakReady] = useState(false);
+function App({keycloakReady}) { 
   const [dlgState, setDlgState] = useState(dlgDefaultValues);
   //const handleClose = useCallback(() => Dialog.HANDLE_CLOSE());
   const [dataManager] = useState(new DataManager());
@@ -63,35 +60,10 @@ function App() {
     sdo: null,
     tab: null
   }
-  // const [keycloakProviderInitConfig, setKeycloakProviderInitConfig] = useState(
-  //   {"redirectUri": window.location.href});
-  const onEvent = useCallback((event, error) => {
-    console.log('onKeycloakEvent', event);
-          if (event && (event === 'onReady')) {
-              setKeycloakReady(true);
-          }
-          if (error) {
-            console.error(error);
-            postMessage(new Message(Message.ERROR, "Keycloak provider error", error.error))
-          }
-          console.log('keycloak ready', keycloakReady);
-  }, []);
-
-  const tokenLogger = (tokens) => {
-    console.log('onKeycloakTokens', tokens)
-  }
 
   return (
-        <ReactKeycloakProvider authClient={keycloakConfig}
-//          initConfig={keycloakProviderInitConfig}
-          onEvent={onEvent}
-          onTokens={tokenLogger}
-          // initOptions={{
-          //           adapter: "default",
-          //       }}
-          //      LoadingComponent={<Loading />}
-          >
           
+    <Fragment>
             <Dialog settings={dlgState} />
             <MessageView message={message} />
             <NavbarView />
@@ -130,7 +102,7 @@ function App() {
     </BrowserRouter>
             </div>
             <Footer />
-    </ReactKeycloakProvider>
+            </Fragment>
 
   );
 }

@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 // Careful with the order of CSS loading, if you want to modify Bootstrap's settings
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
-import App from './App';
+import AppKeycloak from './AppKeycloak';
 import reportWebVitals from './reportWebVitals';
 
 const Loading = () => <div>Loading, please wait...</div>
@@ -12,7 +12,7 @@ const Loading = () => <div>Loading, please wait...</div>
 const domNode = document.getElementById('root');
 const root = createRoot(domNode);
 root.render(
-      <App />
+      <AppKeycloak />
 );
 
 // If you want to start measuring performance in your app, pass a function
