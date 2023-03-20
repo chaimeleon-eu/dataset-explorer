@@ -23,7 +23,7 @@ function AppKeycloak() {
   }, []);
 
   const tokenLogger = (tokens) => {
-    console.log('onKeycloakTokens', tokens)
+    console.log('onKeycloakTokens');//, tokens)
   }
 
     return (
