@@ -65,7 +65,7 @@ function DatasetsView (props) {
   const [limit, setLimit] = useState(Config.defaultLimitDatasets);
   const [searchParams, setSearchParams] = useSearchParams("");
   const searchString = searchParams.get("searchString") === null ? "" : searchParams.get("searchString");
-  console.log(`searchString is ${searchString}`);
+  //console.log(`searchString is ${searchString}`);
   const setSearchString = (newVal) => {
     //setSearchParams(`searchString=${encodeURIComponent(newVal)}`);
     const qPs = newVal !== null && newVal !== undefined && newVal.length > 0 ? `?searchString=${encodeURIComponent(newVal)}` : "";
@@ -95,7 +95,7 @@ function DatasetsView (props) {
                 if (data.length === limit+1) {
                   modLimit += 1;
                 }
-                console.log(searchString);
+                //console.log(searchString);
                   props.dataManager.getDatasets(keycloak.token, skip, modLimit, searchString)
                     .then(
                       (xhr) => {

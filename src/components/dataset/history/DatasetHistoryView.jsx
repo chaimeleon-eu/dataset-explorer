@@ -104,6 +104,7 @@ function DatasetHistoryView(props) {
                 let totalTracesCnt = 0;
                 let traces  = [];
                 const rawTraces = JSON.parse(xhr.response).traces;
+                console.log(rawTraces);
                 for (let rt of rawTraces) {
                   console.log(rt.countAllTraces);
                   if (rt.countAllTraces !== undefined)
@@ -128,7 +129,7 @@ function DatasetHistoryView(props) {
                   title = Message.UNK_ERROR_TITLE;
                   text = Message.UNK_ERROR_MSG;
                 } else {
-                  if (xhr.responseType == "text") {
+                  if (xhr.responseType === "text") {
                     title = "History Error";
                     text = xhr.response;
 
@@ -189,9 +190,9 @@ function DatasetHistoryView(props) {
         <Container fluid>
           <Row>
             <Col lg={3} md={12}>
-              {/* <DataFilterView traces={data.traces} updFilteredData={updFilteredData} 
+              <DataFilterView traces={data.traces} updFilteredData={updFilteredData} 
                 keycloakReady={props.keycloakReady} dataManager={props.dataManager} 
-                postMessage={props.postMessage}/> */}
+                postMessage={props.postMessage}/>
             </Col>
             <Col lg={9} md={12} className="d-flex flex-column">
               <TableComponent columns={columns} data={data.tracesFiltered} NoDataComponent={NoDataConst} />
