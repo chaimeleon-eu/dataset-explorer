@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { Badge, Button, Table as BTable } from 'react-bootstrap';
-import { ClipboardPlus } from "react-bootstrap-icons";
-import { useTable, useRowSelect, useFilters, useGlobalFilter } from 'react-table';
-import React, { Fragment, useMemo } from 'react';
+import { ClipboardPlus, ArrowDownUp, CaretDownFill, CaretUpFill } from "react-bootstrap-icons";
+import { useTable, useRowSelect, useFilters, useGlobalFilter, useSortBy } from 'react-table';
+import React, { Fragment, useMemo, useState } from 'react';
 import {matchSorter} from 'match-sorter';
 import PropTypes from "prop-types";
 
@@ -287,7 +287,7 @@ Table.propTypes = {
   columns: PropTypes.array
 }
 
-function Table({ columns, data//, showDialog, dataManager, postMessage, onDialogDetailsClose 
+function Table({ columns, data, sortBy, updSort//, showDialog, dataManager, postMessage, onDialogDetailsClose 
     }) {
   const filterTypes = useMemo(
     () => ({
@@ -315,7 +315,7 @@ function Table({ columns, data//, showDialog, dataManager, postMessage, onDialog
       Filter: DefaultColumnFilter,
     }),
     []
-  )
+  );
 
   // Use the state and functions returned from useTable to build your UI
   const { getTableProps, headerGroups, rows, prepareRow,
@@ -324,6 +324,7 @@ function Table({ columns, data//, showDialog, dataManager, postMessage, onDialog
      // state,
       //state: { selectedRowIds, globalFilter },
       visibleColumns,
+      setSortBy
      // preGlobalFilteredRows,
      // setGlobalFilter 
     } = useTable({
@@ -331,9 +332,14 @@ function Table({ columns, data//, showDialog, dataManager, postMessage, onDialog
       data,
       defaultColumn, // Be sure to pass the defaultColumn option
       filterTypes,
+      manualSortBy: true,
+      initialState: {
+          sortBy
+      }
     },
     useFilters, // useFilters!
     useGlobalFilter, // useGlobalFilter!
+    useSortBy,
     useRowSelect,
     hooks => {
       hooks.visibleColumns.push(columns => [
@@ -359,7 +365,7 @@ function Table({ columns, data//, showDialog, dataManager, postMessage, onDialog
         ...columns,
         {
           id: 'operations',
-          Header: () => (<Fragment/>),
+          disableSortBy: true,
           Cell: ({row}) => <MoreLink row={row}/>
         }
       ])
@@ -368,13 +374,30 @@ function Table({ columns, data//, showDialog, dataManager, postMessage, onDialog
 
   // Render the UI for your table
   return (
-    <BTable striped bordered hover size="sm" {...getTableProps()}>
+    <BTable striped bordered hover size="sm" {...getTableProps()} >
       <thead>
         {headerGroups.map(headerGroup => (
           <tr key="header" {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map(column => (
-              <th key={`th-${Math.random().toString(16).slice(2)}`} {...column.getHeaderProps()}>
+              <th key={`th-${Math.random().toString(16).slice(2)}`} 
+                  {...column.getHeaderProps(column.getSortByToggleProps())}
+                  onClick={() => 
+                    {
+                      console.log(column);
+                      column.toggleSortBy(!column.isSortedDesc);
+                      updSort({sortBy: column.id, sortDirection: column.isSortedDesc ? "ascending" : "descending"});
+                      //setSortBy(sortBy);
+                    }} //column.toggleSortBy(!column.isSortedDesc)}
+              >
                 {column.render('Header')}
+                <span>
+                    { column.canSort ? (column.isSorted
+                      ? (column.isSortedDesc
+                        ? <CaretDownFill />
+                        :  <CaretUpFill />)
+                      : <ArrowDownUp className="ms-1" size="0.75em"/> ) 
+                    : ""}
+                  </span>
               </th>
             ))}
           </tr>
@@ -425,26 +448,33 @@ DatasetsMainTable.propTypes = {
 
 
 function DatasetsMainTable(props) {
-
+  const sortBy = useMemo(() => {return [props.currentSort]}, [props.currentSort]);
   const columns = useMemo(() => [
     {
       Header: 'ID',
+      id: "id",
+      disableSortBy: true,
       Cell: ({row}) => <ColIdRender  row={row}/> 
     },
     {
       Header: 'Dataset',
+      id: "name",
       accessor: 'name'
     },
     {
       Header: 'Flags',
+      id: "flags",
       Cell: ({row}) => <ColFlagsRender   row={row}/> 
     },
     {
       Header: 'Author',
+      id: "authorName",
       accessor: 'authorName'
     },
     {
       Header: 'Created',
+      id: "creationDate",
+      accessor: 'creationDate',
       Cell: ({ row }) => (
           new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
             .format(Date.parse(row.original["creationDate"]))
@@ -452,17 +482,22 @@ function DatasetsMainTable(props) {
     },
     {
       Header: 'Studies',
+      id: "studiesCount",
       accessor: 'studiesCount'
     },
     {
       Header: 'Subjects',
+      id: "subjectsCount",
       accessor: 'subjectsCount'
     }
   ]);
     return <Table columns={columns} data={props.data} NoDataComponent={NoDataConst}
       showDialog={props.showDialog} dataManager={props.dataManager}
       postMessage={props.postMessage}
-      onDialogDetailsClose={Dialog.HANDLE_CLOSE}/>
+      onDialogDetailsClose={Dialog.HANDLE_CLOSE}
+      sortBy={sortBy}
+      updSort={props.updSort}
+      />
 }
 
 export default DatasetsMainTable;
