@@ -2,12 +2,12 @@ import Config from "../config.json";
 
 export default class WebClient {
 
-  static getDatasets(token, skip, limit, searchString) {
+  static getDatasets(token, qParams) {
     let headers = new Map();
     if (token) {
       headers.set("Authorization", "Bearer " + token);
     }
-    const qTmp = this._prepQueryParams({skip, limit, searchString});
+    const qTmp = this._prepQueryParams(qParams);
     return WebClient._call("GET", Config.datasetService + "/datasets", headers,
                 null, "text", qTmp);
   }

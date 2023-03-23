@@ -4,12 +4,13 @@ import { Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} 
 import { Search as SearchIc, FilePlus as FilePlusIc } from "react-bootstrap-icons";
 import { useTable, useRowSelect } from 'react-table';
 import { useKeycloak } from '@react-keycloak/web';
-import { useLocation, useSearchParams, useNavigate } from "react-router-dom";
+import { useLocation, useSearchParams, useNavigate, createSearchParams } from "react-router-dom";
 
 import Message from "../model/Message.js";
 import Dialog from "./Dialog";
 import DatasetsMainTable from "./DatasetsMainTable";
 import Config from "../config.json";
+import { useCallback } from 'react';
 
 function handleShow() {
 
@@ -52,8 +53,27 @@ const SearchComponent = ({initValue, setSearchString}) => {
   );
 }
 
+function getSortDirectionDesc(searchParam, sortBy) {
+  if (!sortBy) {
+    sortBy = "creationDate";
+  }
+
+  if (!searchParam) {
+    switch (sortBy) {
+      case "name":
+      case "authorName": searchParam = "ascending"; break;
+      case "creationDate":
+      case "studiesCount":
+      case "subjectsCount": searchParam =  "descending"; break;
+      default: console.warn(`Column ${column} not handled when sort dir not set`); searchParam =  "descending"; 
+    }
+  } 
+  return searchParam === "ascending" ? false : true;
+}
+
 function DatasetsView (props) {
   let navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams("");
   //const [search] = useSearchParams();
   //const searchStringParam = search.get('searchString') === null ? "" : search.get('searchString');
   //console.log(`searchStringParam is ${searchStringParam}`);
@@ -63,7 +83,13 @@ function DatasetsView (props) {
   const [data, setData] = useState([]);
   const [skip, setSkip] = useState(0);
   const [limit, setLimit] = useState(Config.defaultLimitDatasets);
-  const [searchParams, setSearchParams] = useSearchParams("");
+
+  const updSort = useCallback(({sortBy, sortDirection}) => {
+    searchParams.set("sortBy", sortBy);
+    searchParams.set("sortDirection", sortDirection);
+    setSearchParams(searchParams);
+  }, [searchParams, setSearchParams]);
+
   const searchString = searchParams.get("searchString") === null ? "" : searchParams.get("searchString");
   //console.log(`searchString is ${searchString}`);
   const setSearchString = (newVal) => {
@@ -96,7 +122,9 @@ function DatasetsView (props) {
                   modLimit += 1;
                 }
                 //console.log(searchString);
-                  props.dataManager.getDatasets(keycloak.token, skip, modLimit, searchString)
+                  props.dataManager.getDatasets(keycloak.token, {skip, modLimit, searchString, 
+                        sortBy: searchParams.get("sortBy"), 
+                        sortDirection: searchParams.get("sortDirection") })
                     .then(
                       (xhr) => {
                         setIsLoaded(true);
@@ -120,7 +148,7 @@ function DatasetsView (props) {
                 //}
 
         }, //1000);},
-        [props.keycloakReady, skip, limit, searchString]);
+        [props.keycloakReady, searchParams, skip, limit, searchString]);
 
       return (
         <Container fluid>
@@ -130,7 +158,13 @@ function DatasetsView (props) {
           <Row>
             <DatasetsMainTable data={data.slice(0, limit)} showDialog={props.showDialog}
               dataManager={props.dataManager}
-              postMessage={props.postMessage}/>
+              postMessage={props.postMessage}
+              currentSort={{
+                id: searchParams.get("sortBy") ?? "creationDate", 
+                desc: getSortDirectionDesc(searchParams.get("sortDirection"), searchParams.get("sortBy") ?? "creationDate")
+              }}
+              updSort={updSort}
+              />
           </Row>
           <div className="w-100" >
             <Button className="position-relative start-50 me-4" disabled={skip == 0 ? true : false} onClick={(e) => setSkip(skip - limit)}>Previous</Button>
