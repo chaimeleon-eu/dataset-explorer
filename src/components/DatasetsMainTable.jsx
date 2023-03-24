@@ -287,7 +287,7 @@ Table.propTypes = {
   columns: PropTypes.array
 }
 
-function Table({ columns, data, sortBy, updSort//, showDialog, dataManager, postMessage, onDialogDetailsClose 
+function Table({ columns, data, sortBy, updSearchParams//, showDialog, dataManager, postMessage, onDialogDetailsClose 
     }) {
   const filterTypes = useMemo(
     () => ({
@@ -383,9 +383,9 @@ function Table({ columns, data, sortBy, updSort//, showDialog, dataManager, post
                   {...column.getHeaderProps(column.getSortByToggleProps())}
                   onClick={() => 
                     {
-                      console.log(column);
+                      // console.log(column);
                       column.toggleSortBy(!column.isSortedDesc);
-                      updSort({sortBy: column.id, sortDirection: column.isSortedDesc ? "ascending" : "descending"});
+                      updSearchParams({sortBy: column.id, sortDirection: column.isSortedDesc ? "ascending" : "descending"});
                       //setSortBy(sortBy);
                     }} //column.toggleSortBy(!column.isSortedDesc)}
               >
@@ -496,7 +496,7 @@ function DatasetsMainTable(props) {
       postMessage={props.postMessage}
       onDialogDetailsClose={Dialog.HANDLE_CLOSE}
       sortBy={sortBy}
-      updSort={props.updSort}
+      updSearchParams={props.updSearchParams}
       />
 }
 
