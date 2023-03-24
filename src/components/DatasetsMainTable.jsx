@@ -522,7 +522,7 @@ function DatasetsMainTable(props) {
       id: "subjectsCount",
       accessor: 'subjectsCount'
     }
-  ]);
+  ], [props]);
     return <Table columns={columns} data={props.data} NoDataComponent={NoDataConst}
       showDialog={props.showDialog} dataManager={props.dataManager}
       postMessage={props.postMessage}
