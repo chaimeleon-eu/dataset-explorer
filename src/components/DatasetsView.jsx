@@ -36,7 +36,7 @@ function getSortDirectionDesc(searchParam, sortBy) {
       default: console.warn(`Column ${sortBy} not handled when sort dir not set`); searchParam =  "descending"; 
     }
   } 
-  return searchParam === "ascending" ? false : true;
+  return searchParam;// === "ascending" ? false : true;
 }
 
 function DatasetsView (props) {
@@ -101,7 +101,8 @@ function DatasetsView (props) {
                     .then(
                       (xhr) => {
                         setIsLoaded(true);
-                        setData(JSON.parse(xhr.response));
+                        const d = JSON.parse(xhr.response);
+                        setData(d);
                       },
                       (xhr) => {
                         setIsLoaded(true);
@@ -121,7 +122,7 @@ function DatasetsView (props) {
                 //}
 
         }, //1000);},
-        [props.keycloakReady, searchParams]);
+        [props.keycloakReady, searchParams, sortBy, sortDirection, skip, limit, searchString]);
 
       return (
         <Container fluid>
@@ -134,7 +135,7 @@ function DatasetsView (props) {
               postMessage={props.postMessage}
               currentSort={{
                 id: sortBy, 
-                desc: sortDirection
+                desc: sortDirection === "descending" ? true : false
               }}
               updSearchParams={updSearchParams}
               />
