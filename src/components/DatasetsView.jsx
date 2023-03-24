@@ -1,4 +1,4 @@
-import React, {useState, useEffect}from 'react';
+import React, {useState, useEffect, useCallback }from 'react';
 import ReactDOM from 'react-dom';
 import { Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} from 'react-bootstrap';
 import { Search as SearchIc, FilePlus as FilePlusIc } from "react-bootstrap-icons";
@@ -8,9 +8,9 @@ import { useLocation, useSearchParams, useNavigate, createSearchParams } from "r
 
 import Message from "../model/Message.js";
 import Dialog from "./Dialog";
+import DatasetsSearch from  "./DatasetsSearch";
 import DatasetsMainTable from "./DatasetsMainTable";
 import Config from "../config.json";
-import { useCallback } from 'react';
 
 function handleShow() {
 
@@ -19,39 +19,7 @@ function handleShow() {
 
 
 
-const SearchComponent = ({initValue, setSearchString}) => {
-  const [input, setInput] = useState(initValue);
-  useEffect(() => {
-    setInput(initValue);
-  }, [initValue]);
-  // const updInput = (newVal) => {
-  //   setInput(newVal);
-  //   setSearchString(input);
-  // }
 
-  return (
-    <InputGroup className="mb-3">
-      <FormControl
-        type="search"
-        placeholder="Dataset search"
-        aria-label="Dataset search"
-        aria-describedby="basic-addon2"
-        //defaultValue={props.initValue}
-        style={{fontWeight: "bold"}}
-        onChange={(e) => setInput(e.target.value)}
-        value={input}
-        onKeyDown={(e) => {
-          if(e.key === 'Enter') {
-              setSearchString(e.target.value);
-          }
-        }}
-      />
-      <Button variant="outline-secondary" size="sm" className="search-btn" onClick={() =>setSearchString(input)}>
-        <SearchIc />
-      </Button>
-    </InputGroup>
-  );
-}
 
 function getSortDirectionDesc(searchParam, sortBy) {
   if (!sortBy) {
@@ -65,7 +33,7 @@ function getSortDirectionDesc(searchParam, sortBy) {
       case "creationDate":
       case "studiesCount":
       case "subjectsCount": searchParam =  "descending"; break;
-      default: console.warn(`Column ${column} not handled when sort dir not set`); searchParam =  "descending"; 
+      default: console.warn(`Column ${sortBy} not handled when sort dir not set`); searchParam =  "descending"; 
     }
   } 
   return searchParam === "ascending" ? false : true;
@@ -81,25 +49,30 @@ function DatasetsView (props) {
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [data, setData] = useState([]);
-  const [skip, setSkip] = useState(0);
-  const [limit, setLimit] = useState(Config.defaultLimitDatasets);
+  // const [skip, setSkip] = useState(0);
+  // const [limit, setLimit] = useState(Config.defaultLimitDatasets);
 
-  const updSort = useCallback(({sortBy, sortDirection}) => {
-    searchParams.set("sortBy", sortBy);
-    searchParams.set("sortDirection", sortDirection);
+  const updSearchParams = useCallback((params) => {
+    for (const [k, v] of Object.entries(params)) {
+      searchParams.set(k, v);
+    }
     setSearchParams(searchParams);
   }, [searchParams, setSearchParams]);
 
-  const searchString = searchParams.get("searchString") === null ? "" : searchParams.get("searchString");
+  const searchString = searchParams.get("searchString") ? decodeURIComponent(searchParams.get("searchString")) : "";
+  const sortBy = searchParams.get("sortBy") ?? "creationDate";
+  const sortDirection = getSortDirectionDesc(searchParams.get("sortDirection"), searchParams.get("sortBy") ?? "creationDate");
+  const skip = searchParams.get("skip") ? Number(searchParams.get("skip")) : 0;
+  const limit = searchParams.get("limit") ? Number(searchParams.get("skip")) : Config.defaultLimitDatasets;
   //console.log(`searchString is ${searchString}`);
-  const setSearchString = (newVal) => {
-    //setSearchParams(`searchString=${encodeURIComponent(newVal)}`);
-    const qPs = newVal !== null && newVal !== undefined && newVal.length > 0 ? `?searchString=${encodeURIComponent(newVal)}` : "";
-    navigate({
-      pathname: './',
-      search: qPs,
-    });
-  }
+  // const setSearchString = (newVal) => {
+  //   //setSearchParams(`searchString=${encodeURIComponent(newVal)}`);
+  //   const qPs = newVal !== null && newVal !== undefined && newVal.length > 0 ? `?searchString=${encodeURIComponent(newVal)}` : "";
+  //   navigate({
+  //     pathname: './',
+  //     search: qPs,
+  //   });
+  // }
 
   // const location = useLocation();
   //
@@ -123,8 +96,8 @@ function DatasetsView (props) {
                 }
                 //console.log(searchString);
                   props.dataManager.getDatasets(keycloak.token, {skip, modLimit, searchString, 
-                        sortBy: searchParams.get("sortBy"), 
-                        sortDirection: searchParams.get("sortDirection") })
+                        sortBy, 
+                        sortDirection})
                     .then(
                       (xhr) => {
                         setIsLoaded(true);
@@ -148,27 +121,27 @@ function DatasetsView (props) {
                 //}
 
         }, //1000);},
-        [props.keycloakReady, searchParams, skip, limit, searchString]);
+        [props.keycloakReady, searchParams]);
 
       return (
         <Container fluid>
           <Row>
-            <SearchComponent initValue={searchString} setSearchString={setSearchString}/>
+            <DatasetsSearch initValue={searchString} updSearchParams={updSearchParams}/>
           </Row>
           <Row>
             <DatasetsMainTable data={data.slice(0, limit)} showDialog={props.showDialog}
               dataManager={props.dataManager}
               postMessage={props.postMessage}
               currentSort={{
-                id: searchParams.get("sortBy") ?? "creationDate", 
-                desc: getSortDirectionDesc(searchParams.get("sortDirection"), searchParams.get("sortBy") ?? "creationDate")
+                id: sortBy, 
+                desc: sortDirection
               }}
-              updSort={updSort}
+              updSearchParams={updSearchParams}
               />
           </Row>
           <div className="w-100" >
-            <Button className="position-relative start-50 me-4" disabled={skip == 0 ? true : false} onClick={(e) => setSkip(skip - limit)}>Previous</Button>
-            <Button className="position-relative start-50"  disabled={data.length <= limit ? true : false} onClick={(e) => setSkip(skip + limit)}>Next</Button>
+            <Button className="position-relative start-50 me-4" disabled={skip === 0 ? true : false} onClick={(e) => updSearchParams({skip: skip - limit})}>Previous</Button>
+            <Button className="position-relative start-50"  disabled={data.length <= limit ? true : false} onClick={(e) => updSearchParams({skip: skip + limit})}>Next</Button>
           </div>
         </Container>
       );
