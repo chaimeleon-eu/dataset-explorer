@@ -60,3 +60,23 @@ code {
 .pre-text {
   white-space: pre-wrap;
 }
+
+.copy-success{
+  animation: copy-success-change 3s;
+}
+
+@keyframes copy-success-change {
+  0% { background-color: transparent; }
+  50% { background-color: lightgreen; }
+  100% { background-color: transparent; }
+}
+
+.copy-error{
+  animation: copy-error-change 3s;
+}
+
+@keyframes copy-error-change {
+  0% { background-color: transparent; }
+  50% { background-color: lightcoral; }
+  100% { background-color: transparent; }
+}

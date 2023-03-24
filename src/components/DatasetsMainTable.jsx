@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Badge, Button, Table as BTable } from 'react-bootstrap';
-import { ClipboardPlus, ArrowDownUp, CaretDownFill, CaretUpFill } from "react-bootstrap-icons";
+import { ClipboardPlus, ArrowDownUp, CaretDownFill, CaretUpFill, CheckCircleFill, XCircleFill } from "react-bootstrap-icons";
 import { useTable, useRowSelect, useFilters, useGlobalFilter, useSortBy } from 'react-table';
 import React, { Fragment, useMemo, useState } from 'react';
 import {matchSorter} from 'match-sorter';
@@ -269,6 +269,37 @@ function ColIdRender({row}) {
   );
 }
 
+ColNameIdRender.propTypes = {
+  row: PropTypes.object
+}
+
+function ColNameIdRender({row}) {
+  const [copySuc, setCopySuc] = useState(null);
+  const txtIdClass = "text-secondary" + (copySuc !== null ? (copySuc ? " copy-success " : " copy-error ") : "");
+  
+  return (
+    <Fragment>
+    {row.original["name"]}
+    &nbsp;(<i className={txtIdClass} onAnimationEnd={() => setCopySuc(null)}>{row.original["id"]}</i>
+    <Button variant="link" className="m-0 p-0 ms-1" onClick={(e) =>
+        {navigator.clipboard ? 
+          navigator.clipboard.writeText(row.original["id"]).then(function() {
+              console.log('Async: Copying to clipboard was successful!');
+              setCopySuc(true);
+            }, function(err) {
+              console.error('Async: Could not copy text: ', err);
+              setCopySuc(false);
+            })
+            : console.error('Async: Could not copy text') ||  setCopySuc(false)
+        }} >
+
+        {copySuc !== null ? (copySuc ? <CheckCircleFill color="green"/> : <XCircleFill color="red"/>) : <ClipboardPlus />}
+        
+      </Button>)
+      </Fragment>
+  );
+}
+
 ColFlagsRender.propTypes = {
   row: PropTypes.object
 }
@@ -450,16 +481,17 @@ DatasetsMainTable.propTypes = {
 function DatasetsMainTable(props) {
   const sortBy = useMemo(() => {return [props.currentSort]}, [props.currentSort]);
   const columns = useMemo(() => [
+    // {
+    //   Header: 'ID',
+    //   id: "id",
+    //   disableSortBy: true,
+    //   Cell: ({row}) => <ColIdRender  row={row}/> 
+    // },
     {
-      Header: 'ID',
-      id: "id",
-      disableSortBy: true,
-      Cell: ({row}) => <ColIdRender  row={row}/> 
-    },
-    {
-      Header: 'Dataset',
+      Header: ()=><Fragment>Dataset (<i>ID</i>)</Fragment>,
       id: "name",
-      accessor: 'name'
+      accessor: 'name',
+      Cell: ({row}) => <ColNameIdRender  row={row}/>
     },
     {
       Header: 'Flags',
