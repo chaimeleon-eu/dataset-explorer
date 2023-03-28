@@ -62,7 +62,7 @@ code {
 }
 
 .copy-success{
-  animation: copy-success-change 3s;
+  animation: copy-success-change 1.5s;
 }
 
 @keyframes copy-success-change {
@@ -72,7 +72,7 @@ code {
 }
 
 .copy-error{
-  animation: copy-error-change 3s;
+  animation: copy-error-change 1.5s;
 }
 
 @keyframes copy-error-change {
