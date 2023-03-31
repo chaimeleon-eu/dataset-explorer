@@ -102,6 +102,7 @@ function DatasetsView (props) {
                       (xhr) => {
                         setIsLoaded(true);
                         const d = JSON.parse(xhr.response);
+                        console.log(d);
                         setData(d);
                       },
                       (xhr) => {
@@ -143,6 +144,7 @@ function DatasetsView (props) {
           <div className="w-100" >
             <Button className="position-relative start-50 me-4" disabled={skip === 0 ? true : false} onClick={(e) => updSearchParams({skip: skip - limit})}>Previous</Button>
             <Button className="position-relative start-50"  disabled={data.length <= limit ? true : false} onClick={(e) => updSearchParams({skip: skip + limit})}>Next</Button>
+            {/* <TableNavigationPages skip={skip} limit={limit} total={data} */}
           </div>
         </Container>
       );
