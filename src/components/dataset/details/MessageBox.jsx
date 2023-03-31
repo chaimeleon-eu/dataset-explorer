@@ -33,7 +33,7 @@ function MessageBox({postMessage, keycloakReady, dataManager, dataset, getDatase
             .then(xhr => {
                 const stat = JSON.parse(xhr.response);
                 let msg = `Dataset creation in progress with last message: ${stat.lastMessage}`;
-                if ((stat.status === "finished" || stat.status === "error")) {
+                if ((stat.status === "finished" || stat.status === "error") && !dataset.creating) {
                     getDataset(keycloak.token, dataset.id);
                     msg = `Dataset creation finished with last message: ${stat.lastMessage}`;
                 }
@@ -44,10 +44,11 @@ function MessageBox({postMessage, keycloakReady, dataManager, dataset, getDatase
                 postMessage(new Message(Message.ERROR, "Unable to refresh dataset creation status", error.text));
 
             });
-      }, [msgs]);
+      }, [msgs, dataset]);
       useEffect(() => {
         if (dataset && dataset.draft  && keycloakReady && dataset.creating) {
                 getCreationStatus();
+                console.log(`initial get creation status ${dataset}`);
             }
 
       }, [dataset]);
@@ -55,7 +56,10 @@ function MessageBox({postMessage, keycloakReady, dataManager, dataset, getDatase
         let intervalStat = null;
         if (dataset && dataset.draft  && keycloakReady) {
             if (dataset.creating) {
-                intervalStat = setInterval(() => getCreationStatus(intervalStat), Config.refreshDatasetCreate);
+                intervalStat = setInterval(() => {
+                    console.log(`get creation status ${dataset}`);
+                    getCreationStatus(intervalStat)
+                }, Config.refreshDatasetCreate);
             } else {
                 if (intervalStat) {
                     clearInterval(intervalStat);
