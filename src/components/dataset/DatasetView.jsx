@@ -170,7 +170,7 @@ function Actions({data, patchDatasetCb, showDialog}) {
   let entries = [];
   //if (data.editablePropertiesByTheUser.some(r => ["invalidated", "public", "draft"].includes(r))) {
       entries = [
-        getAction(!data.editablePropertiesByTheUser.includes("draft"),
+        getAction(!data["creating"] && !data["invalidated"] ,
             () => {
               const path = location.pathname;
               // if (keycloak.authenticated) {
