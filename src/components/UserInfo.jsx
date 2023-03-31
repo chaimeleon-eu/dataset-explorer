@@ -26,8 +26,11 @@ function UserInfo(props) {
         keycloak.idTokenParsed.name + " (" + keycloak.idTokenParsed.email + ")"
       }
     >
+      <Dropdown.Item href={Config.userAccountUrl} key="useraccount" target="_blank" >
+        User Account
+      </Dropdown.Item>
       <Dropdown.Item
-        href="#"
+        href="#" key="logout"
         onClick={() => {
              // workaround for changes with oidc logout in Keycloak 18.0.0
         // See https://www.keycloak.org/docs/latest/upgrading/index.html#openid-connect-logout
