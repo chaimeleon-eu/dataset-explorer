@@ -3,12 +3,13 @@
   "release": "dev",
   "datasetService": "http://asaserver.i3m.upv.es:8000/api/v1",
   "tracerService": "http://asaserver.i3m.upv.es:8000/api/v1/tracer-service",
+  "caseExplorerService": "",
   "basename": "",
   "defaultLimitDatasets": 5,
   "defaultLimitStudies": 4,
   "defaultLimitTraces": 4,
   "kubeAppsUrl": "http://asaserver.i3m.upv.es:3005/",
-  "userAccountUrl": "https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON/account",
+  "userAccountUrl": "https://asaserver.i3m.upv.es:20000/auth/realms/CHAIMELEON/account",
   "refreshDatasetCreate": 5000,
   "keycloak": {
     "config": {
