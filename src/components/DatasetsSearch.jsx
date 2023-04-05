@@ -1,0 +1,40 @@
+
+import { Button, InputGroup, FormControl } from 'react-bootstrap';
+import { Search as SearchIc } from "react-bootstrap-icons";
+import React, {useState, useEffect}from 'react';
+
+function SearchComponent({initValue, updSearchParams}) {
+    const [input, setInput] = useState(initValue);
+    useEffect(() => {
+      setInput(initValue);
+    }, [initValue]);
+    // const updInput = (newVal) => {
+    //   setInput(newVal);
+    //   setSearchString(input);
+    // }
+  
+    return (
+      <InputGroup className="mb-3">
+        <FormControl
+          type="search"
+          placeholder="Dataset search"
+          aria-label="Dataset search"
+          aria-describedby="basic-addon2"
+          //defaultValue={props.initValue}
+          style={{fontWeight: "bold"}}
+          onChange={(e) => setInput(e.target.value)}
+          value={input}
+          onKeyDown={(e) => {
+            if(e.key === 'Enter') {
+                updSearchParams({searchString: e.target.value});
+            }
+          }}
+        />
+        <Button variant="outline-secondary" size="sm" className="search-btn" onClick={() =>updSearchParams({searchString: input})}>
+          <SearchIc />
+        </Button>
+      </InputGroup>
+    );
+  }
+
+  export default SearchComponent;

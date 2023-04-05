@@ -2,8 +2,8 @@ import WebClient from "./WebClient.js";
 
 export default class DataManager {
 
-  getDatasets(token, skip, limit, searchString) {
-    return WebClient.getDatasets(token, skip, limit, searchString );
+  getDatasets(token, qParams) {
+    return WebClient.getDatasets(token, qParams );
   }
 
   getDataset(token, datasetId, studiesSkip, studiesLimit) {
@@ -14,12 +14,16 @@ export default class DataManager {
     return WebClient.patchDataset(token, dsId, property, value);
   }
 
-  getTracesDataset(token, datasetId) {
-    return WebClient.getTracesDataset(token, datasetId);
+  getTracesDataset(token, datasetId, skip,  limit) {
+    return WebClient.getTracesDataset(token, datasetId, skip,  limit);
   }
 
   getTracesActions() {
     return WebClient.getTracesActions();
+  }
+
+  getDatasetCreationStatus(token, datasetId) {
+    return WebClient.getDatasetCreationStatus(token, datasetId);
   }
 
 }

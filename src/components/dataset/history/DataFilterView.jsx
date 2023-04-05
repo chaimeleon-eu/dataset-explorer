@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Accordion, Container, Row, Col, Button} from "react-bootstrap";
 import { useKeycloak } from '@react-keycloak/web';
 
-import DataFilterCategory from "./DataFilterCategory.js";
+import DataFilterCategory from "./DataFilterCategory";
 
 
 function DataFilterView(props) {

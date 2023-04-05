@@ -2,18 +2,19 @@ import Config from "../config.json";
 
 export default class WebClient {
 
-  static getDatasets(token, skip, limit, searchString) {
+  static getDatasets(token, qParams) {
     let headers = new Map();
-    if (token != undefined) {
+    if (token) {
       headers.set("Authorization", "Bearer " + token);
     }
+    const qTmp = this._prepQueryParams(qParams);
     return WebClient._call("GET", Config.datasetService + "/datasets", headers,
-                null, "text", { skip, limit, searchString });
+                null, "text", qTmp);
   }
 
   static getDataset(token, dsId, studiesSkip, studiesLimit) {
     let headers = new Map();
-    if (token != undefined) {
+    if (token) {
       headers.set("Authorization", "Bearer " + token);
     }
     return WebClient._call("GET", Config.datasetService + "/datasets/" + dsId, headers,
@@ -22,7 +23,7 @@ export default class WebClient {
 
   static patchDataset(token, dsId, property, value) {
       let headers = new Map();
-      if (token != undefined) {
+      if (token) {
         headers.set("Authorization", "Bearer " + token);
       }
       headers.set("Content-Type", "application/json");
@@ -36,13 +37,35 @@ export default class WebClient {
         new Map(), null, "text", null);
   }
 
-  static getTracesDataset(token, datasetId) {
+  static getTracesDataset(token, datasetId, skipTraces, limitTraces) {
     let headers = new Map();
-    if (token != undefined) {
+    if (token) {
       headers.set("Authorization", "Bearer " + token);
     }
-      return WebClient._call("GET", Config.tracerService + "/traces",
-        headers, null, "text", { datasetId });
+    const qTmp = this._prepQueryParams({ datasetId, skipTraces, limitTraces });
+    return WebClient._call("GET", Config.tracerService + "/traces",
+      headers, null, "text", qTmp);
+  }
+
+  static getDatasetCreationStatus(token, dsId) {
+    let headers = new Map();
+    if (token) {
+      headers.set("Authorization", "Bearer " + token);
+    }
+    return WebClient._call("GET", Config.datasetService + `/datasets/${dsId}/creationStatus`, headers,
+                null, "text", null);
+  }
+
+  static _prepQueryParams(qTmp) {
+    const entr = Object.entries(qTmp);
+    let size = entr.length;
+    for (const [k,v] of entr) {
+      if (v === undefined || v === null) {
+        delete qTmp[k];
+        --size;
+      }
+    }
+    return size === 0 ? null : qTmp;
   }
 
   static _call(method, path, headers, payload, responseType, queryParams) {

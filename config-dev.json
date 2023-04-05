@@ -1,18 +1,26 @@
 {
   "appVersion": "dev10000000000",
+  "release": "dev",
   "datasetService": "http://asaserver.i3m.upv.es:8000/api/v1",
   "tracerService": "http://asaserver.i3m.upv.es:8000/api/v1/tracer-service",
+  "caseExplorerService": "",
   "basename": "",
   "defaultLimitDatasets": 5,
   "defaultLimitStudies": 4,
+  "defaultLimitTraces": 4,
   "kubeAppsUrl": "http://asaserver.i3m.upv.es:3005/",
+  "userAccountUrl": "https://asaserver.i3m.upv.es:20000/auth/realms/CHAIMELEON/account",
+  "refreshDatasetCreate": 5000,
   "keycloak": {
-    "url": "https://asaserver.i3m.upv.es:20000/auth/",
-    "responseMode": "fragment",
-    "checkLoginIframe": false,
-    "realm": "CHAIMELEON",
-    "clientId": "dataset-service-ui",
-    "onLoad": "login-required",
-    "redirectUri": "http://asaserver.i3m.upv.es:3005/"
+    "config": {
+      "url": "https://asaserver.i3m.upv.es:20000/auth",
+      "realm": "CHAIMELEON",
+      "clientId": "dataset-explorer"
+    },
+    "initOptions": {
+      "responseMode": "fragment",
+      "checkLoginIframe": true,
+      "onLoad": "check-sso"
+    }
   }
 }
