@@ -1,4 +1,4 @@
-import { Container, Navbar, Nav, Badge, Button, DropdownButton, Dropdown } from "react-bootstrap";
+import { Container, Navbar, Nav, Badge, Button, DropdownButton, Dropdown, NavDropdown } from "react-bootstrap";
 import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
 import { useMemo, useId, Fragment }from "react";
 import { GridFill } from 'react-bootstrap-icons';
@@ -40,8 +40,12 @@ function NavbarView(props) {
                 </div>
             </Navbar.Brand>
             <Nav.Link href={Config.basename + "/datasets"}>Datasets</Nav.Link>
-            <Nav.Link href={Config.basename + "/fair"}>Fair Principles</Nav.Link>
-            <Nav.Link href="https://github.com/chaimeleon-eu/dataset-service#api-usage">API Specs</Nav.Link>
+            <NavDropdown title="Documentation" id="documentation-dropdown">
+              <NavDropdown.Item href="https://github.com/chaimeleon-eu/workstation-images/blob/main/ubuntu_python/application-examples/dataset-access-guide.ipynb" target="_blank">Dataset Usage Guide</NavDropdown.Item>
+              <NavDropdown.Item href="https://github.com/chaimeleon-eu/dataset-service#api-usage" target="_blank">API Specs</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href={Config.basename + "/fair"}>Fair Principles</NavDropdown.Item>
+            </NavDropdown>
             <Nav.Link href={Config.basename + "/support"}>Support</Nav.Link>
           </Nav>
         </Navbar.Collapse>
