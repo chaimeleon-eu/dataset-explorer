@@ -3,6 +3,7 @@
   "release": "prod",
   "datasetService": "https://chaimeleon-eu.i3m.upv.es/dataset-service/api",
   "tracerService": "https://chaimeleon-eu.i3m.upv.es/tracer-service/tracer/api/v1",
+  "caseExplorerService": "https://chaimeleon-eu.i3m.upv.es/omni/",
   "basename": "/dataset-service",
   "defaultLimitDatasets": 30,
   "defaultLimitStudies": 30,
