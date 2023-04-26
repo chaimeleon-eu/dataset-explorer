@@ -31,12 +31,13 @@ function DatasetDetailsView(props) {
     pidUrl = pids["urls"][pids["preferred"]];
     ///pidsPatch[pids["preferred"]] = pids["url"]
   }
+  console.log(props.dataManager);
 
   return(
     <Container fluid>
       <Row>
         <MessageBox postMessage={props.postMessage} keycloakReady={props.keycloakReady} dataManager={props.dataManager} 
-          dataset={datasetDetails.data} getDataset={props.getDataset}/>
+          dataset={datasetDetails.data} getDataset={props.getDataset} showDialog={props.showDialog} patchDataset={props.patchDataset}/>
       </Row>
 
       <Row>
@@ -100,7 +101,9 @@ function DatasetDetailsView(props) {
           </div>
         </Col>
         <Col md={4}>
-          <DatasetDetailsBox datasetDetails={datasetDetails} />
+          <DatasetDetailsBox patchDataset={props.patchDataset} showDialog={props.showDialog} keycloakReady={props.keycloakReady} datasetDetails={datasetDetails} 
+            dataManager={props.dataManager}  
+          />
         </Col>
       </Row>
     </Container>

@@ -8,10 +8,27 @@ import Message from "../../../model/Message.js";
 import DatasetFieldEdit from "../common/DatasetFieldEdit";
 import RouteFactory from "../../../api/RouteFactory.js";
 
-function getIDLink(text, id) {
-  if (id) {
-    return <p title={`ID of the ${text} version of this dataset`}><b>{text}: </b><a href={RouteFactory.getPath(RouteFactory.DATASET_DETAILS, 
-        { datasetId: id } )}>{id}</a></p>;
+const PREVIOUS_ID = "Previous";
+const NEXT_ID = "Next";
+
+function getIdEdit(text, ds, showDialog, patchDataset, keycloakReady, dataManager) {
+  if (text === PREVIOUS_ID && ds.previousId && ds.editablePropertiesByTheUser.includes("previousId")) {
+    return <DatasetFieldEdit datasetId={ds.id} showDialog={showDialog} field="previousId" fieldDisplay="Dataset previous ID"
+      oldValue={ds.previousId} patchDataset={patchDataset} keycloakReady={keycloakReady} dataManager={dataManager}/>;
+  } else if (text === NEXT_ID){
+    return <Fragment />;
+  } else {
+    console.warn(`Unhandled ID edit option ${text}`);
+  }
+  return <Fragment />;
+}
+
+function getIDLink(text, id, canEdit, data, showDialog, patchDataset, keycloakReady, dataManager) {
+  if (id || canEdit) {
+    return <p title={`ID of the ${text} version of this dataset`}><b>{text}: </b>
+        { id ? <a href={RouteFactory.getPath(RouteFactory.DATASET_DETAILS, { datasetId: id } )}>{id}</a> : "-" }
+        { getIdEdit(text, data, showDialog, patchDataset, keycloakReady, dataManager) }
+        </p>;
   } else {
     return <Fragment />
   }
@@ -26,18 +43,9 @@ function DatasetDetailsBox(props) {
     } else if (datasetDetails.data.ageLow != null)  {
       ageLstItem = <span>Greater than {datasetDetails.data.ageLow} {datasetDetails.data.ageUnit[0]}</span>
     } else if (datasetDetails.data.ageHigh != null)  {
-      ageLstItem = <span>Less than {datasetDetails.data.ageHigh} {datasetDetails.data.ageUnit[1]}</span>
-  
+      ageLstItem = <span>Less than {datasetDetails.data.ageHigh} {datasetDetails.data.ageUnit[1]}</span>  
     }
-    let pids = datasetDetails.data.pids;
-    let pidUrl = "";
-    //let pidsPatch = Object.create(null);
-    //pidsPatch["preferred"] = pids["preferred"];
-    if (pids["preferred"] !== null) {
-      pidUrl = pids["urls"][pids["preferred"]];
-      ///pidsPatch[pids["preferred"]] = pids["url"]
-    }
-  
+
     return(
       <Container fluid className="pt-3 pb-1 bg-light bg-gradient">
         <p title="The ID of the dataset"><b>ID: </b>{datasetDetails.data.id}
@@ -52,8 +60,10 @@ function DatasetDetailsBox(props) {
               // </Button>
 }
         </p>
-        { getIDLink("Previous", datasetDetails.data.previousId) }
-        { getIDLink("Next",datasetDetails.data.nextId) }
+        { getIDLink(PREVIOUS_ID, datasetDetails.data.previousId, 
+            datasetDetails.data.editablePropertiesByTheUser.includes("previousId"),
+            datasetDetails.data, props.showDialog, props.patchDataset, props.keycloakReady, props.dataManager) }
+        { getIDLink(NEXT_ID, datasetDetails.data.nextId, false) }
         <p><b>Studies/Subjects count: </b>{datasetDetails.data.studiesCount}/{datasetDetails.data.subjectsCount}</p>
         <p><b>Age range: </b>{ageLstItem}</p>
         <p title="The set of genders of all patients part of this dataset"><b>Gender: </b>{datasetDetails.data.sex !== null && datasetDetails.data.sex !== undefined ? datasetDetails.data.sex.join(", ") : "-"}</p>

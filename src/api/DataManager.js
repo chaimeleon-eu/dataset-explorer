@@ -26,4 +26,8 @@ export default class DataManager {
     return WebClient.getDatasetCreationStatus(token, datasetId);
   }
 
+  getUpgradableDatasets(token) {
+    return WebClient.getUpgradableDatasets(token);
+  }
+
 }
