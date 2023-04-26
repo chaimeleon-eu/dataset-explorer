@@ -64,12 +64,12 @@ function DatasetDetailsBox(props) {
             datasetDetails.data.editablePropertiesByTheUser.includes("previousId"),
             datasetDetails.data, props.showDialog, props.patchDataset, props.keycloakReady, props.dataManager) }
         { getIDLink(NEXT_ID, datasetDetails.data.nextId, false) }
-        <p><b>Studies/Subjects count: </b>{datasetDetails.data.studiesCount}/{datasetDetails.data.subjectsCount}</p>
-        <p><b>Age range: </b>{ageLstItem}</p>
-        <p title="The set of genders of all patients part of this dataset"><b>Gender: </b>{datasetDetails.data.sex !== null && datasetDetails.data.sex !== undefined ? datasetDetails.data.sex.join(", ") : "-"}</p>
-        <p><b>Modality: </b>{datasetDetails.data.modality !== null && datasetDetails.data.modality !== undefined && datasetDetails.data.modality.length > 0  ? datasetDetails.data.modality.join(", ") : "-"}</p>
-        <p><b>Body part(s): </b>{datasetDetails.data.bodyPart !== null && datasetDetails.data.bodyPart !== undefined && datasetDetails.data.bodyPart.length > 0  ? datasetDetails.data.bodyPart.join(", ") : "-"}</p>
-        <p><b>Series tags: </b>{datasetDetails.data.seriesTags !== null && datasetDetails.data.seriesTags !== undefined && datasetDetails.data.seriesTags.length > 0 ? 
+        <p title="Number of studies followed by number of all subjects in this dataset"><b>Studies/Subjects count: </b>{datasetDetails.data.studiesCount}/{datasetDetails.data.subjectsCount}</p>
+        <p title="The range of the ages of all subjects in all studies in this dataset, youngest to oldest, DICOM tag (0010, 1010)"><b>Age range: </b>{ageLstItem}</p>
+        <p title="The set of genders of all subjects in this dataset, DICOM tag (0010, 0040)"><b>Gender: </b>{datasetDetails.data.sex !== null && datasetDetails.data.sex !== undefined ? datasetDetails.data.sex.join(", ") : "-"}</p>
+        <p title="The set of modalities used to generate the images in this dataset, DICOM tag (0008, 0060)"><b>Modality: </b>{datasetDetails.data.modality !== null && datasetDetails.data.modality !== undefined && datasetDetails.data.modality.length > 0  ? datasetDetails.data.modality.join(", ") : "-"}</p>
+        <p title="The various body parts represented by the underlying studies, DICOM tag (0018, 0015)"><b>Body part(s): </b>{datasetDetails.data.bodyPart !== null && datasetDetails.data.bodyPart !== undefined && datasetDetails.data.bodyPart.length > 0  ? datasetDetails.data.bodyPart.join(", ") : "-"}</p>
+        <p title="The list of tags set on the series that compose this dataset"><b>Series tags: </b>{datasetDetails.data.seriesTags !== null && datasetDetails.data.seriesTags !== undefined && datasetDetails.data.seriesTags.length > 0 ? 
           datasetDetails.data.seriesTags.map(t => <Badge pill key={t} bg="light" text="dark" className="ms-1 me-1">{t}</Badge>) : "-"}</p>
       </Container>
     );
