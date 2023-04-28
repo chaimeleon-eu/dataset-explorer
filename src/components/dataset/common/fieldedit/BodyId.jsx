@@ -59,6 +59,8 @@ function BodyId(props) {
     } else {
         if (dataState) {
             return (<div className="mb-3">
+                    Select from datasets created and released by you (chosen dataset's next version is updated automatically when you release this dataset). 
+                    <br /> 
                     {   dataState.oldValue ?
                             <Button title="Restore Initial value" variant="link" onClick={(e) => updSelectedOption(toSelId(dataState.oldValue))}>Restore original</Button> : <Fragment />
                     }<br />
