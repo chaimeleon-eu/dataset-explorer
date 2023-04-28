@@ -8,12 +8,12 @@ import Message from "../../../model/Message.js";
 import DatasetFieldEdit from "../common/DatasetFieldEdit";
 import RouteFactory from "../../../api/RouteFactory.js";
 
-const PREVIOUS_ID = "Previous";
-const NEXT_ID = "Next";
+const PREVIOUS_ID = "Previous version";
+const NEXT_ID = "Next version";
 
 function getIdEdit(text, ds, showDialog, patchDataset, keycloakReady, dataManager) {
-  if (text === PREVIOUS_ID && ds.previousId && ds.editablePropertiesByTheUser.includes("previousId")) {
-    return <DatasetFieldEdit datasetId={ds.id} showDialog={showDialog} field="previousId" fieldDisplay="Dataset previous ID"
+  if (text === PREVIOUS_ID && ds.editablePropertiesByTheUser.includes("previousId")) {
+    return <DatasetFieldEdit datasetId={ds.id} showDialog={showDialog} field="previousId" fieldDisplay="previous version"
       oldValue={ds.previousId} patchDataset={patchDataset} keycloakReady={keycloakReady} dataManager={dataManager}/>;
   } else if (text === NEXT_ID){
     return <Fragment />;
@@ -25,9 +25,9 @@ function getIdEdit(text, ds, showDialog, patchDataset, keycloakReady, dataManage
 
 function getIDLink(text, id, canEdit, data, showDialog, patchDataset, keycloakReady, dataManager) {
   if (id || canEdit) {
-    return <p title={`ID of the ${text} version of this dataset`}><b>{text}: </b>
-        { id ? <a href={RouteFactory.getPath(RouteFactory.DATASET_DETAILS, { datasetId: id } )}>{id}</a> : "-" }
-        { getIdEdit(text, data, showDialog, patchDataset, keycloakReady, dataManager) }
+    return <p title={`ID of the ${text} version of this dataset`}><b>{text}</b>
+          { getIdEdit(text, data, showDialog, patchDataset, keycloakReady, dataManager) }<br />
+          <span className="ms-3">{ id ? <a href={RouteFactory.getPath(RouteFactory.DATASET_DETAILS, { datasetId: id } )}>{id}</a> : "-" }</span>
         </p>;
   } else {
     return <Fragment />
@@ -47,8 +47,8 @@ function DatasetDetailsBox(props) {
     }
 
     return(
-      <Container fluid className="pt-3 pb-1 bg-light bg-gradient">
-        <p title="The ID of the dataset"><b>ID: </b>{datasetDetails.data.id}
+      <Container fluid className="pt-3 pb-1 bg-light bg-gradient border border-secondary rounded">
+        <p title="The ID of the dataset"><b>ID</b><br /><span className="ms-3">{datasetDetails.data.id}</span>
               {
               //   <Button variant="link" className="m-0 p-0 ps-1 pe-1 ms-1 bg-warning" onClick={(e) =>
               //     {navigator.clipboard.writeText(datasetDetails.data.id).then(function() {
@@ -64,13 +64,19 @@ function DatasetDetailsBox(props) {
             datasetDetails.data.editablePropertiesByTheUser.includes("previousId"),
             datasetDetails.data, props.showDialog, props.patchDataset, props.keycloakReady, props.dataManager) }
         { getIDLink(NEXT_ID, datasetDetails.data.nextId, false) }
-        <p title="Number of studies followed by number of all subjects in this dataset"><b>Studies/Subjects count: </b>{datasetDetails.data.studiesCount}/{datasetDetails.data.subjectsCount}</p>
-        <p title="The range of the ages of all subjects in all studies in this dataset, youngest to oldest, DICOM tag (0010, 1010)"><b>Age range: </b>{ageLstItem}</p>
-        <p title="The set of genders of all subjects in this dataset, DICOM tag (0010, 0040)"><b>Gender: </b>{datasetDetails.data.sex !== null && datasetDetails.data.sex !== undefined ? datasetDetails.data.sex.join(", ") : "-"}</p>
-        <p title="The set of modalities used to generate the images in this dataset, DICOM tag (0008, 0060)"><b>Modality: </b>{datasetDetails.data.modality !== null && datasetDetails.data.modality !== undefined && datasetDetails.data.modality.length > 0  ? datasetDetails.data.modality.join(", ") : "-"}</p>
-        <p title="The various body parts represented by the underlying studies, DICOM tag (0018, 0015)"><b>Body part(s): </b>{datasetDetails.data.bodyPart !== null && datasetDetails.data.bodyPart !== undefined && datasetDetails.data.bodyPart.length > 0  ? datasetDetails.data.bodyPart.join(", ") : "-"}</p>
-        <p title="The list of tags set on the series that compose this dataset"><b>Series tags: </b>{datasetDetails.data.seriesTags !== null && datasetDetails.data.seriesTags !== undefined && datasetDetails.data.seriesTags.length > 0 ? 
-          datasetDetails.data.seriesTags.map(t => <Badge pill key={t} bg="light" text="dark" className="ms-1 me-1">{t}</Badge>) : "-"}</p>
+        <p title="The number of studies followed by number of all subjects in this dataset"><b>Studies/Subjects count</b><br />
+          <span className="ms-3">{datasetDetails.data.studiesCount}/{datasetDetails.data.subjectsCount}</span></p>
+        <p title="The range of the ages of all subjects in this dataset, DICOM tag (0010, 1010)"><b>Age range</b><br />
+          <span className="ms-3">{ageLstItem}</span></p>
+        <p title="The set of genders of all subjects in this dataset, DICOM tag (0010, 0040)"><b>Gender</b><br />
+          <span className="ms-3">{datasetDetails.data.sex !== null && datasetDetails.data.sex !== undefined ? datasetDetails.data.sex.join(", ") : "-"}</span></p>
+        <p title="The set of modalities used to generate the images in this dataset, DICOM tag (0008, 0060)"><b>Modality</b><br />
+          <span className="ms-3">{datasetDetails.data.modality !== null && datasetDetails.data.modality !== undefined && datasetDetails.data.modality.length > 0  ? datasetDetails.data.modality.join(", ") : "-"}</span></p>
+        <p title="The various body parts represented by the underlying studies, DICOM tag (0018, 0015)"><b>Body part(s)</b><br />
+          <span className="ms-3">{datasetDetails.data.bodyPart !== null && datasetDetails.data.bodyPart !== undefined && datasetDetails.data.bodyPart.length > 0  ? datasetDetails.data.bodyPart.join(", ") : "-"}</span></p>
+        <p title="The list of tags set on the series that compose this dataset"><b>Series tags</b><br />
+          <span className="ms-3">{datasetDetails.data.seriesTags !== null && datasetDetails.data.seriesTags !== undefined && datasetDetails.data.seriesTags.length > 0 ? 
+          datasetDetails.data.seriesTags.map(t => <Badge pill key={t} bg="light" text="dark" className="ms-1 me-1">{t}</Badge>) : "-"}</span></p>
       </Container>
     );
 }
