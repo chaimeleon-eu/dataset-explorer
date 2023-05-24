@@ -51,7 +51,7 @@ function onLoadAppsDashboard(iframeDom, datasetId, uNameKeycloak) {
     //     }
     //   }
     // }
-    let inp = iframeDom.contentWindow.document.body.querySelector("#datasets_list-1");
+    let inp = iframeDom.contentWindow.document.body.querySelector("#datasets_list-0");
     if (inp !== null) {
         // React swallows the event, and overides the setter, we have to use the native
         let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
