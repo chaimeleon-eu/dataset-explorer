@@ -20,11 +20,15 @@ function BodyId(props) {
       
     const [selectedOption, setSelectedOption] = useState(null);
     const { keycloak } = useKeycloak();
-    console.log(selectedOption);
 
-    const updSelectedOption = useCallback((newVal) => {
+    const updSelectedOption = useCallback((newVal, action) => {
+        console.log(action);
+        if (action && action.action === "clear") {
+            props.updValue(null);
+        } else {
+            props.updValue(newVal.value);
+        }
         setSelectedOption(newVal);//toSelId(newVal));
-        props.updValue(newVal.value);
       }, [setSelectedOption, props.updValue]);
 
     useEffect(() => {
@@ -65,6 +69,8 @@ function BodyId(props) {
                             <Button title="Restore Initial value" variant="link" onClick={(e) => updSelectedOption(toSelId(dataState.oldValue))}>Restore original</Button> : <Fragment />
                     }<br />
                         <Select
+                        isClearable
+                            isSearchable
                             value={selectedOption}
                             onChange={updSelectedOption}
                             options={dataState.data.map(e => {return toSelId(e);} )}
