@@ -20,8 +20,8 @@ export default class Util {
     } else {
       try {
         const err = JSON.parse(xhr.response);
-        title = err.title;
-        text = err.message;
+        title = "Error";
+        text = err.error;
       } catch (err) {
         console.warn(err);
         title = "Error";
