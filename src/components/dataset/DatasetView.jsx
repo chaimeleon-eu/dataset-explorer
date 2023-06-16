@@ -65,7 +65,6 @@ function onLoadAppsDashboard(iframeDom, datasetId, uNameKeycloak) {
     const appnotes = iframeDom.contentWindow.document.body.querySelector(".application-notes");
     if (appnotes !== null) {
       const links = appnotes.querySelectorAll("a");
-      console.log(links);
       for (let a of links) {
         a.target = "_blank";
       }
