@@ -424,9 +424,9 @@ function Table({ columns, data, sortBy, updSearchParams//, showDialog, dataManag
                 <span>
                     { column.canSort ? (column.isSorted
                       ? (column.isSortedDesc
-                        ? <CaretDownFill />
-                        :  <CaretUpFill />)
-                      : <ArrowDownUp className="ms-1" size="0.75em"/> ) 
+                        ? <CaretDownFill className="text-primary"/>
+                        :  <CaretUpFill className="text-primary"/>)
+                      : <ArrowDownUp className="ms-1 text-primary" size="0.75em"/> ) 
                     : ""}
                   </span>
               </th>

@@ -51,7 +51,7 @@ function onLoadAppsDashboard(iframeDom, datasetId, uNameKeycloak) {
     //     }
     //   }
     // }
-    let inp = iframeDom.contentWindow.document.body.querySelector("#datasets_list-1");
+    let inp = iframeDom.contentWindow.document.body.querySelector("#datasets_list-0");
     if (inp !== null) {
         // React swallows the event, and overides the setter, we have to use the native
         let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
@@ -65,7 +65,6 @@ function onLoadAppsDashboard(iframeDom, datasetId, uNameKeycloak) {
     const appnotes = iframeDom.contentWindow.document.body.querySelector(".application-notes");
     if (appnotes !== null) {
       const links = appnotes.querySelectorAll("a");
-      console.log(links);
       for (let a of links) {
         a.target = "_blank";
       }

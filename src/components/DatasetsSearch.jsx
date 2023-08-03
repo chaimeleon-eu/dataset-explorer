@@ -30,7 +30,7 @@ function SearchComponent({initValue, updSearchParams}) {
             }
           }}
         />
-        <Button variant="outline-secondary" size="sm" className="search-btn" onClick={() =>updSearchParams({searchString: input})}>
+        <Button variant="outline-primary" size="sm" className="search-btn" onClick={() =>updSearchParams({searchString: input})}>
           <SearchIc />
         </Button>
       </InputGroup>
