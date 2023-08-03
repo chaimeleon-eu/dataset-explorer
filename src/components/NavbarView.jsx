@@ -39,14 +39,18 @@ function NavbarView(props) {
                 </div>
                 </div>
             </Navbar.Brand>
-            <Nav.Link href={Config.basename + "/datasets"}>Datasets</Nav.Link>
+            <Nav.Link title="List of datasets" href={Config.basename + "/datasets"}>Datasets</Nav.Link>
             <NavDropdown title="Documentation" id="documentation-dropdown">
-              <NavDropdown.Item href="https://github.com/chaimeleon-eu/workstation-images/blob/main/ubuntu_python/application-examples/dataset-access-guide.ipynb" target="_blank">Dataset Usage Guide</NavDropdown.Item>
-              <NavDropdown.Item href="https://github.com/chaimeleon-eu/dataset-service#api-usage" target="_blank">API Specs</NavDropdown.Item>
+              <NavDropdown.Item title="Dataset Usage Guide" href="https://github.com/chaimeleon-eu/workstation-images/blob/main/ubuntu_python/application-examples/dataset-access-guide.ipynb" target="_blank">Dataset Usage</NavDropdown.Item>
+              <NavDropdown.Item title="Workstation Usage Guide " href="https://github.com/chaimeleon-eu/workstation-images/blob/main/usage-guide.md" target="_blank">Workstation Usage</NavDropdown.Item>
+              <NavDropdown title="Developer" id="developer-dropdown" drop="end" variant="white" className="w-100 ps-2">
+                <NavDropdown.Item title="How to integrate your application in CHAIMELEON platform" href="https://github.com/chaimeleon-eu/workstation-images/blob/main/README.md#how-to-integrate-your-application-in-chaimeleon-platform" target="_blank">App Integration</NavDropdown.Item>
+                <NavDropdown.Item title="Dataset Service API Specs" href="https://github.com/chaimeleon-eu/dataset-service#api-usage" target="_blank">API Specs</NavDropdown.Item>
+              </NavDropdown>
               <NavDropdown.Divider />
-              <NavDropdown.Item href={Config.basename + "/fair"}>Fair Principles</NavDropdown.Item>
+              <NavDropdown.Item title="Fair Principles" href={Config.basename + "/fair"}>Fair Principles</NavDropdown.Item>
             </NavDropdown>
-            <Nav.Link href={Config.basename + "/support"}>Support</Nav.Link>
+            <Nav.Link title="Support" href={Config.basename + "/support"}>Support</Nav.Link>
           </Nav>
         </Navbar.Collapse>
         { keycloak.authenticated ? <Button className="me-1" variant="warning" onClick={() => window.open("https://forms.gle/bDmJC3cHog2CixMB8", '_blank').focus()}>Internal Validation</Button> : <Fragment/> }
