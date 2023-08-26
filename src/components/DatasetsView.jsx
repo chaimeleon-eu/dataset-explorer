@@ -11,15 +11,7 @@ import Dialog from "./Dialog";
 import DatasetsSearch from  "./DatasetsSearch";
 import DatasetsMainTable from "./DatasetsMainTable";
 import Config from "../config.json";
-
-function handleShow() {
-
-}
-
-
-
-
-
+import DatasetsFiltering from './filter/DatasetsFiltering.jsx';
 
 function getSortDirectionDesc(searchParam, sortBy) {
   if (!sortBy) {
@@ -39,9 +31,12 @@ function getSortDirectionDesc(searchParam, sortBy) {
   return searchParam;// === "ascending" ? false : true;
 }
 
+
+
 function DatasetsView (props) {
-  let navigate = useNavigate();
+  //let navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams("");
+
   //const [search] = useSearchParams();
   //const searchStringParam = search.get('searchString') === null ? "" : search.get('searchString');
   //console.log(`searchStringParam is ${searchStringParam}`);
@@ -54,7 +49,11 @@ function DatasetsView (props) {
 
   const updSearchParams = useCallback((params) => {
     for (const [k, v] of Object.entries(params)) {
-      searchParams.set(k, v);
+      if (v !== null) {
+        searchParams.set(k, v);
+      } else {
+        searchParams.delete(k);
+      }
     }
     setSearchParams(searchParams);
   }, [searchParams, setSearchParams]);
@@ -64,6 +63,7 @@ function DatasetsView (props) {
   const sortDirection = getSortDirectionDesc(searchParams.get("sortDirection"), searchParams.get("sortBy") ?? "creationDate");
   const skip = searchParams.get("skip") ? Number(searchParams.get("skip")) : 0;
   const limit = searchParams.get("limit") ? Number(searchParams.get("skip")) : Config.defaultLimitDatasets;
+
   //console.log(`searchString is ${searchString}`);
   // const setSearchString = (newVal) => {
   //   //setSearchParams(`searchString=${encodeURIComponent(newVal)}`);
@@ -95,9 +95,13 @@ function DatasetsView (props) {
                   modLimit += 1;
                 }
                 //console.log(searchString);
-                  props.dataManager.getDatasets(keycloak.token, {skip, modLimit, searchString, 
-                        sortBy, 
-                        sortDirection})
+                  props.dataManager.getDatasets(keycloak.token, 
+                      {
+                        skip, modLimit, searchString, sortBy, sortDirection, 
+                        ...(searchParams.get("draft") !== null) && {draft: searchParams.get("draft")},
+                        ...(searchParams.get("public") !== null) && {public: searchParams.get("public")},
+                        ...(searchParams.get("invalidated") !== null) && {invalidated: searchParams.get("invalidated")}                        
+                      })
                     .then(
                       (xhr) => {
                         setIsLoaded(true);
@@ -128,24 +132,29 @@ function DatasetsView (props) {
       return (
         <Container fluid>
           <Row>
-            <DatasetsSearch initValue={searchString} updSearchParams={updSearchParams}/>
+            <DatasetsSearch initValue={searchString} updSearchParams={updSearchParams} />
           </Row>
           <Row>
-            <DatasetsMainTable data={data.slice(0, limit)} showDialog={props.showDialog}
-              dataManager={props.dataManager}
-              postMessage={props.postMessage}
-              currentSort={{
-                id: sortBy, 
-                desc: sortDirection === "descending" ? true : false
-              }}
-              updSearchParams={updSearchParams}
-              />
+            <Col lg={2}>
+              <DatasetsFiltering updSearchParams={updSearchParams} searchParams={searchParams} />
+            </Col>
+            <Col>
+              <DatasetsMainTable data={data.slice(0, limit)} showDialog={props.showDialog}
+                dataManager={props.dataManager}
+                postMessage={props.postMessage}
+                currentSort={{
+                  id: sortBy, 
+                  desc: sortDirection === "descending" ? true : false
+                }}
+                updSearchParams={updSearchParams}
+                />
+                <div className="w-100" >
+                  <Button className="position-relative start-50 me-4" disabled={skip === 0 ? true : false} onClick={(e) => updSearchParams({skip: skip - limit})}>Previous</Button>
+                  <Button className="position-relative start-50"  disabled={data.length <= limit ? true : false} onClick={(e) => updSearchParams({skip: skip + limit})}>Next</Button>
+                  {/* <TableNavigationPages skip={skip} limit={limit} total={data} */}
+                </div>
+              </Col>
           </Row>
-          <div className="w-100" >
-            <Button className="position-relative start-50 me-4" disabled={skip === 0 ? true : false} onClick={(e) => updSearchParams({skip: skip - limit})}>Previous</Button>
-            <Button className="position-relative start-50"  disabled={data.length <= limit ? true : false} onClick={(e) => updSearchParams({skip: skip + limit})}>Next</Button>
-            {/* <TableNavigationPages skip={skip} limit={limit} total={data} */}
-          </div>
         </Container>
       );
 }

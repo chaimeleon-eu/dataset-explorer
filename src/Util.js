@@ -62,6 +62,10 @@ export default class Util {
   
   }
 
+  static getUserKubeNamespace(userName) {
+    return `user-${userName}`;
+  }
+
   static getReleaseType(configJson) {
     switch (configJson.release) {
       case Util.RELEASE_PROD: return Util.RELEASE_PROD;
