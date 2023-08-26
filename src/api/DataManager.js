@@ -29,5 +29,4 @@ export default class DataManager {
   getUpgradableDatasets(token) {
     return WebClient.getUpgradableDatasets(token);
   }
-
 }

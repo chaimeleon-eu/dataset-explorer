@@ -31,7 +31,6 @@ function DatasetDetailsView(props) {
     pidUrl = pids["urls"][pids["preferred"]];
     ///pidsPatch[pids["preferred"]] = pids["url"]
   }
-  console.log(props.dataManager);
 
   return(
     <Container fluid>

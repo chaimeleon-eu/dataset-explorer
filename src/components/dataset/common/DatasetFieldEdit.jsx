@@ -12,7 +12,6 @@ import BodyPid from "./fieldedit/BodyPid";
 import BodyId from "./fieldedit/BodyId.jsx";
 import BodyLicense from "./fieldedit/BodyLicense";
 
-
 function transformValue(field, value) {
   if (field === "pids") {
     let sVal = Object.create(null);

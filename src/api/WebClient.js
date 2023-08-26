@@ -64,7 +64,7 @@ export default class WebClient {
     return WebClient._call("GET", Config.datasetService + `/upgradableDatasets`, headers,
                 null, "text", null);
   }
-
+  
   static _prepQueryParams(qTmp) {
     const entr = Object.entries(qTmp);
     let size = entr.length;
