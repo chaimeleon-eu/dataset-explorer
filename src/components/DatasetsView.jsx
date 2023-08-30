@@ -91,13 +91,13 @@ function DatasetsView (props) {
             //console.log(keycloak.authenticated);
             //if (props.keycloakReady) {
                 let modLimit = limit;
-                if (data.length === limit+1) {
+                if (data?.list?.length === limit+1) {
                   modLimit += 1;
                 }
                 //console.log(searchString);
                   props.dataManager.getDatasets(keycloak.token, 
                       {
-                        skip, modLimit, searchString, sortBy, sortDirection, 
+                        skip, modLimit, searchString, sortBy, sortDirection, "v2": true,
                         ...(searchParams.get("draft") !== null) && {draft: searchParams.get("draft")},
                         ...(searchParams.get("public") !== null) && {public: searchParams.get("public")},
                         ...(searchParams.get("invalidated") !== null) && {invalidated: searchParams.get("invalidated")}                        
@@ -139,7 +139,7 @@ function DatasetsView (props) {
               <DatasetsFiltering updSearchParams={updSearchParams} searchParams={searchParams} />
             </Col>
             <Col>
-              <DatasetsMainTable data={data.slice(0, limit)} showDialog={props.showDialog}
+              <DatasetsMainTable data={data && data?.list ? data.list.slice(0, limit) : []} showDialog={props.showDialog}
                 dataManager={props.dataManager}
                 postMessage={props.postMessage}
                 currentSort={{
@@ -149,8 +149,8 @@ function DatasetsView (props) {
                 updSearchParams={updSearchParams}
                 />
                 <div className="w-100" >
-                  <Button className="position-relative start-50 me-4" disabled={skip === 0 ? true : false} onClick={(e) => updSearchParams({skip: skip - limit})}>Previous</Button>
-                  <Button className="position-relative start-50"  disabled={data.length <= limit ? true : false} onClick={(e) => updSearchParams({skip: skip + limit})}>Next</Button>
+                  <Button variant="link" className="position-relative start-50 me-4" disabled={skip === 0 ? true : false} onClick={(e) => updSearchParams({skip: skip - limit})}>&lt; Previous</Button>
+                  <Button variant="link" className="position-relative start-50"  disabled={data?.list?.length <= limit ? true : false} onClick={(e) => updSearchParams({skip: skip + limit})}>Next &gt;</Button>
                   {/* <TableNavigationPages skip={skip} limit={limit} total={data} */}
                 </div>
               </Col>
