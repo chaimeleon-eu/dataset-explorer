@@ -17,17 +17,12 @@ import Util from "../../Util";
 import Config from "../../config.json";
 import Dialog from "../Dialog";
 
-
+const KUBE_APPS_CLUSTER = "default";
 
 function onLoadAppsDashboard(iframeDom, datasetId, uNameKeycloak) {
   // Create an observer instance linked to the callback function
   const config = { attributes: true, childList: true, subtree: true };
   const targetNode = iframeDom.contentWindow.document.body;
-  let uNameKube = null;
-  if (uNameKeycloak !== null && uNameKeycloak !== undefined) {
-    uNameKube = Util.parseK8sNames(uNameKeycloak, true);
-  }
-  console.log(uNameKube);
   const cb = (mutationsList, observer) => {
     //console.log("change inside iframe");
     observer.disconnect();
@@ -139,10 +134,17 @@ function showDialogPublishDs(token, patchDatasetCb, showDialog,  data) {
 }
 
 function showDialogAppDashhboard(datasetId, showDialog, onBeforeClose, uNameKeycloak) {
+  let kubeAppsUrl = Config.kubeAppsUrl;
+  if (uNameKeycloak) {
+    const uNamespace = Util.getUserKubeNamespace(Util.parseK8sNames(uNameKeycloak, true));
+    kubeAppsUrl = `${Config.kubeAppsUrl}/#/c/${KUBE_APPS_CLUSTER}/ns/${uNamespace}/catalog`;
+  }
+  
   showDialog({
     show: true,
     footer: <Fragment />,
-    body: <iframe onLoad={(e) => onLoadAppsDashboard(e.target, datasetId, uNameKeycloak)} src={Config.kubeAppsUrl} style={{ width: "100%", height: "100%" }}/>,
+    body: <iframe title="Kube Apps" onLoad={(e) => onLoadAppsDashboard(e.target, datasetId, uNameKeycloak)} 
+              src={kubeAppsUrl} style={{ width: "100%", height: "100%" }}/>,
     title: <span>Apps Dashboard for dataset <b>{datasetId}</b></span>,
     size: Dialog.SIZE_XXL,
     onBeforeClose: () => onBeforeClose()

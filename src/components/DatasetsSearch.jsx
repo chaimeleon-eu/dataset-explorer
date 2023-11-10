@@ -17,7 +17,7 @@ function SearchComponent({initValue, updSearchParams}) {
       <InputGroup className="mb-3">
         <FormControl
           type="search"
-          placeholder="Dataset search"
+          placeholder="Enter your dataset search terms e.g. name, author"
           aria-label="Dataset search"
           aria-describedby="basic-addon2"
           //defaultValue={props.initValue}
