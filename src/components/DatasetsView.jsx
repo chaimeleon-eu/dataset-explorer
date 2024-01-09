@@ -135,10 +135,10 @@ function DatasetsView (props) {
             <DatasetsSearch initValue={searchString} updSearchParams={updSearchParams} />
           </Row>
           <Row>
-            <Col lg={2}>
+            {/* <Col lg={2}>
               <DatasetsFiltering updSearchParams={updSearchParams} searchParams={searchParams} />
             </Col>
-            <Col>
+            <Col> */}
               <DatasetsMainTable data={data && data?.list ? data.list.slice(0, limit) : []} showDialog={props.showDialog}
                 dataManager={props.dataManager}
                 postMessage={props.postMessage}
@@ -153,7 +153,7 @@ function DatasetsView (props) {
                   <Button variant="link" className="position-relative start-50"  disabled={data?.list?.length <= limit ? true : false} onClick={(e) => updSearchParams({skip: skip + limit})}>Next &gt;</Button>
                   {/* <TableNavigationPages skip={skip} limit={limit} total={data} */}
                 </div>
-              </Col>
+              {/* </Col> */}
           </Row>
         </Container>
       );
