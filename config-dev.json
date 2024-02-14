@@ -5,7 +5,7 @@
   "tracerService": "http://asaserver.i3m.upv.es:8000/api/v1/tracer-service",
   "caseExplorerService": "",
   "basename": "",
-  "defaultLimitDatasets": 5,
+  "defaultLimitDatasets": 4,
   "defaultLimitStudies": 4,
   "defaultLimitTraces": 4,
   "kubeAppsUrl": "http://asaserver.i3m.upv.es:3005/",
