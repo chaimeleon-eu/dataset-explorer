@@ -32,6 +32,16 @@ export default class WebClient {
                   JSON.stringify(payload), "text", null );
   }
 
+  static getStudies(token, dsId, studiesSkip, studiesLimit) {
+    let headers = new Map();
+    if (token) {
+      headers.set("Authorization", "Bearer " + token);
+    }
+    return WebClient._call("GET", Config.datasetService + "/datasets/" + dsId + "/studies", headers,
+                null, "text", { studiesSkip, studiesLimit });
+
+  }
+
   static getTracesActions() {
       return WebClient._call("GET", Config.tracerService + "/static/traces/actions",
         new Map(), null, "text", null);
