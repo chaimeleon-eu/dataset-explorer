@@ -17,7 +17,7 @@ function getSearchParamValue(searchParams, filter) {
       : (searchParams.get(filter).toLowerCase() === "true" ? "true" : "false");
 }
 
-function getFilterFlag(searchParams, flagName, filter, updParamsCb) {
+function getFilterFlag(searchParams, flagName, filter, updParamsCb, disabled) {
     return (
         <div title={`Control datasets that have the flag '${filter}' set.`}>
             <Badge className="ms-2 me-2" pill bg="light" text="dark">{flagName}</Badge> 
@@ -33,6 +33,7 @@ function getFilterFlag(searchParams, flagName, filter, updParamsCb) {
                     value={radio.value}
                     checked={ getSearchParamValue(searchParams, filter) === radio.value}
                     onChange={updParamsCb}
+                    disabled={disabled}
                 >
                     { getSearchParamValue(searchParams, filter) === radio.value ? radio.iconChecked : radio.iconUnchecked }
                 </ToggleButton>
@@ -42,19 +43,19 @@ function getFilterFlag(searchParams, flagName, filter, updParamsCb) {
     )
 }
 
-function FilterFlags({searchParams, updSearchParams}) {
+function FilterFlags({searchParams, updSearchParams, loading}) {
 
     const updParamsCb = useCallback((e) => {
         const value = e.target.value === "null" ? null : e.target.value;
-        console.log(e.target);
         updSearchParams({[e.target.id.substring(0, e.target.id.indexOf("-"))]: value});
     }, [searchParams, updSearchParams]);
-
+    const disabled = loading === true;
+    console.log(loading);
     return <div className="mt-1 mb-1">
         <h5>Flags</h5>
-        {getFilterFlag(searchParams, "Draft", "draft", updParamsCb)}
-        {getFilterFlag(searchParams, "Published", "public", updParamsCb)}
-        {getFilterFlag(searchParams, "Invalidated", "invalidated", updParamsCb)}
+        {getFilterFlag(searchParams, "Draft", "draft", updParamsCb, disabled)}
+        {getFilterFlag(searchParams, "Published", "public", updParamsCb, disabled)}
+        {getFilterFlag(searchParams, "Invalidated", "invalidated", updParamsCb, disabled)}
     </div>;
 }
 
