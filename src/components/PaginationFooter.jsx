@@ -25,7 +25,7 @@ function PaginationFooter({skip, limit, total, onSkipChange}) {
         const numPages = Math.trunc(total / limit) + (total % limit === 0 ? 0 : 1);
         console.log(numPages);
         const activePg = 1 + Math.trunc(skip / limit);
-        items.push(<Pagination.Prev  onClick={onClickPrevious} disabled={activePg === 1} />);
+        items.push(<Pagination.Prev  onClick={onClickPrevious} disabled={activePg === 1} key={0} />);
         for (let pg=1; pg<=numPages; ++pg) {
             items.push(
                 <Pagination.Item onClick={() => onClickPg(pg)} key={pg} active={pg === activePg}>
@@ -33,7 +33,7 @@ function PaginationFooter({skip, limit, total, onSkipChange}) {
                 </Pagination.Item>
             );
         }
-        items.push(<Pagination.Next  onClick={onClickNext} disabled={activePg === numPages} />);
+        items.push(<Pagination.Next  onClick={onClickNext} disabled={activePg === numPages} key={numPages + 1} />);
     }
 
     return <Pagination size="sm">{items}</Pagination>;

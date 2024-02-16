@@ -140,10 +140,10 @@ function DatasetsView (props) {
             <DatasetsSearch initValue={searchString} updSearchParams={updSearchParams} />
           </Row>
           <Row>
-            {/* <Col lg={2}>
+            <Col lg={2}>
               <DatasetsFiltering updSearchParams={updSearchParams} searchParams={searchParams} />
             </Col>
-            <Col> */}
+            <Col>
               <DatasetsMainTable data={data && data?.list ? data.list.slice(0, limit) : []} showDialog={props.showDialog}
                 dataManager={props.dataManager}
                 postMessage={props.postMessage}
@@ -160,7 +160,7 @@ function DatasetsView (props) {
                   TableNavigationPages skip={skip} limit={limit} total={data} */}
                   <PaginationFooter skip={skip} limit={limit} total={data?.total} onSkipChange={onSkipChange} className="" />
                 </div>
-              {/* </Col> */}
+              </Col>
           </Row>
         </Container>
       );
