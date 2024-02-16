@@ -23,7 +23,6 @@ function PaginationFooter({skip, limit, total, onSkipChange}) {
     if (total !== 0  && limit !== 0) {
 
         const numPages = Math.trunc(total / limit) + (total % limit === 0 ? 0 : 1);
-        console.log(numPages);
         const activePg = 1 + Math.trunc(skip / limit);
         items.push(<Pagination.Prev  onClick={onClickPrevious} disabled={activePg === 1} key={0} />);
         for (let pg=1; pg<=numPages; ++pg) {

@@ -42,9 +42,15 @@ function DatasetsView (props) {
   //const searchStringParam = search.get('searchString') === null ? "" : search.get('searchString');
   //console.log(`searchStringParam is ${searchStringParam}`);
 
-  const [error, setError] = useState(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [data, setData] = useState(null);
+  const [allData, setAllData] = useState({
+    data: null,
+    error: null,
+    loading: false
+  })
+
+  // const [error, setError] = useState(null);
+  // const [isLoaded, setIsLoaded] = useState(false);
+  // const [data, setData] = useState(null);
   // const [skip, setSkip] = useState(0);
   // const [limit, setLimit] = useState(Config.defaultLimitDatasets);
 
@@ -97,10 +103,14 @@ function DatasetsView (props) {
             //console.log(keycloak.authenticated);
             //if (props.keycloakReady) {
                 let modLimit = limit;
-                if (data?.list?.length === limit+1) {
+                if (allData.data?.list?.length === limit+1) {
                   modLimit += 1;
                 }
                 //console.log(searchString);
+                
+                setAllData(prev => {
+                  return {...prev, loading: true, data: null, error: null }
+                });
                   props.dataManager.getDatasets(keycloak.token, 
                       {
                         skip, modLimit, searchString, sortBy, sortDirection, "v2": true,
@@ -110,25 +120,20 @@ function DatasetsView (props) {
                       })
                     .then(
                       (xhr) => {
-                        setIsLoaded(true);
-                        const d = JSON.parse(xhr.response);
+                        //setIsLoaded(true);
+                        const data = JSON.parse(xhr.response);
                         //console.log(d);
-                        setData(d);
+                        //setData(d);
+                        setAllData(prev => {
+                          return {...prev, loading: false, data, error: null}
+                        })
                       },
                       (xhr) => {
-                        setIsLoaded(true);
-                        //console.log(xhr);
-                        let title = null;
-                        let text = null;
-                        if (!xhr.responseText) {
-                          title = Message.UNK_ERROR_TITLE;
-                          text = Message.UNK_ERROR_MSG;
-                        } else {
-                          const err = JSON.parse(xhr.response);
-                            title = err.title;
-                            text = err.message;
-                        }
-                        props.postMessage(new Message(Message.ERROR, title, text));
+                        const error = Util.getErrFromXhr(xhr);
+                        props.postMessage(new Message(Message.ERROR, error.title, error.text));
+                        setAllData(prev => {
+                          return {...prev, loading: false, data: null, error }
+                        });
                       });
                 //}
 
@@ -141,10 +146,10 @@ function DatasetsView (props) {
           </Row>
           <Row>
             <Col lg={2}>
-              <DatasetsFiltering updSearchParams={updSearchParams} searchParams={searchParams} />
+              <DatasetsFiltering updSearchParams={updSearchParams} searchParams={searchParams}  loading={allData.loading} />
             </Col>
             <Col>
-              <DatasetsMainTable data={data && data?.list ? data.list.slice(0, limit) : []} showDialog={props.showDialog}
+              <DatasetsMainTable data={allData.data && allData.data?.list ? allData.data.list.slice(0, limit) : []} showDialog={props.showDialog}
                 dataManager={props.dataManager}
                 postMessage={props.postMessage}
                 currentSort={{
@@ -158,7 +163,7 @@ function DatasetsView (props) {
                   <Button variant="link" className="position-relative start-50 me-4" disabled={skip === 0 ? true : false} onClick={(e) => updSearchParams({skip: skip - limit})}>&lt; Previous</Button>
                   <Button variant="link" className="position-relative start-50"  disabled={data?.list?.length <= limit ? true : false} onClick={(e) => updSearchParams({skip: skip + limit})}>Next &gt;</Button>
                   TableNavigationPages skip={skip} limit={limit} total={data} */}
-                  <PaginationFooter skip={skip} limit={limit} total={data?.total} onSkipChange={onSkipChange} className="" />
+                  <PaginationFooter skip={skip} limit={limit} total={allData.data?.total} onSkipChange={onSkipChange} className="" />
                 </div>
               </Col>
           </Row>
