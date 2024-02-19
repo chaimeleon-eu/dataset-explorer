@@ -19,27 +19,31 @@ function getSearchParamValue(searchParams, filter) {
 
 function getFilterFlag(searchParams, flagName, filter, updParamsCb, disabled) {
     return (
-        <div title={`Control datasets that have the flag '${filter}' set.`}>
-            <Badge className="ms-2 me-2" pill bg="light" text="dark">{flagName}</Badge> 
-            <ButtonGroup>
-                {radios.map((radio, idx) => (
-                <ToggleButton
-                    title={radio.lbl.replace("#flag", filter)}
-                    className="p-0 mt-0 mb-0 ms-1 me-1"
-                    key={`tgbtn-${idx}`}
-                    id={`${filter}-${idx}`}
-                    type="radio"
-                    variant="clear"
-                    value={radio.value}
-                    checked={ getSearchParamValue(searchParams, filter) === radio.value}
-                    onChange={updParamsCb}
-                    disabled={disabled}
-                >
-                    { getSearchParamValue(searchParams, filter) === radio.value ? radio.iconChecked : radio.iconUnchecked }
-                </ToggleButton>
-                ))}
-            </ButtonGroup>
-        </div>
+        <tr title={`Filter datasets that have the flag '${filter}'.`}>
+            <td>
+                <Badge className="ms-2 me-2" pill bg="light" text="dark">{flagName}</Badge> 
+            </td>
+            <td>
+                <ButtonGroup>
+                    {radios.map((radio, idx) => (
+                    <ToggleButton
+                        title={radio.lbl.replace("#flag", filter)}
+                        className="p-0 mt-0 mb-0 ms-1 me-1"
+                        key={`tgbtn-${idx}`}
+                        id={`${filter}-${idx}`}
+                        type="radio"
+                        variant="clear"
+                        value={radio.value}
+                        checked={ getSearchParamValue(searchParams, filter) === radio.value}
+                        onChange={updParamsCb}
+                        disabled={disabled}
+                    >
+                        { getSearchParamValue(searchParams, filter) === radio.value ? radio.iconChecked : radio.iconUnchecked }
+                    </ToggleButton>
+                    ))}
+                </ButtonGroup>
+            </td>
+        </tr>
     )
 }
 
@@ -53,9 +57,13 @@ function FilterFlags({searchParams, updSearchParams, loading}) {
     console.log(loading);
     return <div className="mt-1 mb-1">
         <h5>Flags</h5>
-        {getFilterFlag(searchParams, "Draft", "draft", updParamsCb, disabled)}
-        {getFilterFlag(searchParams, "Published", "public", updParamsCb, disabled)}
-        {getFilterFlag(searchParams, "Invalidated", "invalidated", updParamsCb, disabled)}
+        <table>
+            <body>
+                {getFilterFlag(searchParams, "Draft", "draft", updParamsCb, disabled)}
+                {getFilterFlag(searchParams, "Published", "public", updParamsCb, disabled)}
+                {getFilterFlag(searchParams, "Invalidated", "invalidated", updParamsCb, disabled)}
+            </body>
+        </table>
     </div>;
 }
 
