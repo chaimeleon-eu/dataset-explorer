@@ -1,5 +1,5 @@
 import { Container } from "react-bootstrap";
-import FilterFlags from "./FilterFlags.jsx";
+import FilterFlags from "./FilterFlags";
 
 function DatasetsFiltering({searchParams, updSearchParams, loading}) {
 

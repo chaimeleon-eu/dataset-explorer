@@ -1,4 +1,4 @@
-import WebClient from "./WebClient.js";
+import WebClient from "./WebClient";
 
 export default class DataManager {
 

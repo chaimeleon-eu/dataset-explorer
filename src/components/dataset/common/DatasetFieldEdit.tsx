@@ -3,13 +3,13 @@ import { PencilFill, ArrowCounterclockwise } from 'react-bootstrap-icons';
 import { useRef, useState, useEffect, Fragment } from "react";
 import { useKeycloak } from '@react-keycloak/web';
 
-import StaticValues from "../../../api/StaticValues.js";
+import StaticValues from "../../../api/StaticValues";
 import Dialog from "../../Dialog";
-import Message from "../../../model/Message.js";
+import Message from "../../../model/Message";
 import Footer from "./fieldedit/Footer";
 import Body from "./fieldedit/Body";
 import BodyPid from "./fieldedit/BodyPid";
-import BodyId from "./fieldedit/BodyId.jsx";
+import BodyId from "./fieldedit/BodyId";
 import BodyLicense from "./fieldedit/BodyLicense";
 
 function transformValue(field, value) {

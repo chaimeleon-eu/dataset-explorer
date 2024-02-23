@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 import DatasetDetailsView from "./details/DatasetDetailsView";
 import DatasetHistoryView from "./history/DatasetHistoryView";
 import DatasetStudiesView from "./studies/DatasetStudiesView";
-import Message from "../../model/Message.js";
+import Message from "../../model/Message";
 import Breadcrumbs from "../Breadcrumbs";
 import UnauthorizedView from "../UnauthorizedView";
 import ResourceNotFoundView from "../ResourceNotFoundView";

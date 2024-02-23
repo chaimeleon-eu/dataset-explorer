@@ -4,7 +4,7 @@ import { Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 
-import DataManager from "./api/DataManager.js";
+import DataManager from "./api/DataManager";
 import MessageView from "./components/MessageView";
 import Dialog from "./components/Dialog";
 import DatasetView from "./components/dataset/DatasetView";

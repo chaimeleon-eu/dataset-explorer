@@ -3,10 +3,10 @@ import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom"
 import React, { Fragment }from "react";
 import { EnvelopeFill, ClipboardPlus, PencilFill } from 'react-bootstrap-icons';
 
-import StaticValues from "../../../api/StaticValues.js";
-import Message from "../../../model/Message.js";
+import StaticValues from "../../../api/StaticValues";
+import Message from "../../../model/Message";
 import DatasetFieldEdit from "../common/DatasetFieldEdit";
-import RouteFactory from "../../../api/RouteFactory.js";
+import RouteFactory from "../../../api/RouteFactory";
 
 const PREVIOUS_ID = "Previous version";
 const NEXT_ID = "Next version";

@@ -6,13 +6,13 @@ import { useTable, useRowSelect } from 'react-table';
 import { useKeycloak } from '@react-keycloak/web';
 import { useLocation, useSearchParams, useNavigate, createSearchParams } from "react-router-dom";
 
-import Message from "../model/Message.js";
+import Message from "../model/Message";
 import Dialog from "./Dialog";
 import DatasetsSearch from  "./DatasetsSearch";
 import DatasetsMainTable from "./DatasetsMainTable";
 import Config from "../config.json";
-import DatasetsFiltering from './filter/DatasetsFiltering.jsx';
-import PaginationFooter from './PaginationFooter.jsx';
+import DatasetsFiltering from './filter/DatasetsFiltering';
+import PaginationFooter from './PaginationFooter';
 
 function getSortDirectionDesc(searchParam, sortBy) {
   if (!sortBy) {
