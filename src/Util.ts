@@ -6,9 +6,9 @@ export default class Util {
   static RELEASE_PROD_TEST= "prod-test";
   static RELEASE_UNDEFINED = undefined;
 
-  static getErrFromXhr(xhr) {
-    let title = null;
-    let text = null;
+  static getErrFromXhr(xhr: XMLHttpRequest) {
+    let title: string = null;
+    let text: string = null;
     if (!xhr.responseText) {
       if (xhr.statusText !== undefined && xhr.statusText !== null) {
           title = xhr.statusText;
@@ -32,7 +32,7 @@ export default class Util {
   }
 
 
-  static parseK8sNames(uNameKeycloak, truncate) {
+  static parseK8sNames(uNameKeycloak: string, truncate: boolean) {
     let uNameKube = uNameKeycloak.toLowerCase()
       .replaceAll("_","--").replaceAll("@","-at-")
       .replaceAll(".","-dot-").replaceAll('"', '' )
@@ -62,7 +62,7 @@ export default class Util {
   
   }
 
-  static getUserKubeNamespace(userName) {
+  static getUserKubeNamespace(userName: string) {
     return `user-${userName}`;
   }
 
