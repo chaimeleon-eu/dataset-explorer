@@ -54,7 +54,7 @@ function DatasetsView (props) {
   // const [skip, setSkip] = useState(0);
   // const [limit, setLimit] = useState(Config.defaultLimitDatasets);
 
-  const updSearchParams = useCallback((params) => {
+  const updSearchParams = useCallback((params: Object) => {
     for (const [k, v] of Object.entries(params)) {
       if (v !== null) {
         searchParams.set(k, v);
