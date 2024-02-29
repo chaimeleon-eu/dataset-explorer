@@ -10,7 +10,7 @@
            "outDir": "./build/",
            "rootDir": "src",
           "lib": [
-            "ES2022"
+            "ES2022", "dom"
           ],
           "module": "ES2022",
           "target": "ES2020",

@@ -33,4 +33,8 @@ export default class DataManager {
   getUpgradableDatasets(token) {
     return WebClient.getUpgradableDatasets(token);
   }
+
+  getDatasetAccessHistory(token, datasetId, skip, limit) {
+    return WebClient.getDatasetAccessHistory(token, datasetId, skip, limit);
+  }
 }

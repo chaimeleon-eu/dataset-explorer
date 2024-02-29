@@ -74,6 +74,15 @@ export default class WebClient {
     return WebClient._call("GET", Config.datasetService + `/upgradableDatasets`, headers,
                 null, "text", null);
   }
+
+  static getDatasetAccessHistory(token, datasetId, skip, limit) {
+    let headers = new Map();
+    if (token) {
+      headers.set("Authorization", "Bearer " + token);
+    }
+    return WebClient._call("GET", Config.datasetService + "/datasets/" + datasetId + "/accessHistory", headers,
+                null, "text", { skip, limit });
+  }
   
   static _prepQueryParams(qTmp) {
     const entr = Object.entries(qTmp);
