@@ -11,7 +11,7 @@ function AppKeycloak() {
       // const [keycloakProviderInitConfig, setKeycloakProviderInitConfig] = useState(
   //   {"redirectUri": window.location.href});
   const onEvent = useCallback((event, error) => {
-    console.log('onKeycloakEvent', event);
+    //console.log('onKeycloakEvent', event);
           if (event && (event === 'onReady')) {
               setKeycloakReady(true);
           }
@@ -19,7 +19,7 @@ function AppKeycloak() {
             console.error(error);
             //postMessage(new Message(Message.ERROR, "Keycloak provider error", error.error))
           }
-          console.log('keycloak ready', keycloakReady);
+          //console.log('keycloak ready', keycloakReady);
   }, []);
 
   const tokenLogger = (tokens) => {

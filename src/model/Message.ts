@@ -2,6 +2,10 @@
 
 export default class Message {
 
+  protected _type: string;
+  protected _title: string | null | undefined;
+  protected _message: string | null | undefined;
+
   constructor(type, title, message) {
     this._type = type;
     this._title = title;

@@ -1,7 +1,7 @@
 import { Button, Form } from "react-bootstrap";
 import React, {useState} from "react";
 
-import StaticValues from "../../../../api/StaticValues.js";
+import StaticValues from "../../../../api/StaticValues";
 
 function BodyPid(props) {
     const [value, setValue] = useState(props.oldValue);

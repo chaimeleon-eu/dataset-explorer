@@ -6,7 +6,7 @@ import { useKeycloak } from '@react-keycloak/web';
 
 import UserInfo from "./UserInfo";
 import Config from "../config.json"
-import Util from "../Util.js";
+import Util from "../Util";
 
 function getReleaseConf() {
   const release = Util.getReleaseType(Config);

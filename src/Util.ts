@@ -6,9 +6,9 @@ export default class Util {
   static RELEASE_PROD_TEST= "prod-test";
   static RELEASE_UNDEFINED = undefined;
 
-  static getErrFromXhr(xhr) {
-    let title = null;
-    let text = null;
+  static getErrFromXhr(xhr: XMLHttpRequest) {
+    let title: string = null;
+    let text: string = null;
     if (!xhr.responseText) {
       if (xhr.statusText !== undefined && xhr.statusText !== null) {
           title = xhr.statusText;
@@ -32,7 +32,7 @@ export default class Util {
   }
 
 
-  static parseK8sNames(uNameKeycloak, truncate) {
+  static parseK8sNames(uNameKeycloak: string, truncate: boolean) {
     let uNameKube = uNameKeycloak.toLowerCase()
       .replaceAll("_","--").replaceAll("@","-at-")
       .replaceAll(".","-dot-").replaceAll('"', '' )
@@ -62,7 +62,7 @@ export default class Util {
   
   }
 
-  static getUserKubeNamespace(userName) {
+  static getUserKubeNamespace(userName: string) {
     return `user-${userName}`;
   }
 
@@ -74,4 +74,29 @@ export default class Util {
       default: return Util.RELEASE_UNDEFINED;
     }
   }
+
+  static updSearchParams(params: object, searchParams: URLSearchParams, setSearchParams: Function) {
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== null) {
+        searchParams.set(k, v);
+      } else {
+        searchParams.delete(k);
+      }
+    }
+    setSearchParams(searchParams);
+  }
+
+  static msToTime(duration: number) {
+    var milliseconds = Math.floor((duration % 1000) / 100);
+    const seconds = Math.floor((duration / 1000) % 60);
+    const minutes = Math.floor((duration / (1000 * 60)) % 60);
+    const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+  
+    const shours = (hours < 10) ? "0" + hours : hours;
+    const sminutes = (minutes < 10) ? "0" + minutes : minutes;
+    const sseconds = (seconds < 10) ? "0" + seconds : seconds;
+  
+    return shours + ":" + sminutes + ":" + sseconds;
+  }
+
 }

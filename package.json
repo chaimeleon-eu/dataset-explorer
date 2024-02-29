@@ -1,9 +1,13 @@
 {
   "name": "dataset-explorer",
-  "version": "1.5.0-BETA",
+  "version": "1.5.1-BETA",
   "private": true,
   "homepage": ".",
   "dependencies": {
+    "typescript": "^5.3.3",
+    "@types/react-table": "^7.7.19",
+    "@types/react": "18.2.58",
+    "@types/react-dom": "^18.2.19",
     "@react-keycloak/web": ">=3.4.0",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.6",
@@ -13,16 +17,21 @@
     "http-terminator": "^3.2.0",
     "keycloak-js": "^20.0.3",
     "match-sorter": "^6.3.1",
-    "react": "~18.1.0",
+    "react": "^18.2.0",
     "react-bootstrap": "~2.7.2",
-    "react-bootstrap-icons": "1.8.2",
-    "react-dom": "~18.1.0",
+    "react-bootstrap-icons": "^1.10.3",
+    "react-dom": "~18.2.0",
     "react-paginate": "8.1.5",
     "react-router-dom": "^6.9.0",
     "react-scripts": "^5.0.1",
     "react-select": "^5.7.2",
     "react-table": "^7.8.0",
     "web-vitals": "^1.1.1"
+  },
+  "overrides": {
+    "react-scripts": {
+      "typescript": "^5"
+    }
   },
   "scripts": {
     "start": "node configure.js dev && react-scripts start",
@@ -51,6 +60,7 @@
     ]
   },
   "devDependencies": {
-    "cypress": "^12.3.0"
+    "cypress": "^12.3.0",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   }
 }

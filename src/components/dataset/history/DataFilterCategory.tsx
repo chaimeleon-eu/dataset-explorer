@@ -2,7 +2,7 @@ import React, {useState, useEffect } from "react";
 import {InputGroup, FormControl, Accordion} from "react-bootstrap";
 import { useKeycloak } from '@react-keycloak/web';
 
-import Message from "../../../model/Message.js";
+import Message from "../../../model/Message";
 import Util from "../../../Util";
 
 function DataFilterEntry(props) {

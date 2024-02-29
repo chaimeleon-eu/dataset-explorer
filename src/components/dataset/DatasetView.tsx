@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 import DatasetDetailsView from "./details/DatasetDetailsView";
 import DatasetHistoryView from "./history/DatasetHistoryView";
 import DatasetStudiesView from "./studies/DatasetStudiesView";
-import Message from "../../model/Message.js";
+import Message from "../../model/Message";
 import Breadcrumbs from "../Breadcrumbs";
 import UnauthorizedView from "../UnauthorizedView";
 import ResourceNotFoundView from "../ResourceNotFoundView";
@@ -16,6 +16,7 @@ import DatasetFieldEdit from "./common/DatasetFieldEdit";
 import Util from "../../Util";
 import Config from "../../config.json";
 import Dialog from "../Dialog";
+import AccessHistoryView from "./access/AccessHistoryView";
 
 const KUBE_APPS_CLUSTER = "default";
 
@@ -379,6 +380,12 @@ function DatasetView(props) {
                         <Nav.Link eventKey="history">History</Nav.Link>
                       </Nav.Item>)
                   ] : (<Fragment />)}
+                  {keycloak.authenticated && allValues.data?.["allowedActionsForTheUser"].includes("viewAccessHistory") ?
+                     (<Nav.Item key="access-nav">
+                            <Nav.Link eventKey="access">Access</Nav.Link>
+                          </Nav.Item>)
+                      : (<Fragment />)
+                  }
               </Nav>
 
             </Col>
@@ -399,6 +406,11 @@ function DatasetView(props) {
                       <DatasetHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
                      </Tab.Pane>)
                   ] : (<Fragment />)}
+                {keycloak.authenticated && allValues.data?.["allowedActionsForTheUser"].includes("viewAccessHistory") ?
+                    (<Tab.Pane eventKey="access" key="access-pane" >
+                      <AccessHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
+                     </Tab.Pane>)
+                  : (<Fragment />)}
               </Tab.Content>
             </Col>
           </Row>
@@ -411,6 +423,7 @@ function DatasetView(props) {
 DatasetView.TAB_DETAILS = "details";
 DatasetView.TAB_STUDIES = "studies";
 DatasetView.TAB_HISTORY = "history";
+DatasetView.TAB_ACCESS_HISTORY = "access";
 //DatasetView.TAB_DASHBOARD = "dashboard";
 
 DatasetView.SHOW_DLG_APP_DASHBOARD = "dlg-app-dashboard"
