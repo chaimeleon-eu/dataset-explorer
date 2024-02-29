@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 import DatasetDetailsView from "./details/DatasetDetailsView";
 import DatasetHistoryView from "./history/DatasetHistoryView";
 import DatasetStudiesView from "./studies/DatasetStudiesView";
-import Message from "../../model/Message.js";
+import Message from "../../model/Message";
 import Breadcrumbs from "../Breadcrumbs";
 import UnauthorizedView from "../UnauthorizedView";
 import ResourceNotFoundView from "../ResourceNotFoundView";
@@ -16,18 +16,14 @@ import DatasetFieldEdit from "./common/DatasetFieldEdit";
 import Util from "../../Util";
 import Config from "../../config.json";
 import Dialog from "../Dialog";
+import AccessHistoryView from "./access/AccessHistoryView";
 
-
+const KUBE_APPS_CLUSTER = "default";
 
 function onLoadAppsDashboard(iframeDom, datasetId, uNameKeycloak) {
   // Create an observer instance linked to the callback function
   const config = { attributes: true, childList: true, subtree: true };
   const targetNode = iframeDom.contentWindow.document.body;
-  let uNameKube = null;
-  if (uNameKeycloak !== null && uNameKeycloak !== undefined) {
-    uNameKube = Util.parseK8sNames(uNameKeycloak, true);
-  }
-  console.log(uNameKube);
   const cb = (mutationsList, observer) => {
     //console.log("change inside iframe");
     observer.disconnect();
@@ -139,10 +135,17 @@ function showDialogPublishDs(token, patchDatasetCb, showDialog,  data) {
 }
 
 function showDialogAppDashhboard(datasetId, showDialog, onBeforeClose, uNameKeycloak) {
+  let kubeAppsUrl = Config.kubeAppsUrl;
+  if (uNameKeycloak) {
+    const uNamespace = Util.getUserKubeNamespace(Util.parseK8sNames(uNameKeycloak, true));
+    kubeAppsUrl = `${Config.kubeAppsUrl}/#/c/${KUBE_APPS_CLUSTER}/ns/${uNamespace}/catalog`;
+  }
+  
   showDialog({
     show: true,
     footer: <Fragment />,
-    body: <iframe onLoad={(e) => onLoadAppsDashboard(e.target, datasetId, uNameKeycloak)} src={Config.kubeAppsUrl} style={{ width: "100%", height: "100%" }}/>,
+    body: <iframe title="Kube Apps" onLoad={(e) => onLoadAppsDashboard(e.target, datasetId, uNameKeycloak)} 
+              src={kubeAppsUrl} style={{ width: "100%", height: "100%" }}/>,
     title: <span>Apps Dashboard for dataset <b>{datasetId}</b></span>,
     size: Dialog.SIZE_XXL,
     onBeforeClose: () => onBeforeClose()
@@ -377,6 +380,12 @@ function DatasetView(props) {
                         <Nav.Link eventKey="history">History</Nav.Link>
                       </Nav.Item>)
                   ] : (<Fragment />)}
+                  {keycloak.authenticated && allValues.data?.["allowedActionsForTheUser"].includes("viewAccessHistory") ?
+                     (<Nav.Item key="access-nav">
+                            <Nav.Link eventKey="access">Access</Nav.Link>
+                          </Nav.Item>)
+                      : (<Fragment />)
+                  }
               </Nav>
 
             </Col>
@@ -397,6 +406,11 @@ function DatasetView(props) {
                       <DatasetHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
                      </Tab.Pane>)
                   ] : (<Fragment />)}
+                {keycloak.authenticated && allValues.data?.["allowedActionsForTheUser"].includes("viewAccessHistory") ?
+                    (<Tab.Pane eventKey="access" key="access-pane" >
+                      <AccessHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
+                     </Tab.Pane>)
+                  : (<Fragment />)}
               </Tab.Content>
             </Col>
           </Row>
@@ -409,6 +423,7 @@ function DatasetView(props) {
 DatasetView.TAB_DETAILS = "details";
 DatasetView.TAB_STUDIES = "studies";
 DatasetView.TAB_HISTORY = "history";
+DatasetView.TAB_ACCESS_HISTORY = "access";
 //DatasetView.TAB_DASHBOARD = "dashboard";
 
 DatasetView.SHOW_DLG_APP_DASHBOARD = "dlg-app-dashboard"

@@ -96,16 +96,16 @@ function DatasetStudiesView(props) {
            data: [], status: -1 }
       });
       if (props.keycloakReady && keycloak.authenticated) {
-        props.dataManager.getDataset(keycloak.token, props.datasetId, skip, limit)
+        props.dataManager.getStudies(keycloak.token, props.datasetId, skip, limit)
           .then(
             (xhr) => {
-              let studies = JSON.parse(xhr.response).studies;
+              let studies = JSON.parse(xhr.response).list;
               for (let study of studies) {
                   study.visibleSeriesLimit = STUDY_VISIBLE_SERIES;
               }
               setData( prevValues => {
                 return { ...prevValues, isLoading: false, isLoaded: true, error: null,
-                  data: JSON.parse(xhr.response).studies, status: xhr.status }
+                  data: studies, status: xhr.status }
               });
             },
             (xhr) => {

@@ -2,7 +2,7 @@ import {useState, useCallback, useEffect} from 'react';
 import React from "react";
 import {Alert} from "react-bootstrap";
 
-import Message from "../model/Message.js";
+import Message from "../model/Message";
 
 function AlertEntry(props) {
 

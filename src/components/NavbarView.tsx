@@ -6,7 +6,7 @@ import { useKeycloak } from '@react-keycloak/web';
 
 import UserInfo from "./UserInfo";
 import Config from "../config.json"
-import Util from "../Util.js";
+import Util from "../Util";
 
 function getReleaseConf() {
   const release = Util.getReleaseType(Config);
@@ -41,7 +41,7 @@ function NavbarView(props) {
             </Navbar.Brand>
             <Nav.Link title="List of datasets" href={Config.basename + "/datasets"}>Datasets</Nav.Link>
             <NavDropdown title="Documentation" id="documentation-dropdown">
-              <NavDropdown.Item title="Dataset Usage Guide" href="https://github.com/chaimeleon-eu/workstation-images/blob/main/ubuntu_python/application-examples/dataset-access-guide.ipynb" target="_blank">Dataset Usage</NavDropdown.Item>
+              <NavDropdown.Item title="Dataset Usage Guide" href="https://github.com/chaimeleon-eu/workstation-images/blob/main/ubuntu-python/rootfs/home/chaimeleon/application-examples/dataset-access-guide.ipynb" target="_blank">Dataset Usage</NavDropdown.Item>
               <NavDropdown.Item title="Workstation Usage Guide " href="https://github.com/chaimeleon-eu/workstation-images/blob/main/usage-guide.md" target="_blank">Workstation Usage</NavDropdown.Item>
               <NavDropdown title="Developer" id="developer-dropdown" drop="end" variant="white" className="w-100 ps-2">
                 <NavDropdown.Item title="How to integrate your application in CHAIMELEON platform" href="https://github.com/chaimeleon-eu/workstation-images/blob/main/README.md#how-to-integrate-your-application-in-chaimeleon-platform" target="_blank">App Integration</NavDropdown.Item>

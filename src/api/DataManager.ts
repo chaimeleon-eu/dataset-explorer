@@ -1,4 +1,4 @@
-import WebClient from "./WebClient.js";
+import WebClient from "./WebClient";
 
 export default class DataManager {
 
@@ -12,6 +12,10 @@ export default class DataManager {
 
   patchDataset(token, dsId, property, value) {
     return WebClient.patchDataset(token, dsId, property, value);
+  }
+
+  getStudies(token, dsId, studiesSkip, studiesLimit) {
+    return WebClient.getStudies(token, dsId, studiesSkip, studiesLimit);
   }
 
   getTracesDataset(token, datasetId, skip,  limit) {
@@ -28,5 +32,9 @@ export default class DataManager {
 
   getUpgradableDatasets(token) {
     return WebClient.getUpgradableDatasets(token);
+  }
+
+  getDatasetAccessHistory(token, datasetId, skip, limit) {
+    return WebClient.getDatasetAccessHistory(token, datasetId, skip, limit);
   }
 }
