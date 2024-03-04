@@ -53,7 +53,7 @@ function NavbarView(props) {
             <Nav.Link title="Support" href={Config.basename + "/support"}>Support</Nav.Link>
           </Nav>
         </Navbar.Collapse>
-        { keycloak.authenticated ? <Button className="me-1" variant="warning" onClick={() => window.open("https://forms.gle/bDmJC3cHog2CixMB8", '_blank').focus()}>Internal Validation</Button> : <Fragment/> }
+        {/* keycloak.authenticated ? <Button className="me-1" variant="warning" onClick={() => window.open("https://forms.gle/bDmJC3cHog2CixMB8", '_blank').focus()}>Internal Validation</Button> : <Fragment/> */}
         <Dropdown title="Launch CHAIMELEON Applications" className="float-end me-1" drop="start" >
           <Dropdown.Toggle variant="success" id="dropdown-basic">
             <GridFill />
