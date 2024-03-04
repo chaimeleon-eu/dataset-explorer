@@ -54,8 +54,8 @@ function NavbarView(props) {
           </Nav>
         </Navbar.Collapse>
         {/* keycloak.authenticated ? <Button className="me-1" variant="warning" onClick={() => window.open("https://forms.gle/bDmJC3cHog2CixMB8", '_blank').focus()}>Internal Validation</Button> : <Fragment/> */}
-        <Dropdown title="Launch CHAIMELEON Applications" className="float-end me-1" drop="start" >
-          <Dropdown.Toggle variant="success" id="dropdown-basic">
+        <Dropdown size="sm" title="Launch CHAIMELEON Applications" className="float-end me-1" drop="start" >
+          <Dropdown.Toggle size="sm" variant="success" id="dropdown-basic">
             <GridFill />
           </Dropdown.Toggle>
           <Dropdown.Menu>
