@@ -1,11 +1,20 @@
 import React, {useState, useEffect } from "react";
-import {InputGroup, FormControl, Accordion} from "react-bootstrap";
-import { useKeycloak } from '@react-keycloak/web';
+import {InputGroup, Accordion} from "react-bootstrap";
+import FilterCategory from "../../../model/FilterCategory";
+import FilterTrace from "../../../model/FilterTrace";
+import LoadingData from "../../../model/LoadingData";
 
 import Message from "../../../model/Message";
 import Util from "../../../Util";
 
-function DataFilterEntry(props) {
+interface DataFilterEntry {
+  filterName: string;
+  id: string;
+  updFilter: Function;
+  label: string;
+}
+
+function DataFilterEntry(props: DataFilterEntry) {
   const [checked, setChecked] = useState(true);
   return (
     <InputGroup size="sm" className="mb-2">
@@ -26,45 +35,49 @@ function DataFilterEntry(props) {
   );
 }
 
-function DataFilterCategory(props) {
-  const [data, setData] = useState({
-      isLoading: false,
-      isLoaded: false,
+interface DataFilterCategoryProps {
+  updFilter: Function;
+  updFilters: Function;
+  category: FilterCategory;
+  postMessage: Function;
+} 
+
+function DataFilterCategory(props: DataFilterCategoryProps) {
+  const [data, setData] = useState<LoadingData<FilterTrace[]>>({
+      loading: false,
       data: [],
       error: null,
-      status: -1
+      statusCode: -1
     });
-  let { keycloak } = useKeycloak();
   useEffect(() => {
       setData( prevValues => {
-        return { ...prevValues, isLoaded: false, isLoading: true, status: -1, error: null, data: [] }
+        return { ...prevValues, loading: true, status: -1, error: null, data: [] }
       });
           props.category.categoryLoader()
             .then(
-              (xhr) => {
-                const result = JSON.parse(xhr.response);
+              (xhr: XMLHttpRequest) => {
+                const result: string[] = JSON.parse(xhr.response);
                 const mapping = props.category.categoryMapping(result);
                 setData( prevValues => {
-                  return { ...prevValues, isLoaded: true, isLoading: false, status: xhr.status, error: null, data: mapping }
+                  return { ...prevValues, loading: false, statusCode: xhr.status, error: null, data: mapping }
                 });
                 props.updFilters(props.category.filterCategoryName, props.category.filterMapping(result));
               },
-              (xhr) => {
+              (xhr: XMLHttpRequest) => {
                 const error = Util.getErrFromXhr(xhr);
                 setData( prevValues => {
-                  return { ...prevValues, isLoaded: true, isLoading: false, data:[],
-                    status: xhr.status, error }
+                  return { ...prevValues, loading: false, data:[], statusCode: xhr.status, error }
                 });
                 props.postMessage(new Message(Message.ERROR, error.title, error.text));
             });
       }, []);
-  const components = data.data.map((m, idx) => <DataFilterEntry
-    updFilter={props.updFilter} checked={true} filterName={m.filterName} id={m.id} label={m.label}/>);
+  const components = data.data?.map((m, idx) => <DataFilterEntry
+    updFilter={props.updFilter} filterName={m.filterName} id={m.id} label={m.label}/>);
   return (
     <Accordion.Item eventKey="0">
       <Accordion.Header>{props.category.categoryTitle}</Accordion.Header>
       <Accordion.Body>
-        {components.map((component, index) => (
+        {components && components.map((component, index) => (
           <React.Fragment key={index}>
                 { component }
           </React.Fragment>

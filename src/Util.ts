@@ -1,3 +1,5 @@
+import ConfigJson from "./model/ConfigJson";
+import type LoadingError from "./model/LoadingError";
 
 export default class Util {
 
@@ -6,9 +8,9 @@ export default class Util {
   static RELEASE_PROD_TEST= "prod-test";
   static RELEASE_UNDEFINED = undefined;
 
-  static getErrFromXhr(xhr: XMLHttpRequest) {
-    let title: string = null;
-    let text: string = null;
+  static getErrFromXhr(xhr: XMLHttpRequest): LoadingError {
+    let title: string | null = null;
+    let text: string | null = null;
     if (!xhr.responseText) {
       if (xhr.statusText !== undefined && xhr.statusText !== null) {
           title = xhr.statusText;
@@ -33,7 +35,7 @@ export default class Util {
 
 
   static parseK8sNames(uNameKeycloak: string, truncate: boolean) {
-    let uNameKube = uNameKeycloak.toLowerCase()
+    let uNameKube: string | null = uNameKeycloak.toLowerCase()
       .replaceAll("_","--").replaceAll("@","-at-")
       .replaceAll(".","-dot-").replaceAll('"', '' )
       .replaceAll('\\', '' ).replaceAll('..', '')
@@ -55,18 +57,21 @@ export default class Util {
       }
     }
   
-    if (uNameKube.length >= 63) {
+    if (uNameKube && uNameKube.length >= 63) {
       uNameKube = uNameKube.substring(0, 63);
     }
     return uNameKube;
   
   }
 
-  static getUserKubeNamespace(userName: string) {
-    return `user-${userName}`;
+  static getUserKubeNamespace(userName: string | null) {
+    if (userName)
+      return `user-${userName}`;
+    else
+      return null;
   }
 
-  static getReleaseType(configJson) {
+  static getReleaseType(configJson: ConfigJson) {
     switch (configJson.release) {
       case Util.RELEASE_PROD: return Util.RELEASE_PROD;
       case Util.RELEASE_DEV: return Util.RELEASE_DEV;

@@ -1,12 +1,15 @@
-import { useState, useCallback, Fragment } from "react";
+import React, { Fragment } from "react";
 import { Button, Dropdown, DropdownButton } from "react-bootstrap";
 import { useKeycloak } from '@react-keycloak/web';
 
 
 import Config from "../config.json";
 
-function UserInfo(props) {
+function UserInfo() {
   let {keycloak} = useKeycloak();
+
+  const name: string = keycloak.idTokenParsed?.["name"] ?? "<i>Unknown user</i>";
+  const email: string = keycloak.idTokenParsed?.["email"] ? " (" + keycloak.idTokenParsed?.["email"] + ")" : "";
 
   return (
     <Fragment>
@@ -23,7 +26,7 @@ function UserInfo(props) {
     {keycloak.authenticated && (<DropdownButton
       id="dropdown-basic-button"
       title={
-        keycloak.idTokenParsed.name + " (" + keycloak.idTokenParsed.email + ")"
+        name + email
       }
     >
       <Dropdown.Item href={Config.userAccountUrl} key="useraccount" target="_blank" >

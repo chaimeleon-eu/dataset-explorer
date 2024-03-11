@@ -1,23 +1,28 @@
 import React, {useMemo, useState, useEffect, Fragment } from 'react';
-import { ListGroup, Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} from 'react-bootstrap';
-import { useTable, useRowSelect } from 'react-table';
+import { Button, Table as BTable, Container, Row, Col} from 'react-bootstrap';
+import { CellProps, useTable } from 'react-table';
+import type { Column } from 'react-table';
 import { useKeycloak } from '@react-keycloak/web';
 
 import Config from "../../../config.json";
 import Message from "../../../model/Message";
 import LoadingView from "../../LoadingView";
+import Series from "../../../model/Series";
+import LoadingData from "../../../model/LoadingData";
+import LoadingError from "../../../model/LoadingError";
+import DataManager from '../../../api/DataManager';
+import Study from '../../../model/Study';
+import Util from '../../../Util';
 
 const STUDY_VISIBLE_SERIES = 1;
 
-const NoDataConst = props => (
-  <div>No data.</div>
-);
+interface TableComponentProps<TData extends object> {
 
-const defaultPropGetter = () => ({});
+  columns: Array<Column<TData>>;
+  data: Array<TData>;
+}
 
-function TableComponent({ columns, data,
-  getColumnProps = defaultPropGetter,
-  getCellProps = defaultPropGetter }) {
+function TableComponent({ columns, data }: TableComponentProps<any>): JSX.Element {
   // Use the state and functions returned from useTable to build your UI
   const { getTableProps, headerGroups, rows, prepareRow } = useTable({
       columns,
@@ -40,30 +45,33 @@ function TableComponent({ columns, data,
         ))}
       </thead>
       <tbody>
-        {rows.map((row, i) => {
-          prepareRow(row)
-          return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map(cell => {
-                return (
-                  <td {...cell.getCellProps({className: "word-wrap"})}>
-                    {cell.render('Cell')}
-                  </td>
-                )
-              })}
-            </tr>
-          )
-        })}
+        {
+          ( rows.length > 0 && rows.map((row, i) => {
+            prepareRow(row)
+            return (
+              <tr {...row.getRowProps()}>
+                {row.cells.map(cell => {
+                  return (
+                    <td {...cell.getCellProps({className: "word-wrap"})}>
+                      {cell.render('Cell')}
+                    </td>
+                  )
+                })}
+              </tr>
+            )
+          }) ) 
+          ||  <span>No studies available</span>
+        }
       </tbody>
     </BTable>
   )
 }
 
-function generateSeriesCellView(series, seriesLimit) {
+function generateSeriesCellView(series: Series[], seriesLimit: number): string {
   return series.map(s => s["folderName"]).slice(0, seriesLimit).join(", ");
 }
 
-function generateSeriesCell(series, seriesLimit, onclickCb) {
+function generateSeriesCell(series: Series[], seriesLimit: number, onclickCb: Function | null): JSX.Element {
   if (series.length == 0) {
     return <Fragment />;
   }
@@ -72,19 +80,25 @@ function generateSeriesCell(series, seriesLimit, onclickCb) {
  //  { (row.original.visibleSeriesLimit > STUDY_VISIBLE_SERIES ? <Button size="sm" variant="link" >...>></Button> :
  //    ( row.original.visibleSeriesLimit == row.original.series.length ? )
  // ) }
-  return (generateSeriesCellView(series, seriesLimit));
+  return (<>{generateSeriesCellView(series, seriesLimit)}</>);
 }
 
+interface DatasetStudiesViewProps {
+  datasetId: string;
+  studiesCount: number;
+  keycloakReady: boolean;
+  postMessage: Function;
+  dataManager: DataManager;
+}
 
-function DatasetStudiesView(props) {
-  const [skip, setSkip] = useState(0);
-  const [limit, setLimit] = useState(Config.defaultLimitStudies);
-  const [data, setData] = useState({
-       isLoaded: false,
-       isLoading: false,
+function DatasetStudiesView(props: DatasetStudiesViewProps): JSX.Element {
+  const [skip, setSkip] = useState<number>(0);
+  const [limit] = useState<number>(Config.defaultLimitStudies);
+  const [data, setData] = useState<LoadingData<Study[]>>({
+       loading: false,
        error: null,
        data: [],
-       status: -1
+       statusCode: -1
 
   });
 
@@ -92,44 +106,27 @@ function DatasetStudiesView(props) {
   useEffect(() => {
     if (props.studiesCount != 0) {
       setData( prevValues => {
-         return { ...prevValues, isLoading: true, isLoaded: false, error: null,
-           data: [], status: -1 }
+         return { ...prevValues, loading: true, error: null, data: [], statusCode: -1 }
       });
       if (props.keycloakReady && keycloak.authenticated) {
         props.dataManager.getStudies(keycloak.token, props.datasetId, skip, limit)
           .then(
-            (xhr) => {
+            (xhr: XMLHttpRequest) => {
               let studies = JSON.parse(xhr.response).list;
               for (let study of studies) {
                   study.visibleSeriesLimit = STUDY_VISIBLE_SERIES;
               }
               setData( prevValues => {
-                return { ...prevValues, isLoading: false, isLoaded: true, error: null,
-                  data: studies, status: xhr.status }
+                return { ...prevValues, loading: false, error: null, data: studies, statusCode: xhr.status }
               });
             },
-            (xhr) => {
-              //setIsLoaded(true);
-              let title = null;
-              let text = null;
-              if (!xhr.responseText) {
-                if (xhr.statusText !== undefined && xhr.statusText !== null) {
-                    title = xhr.statusText;
-                    text = "Error loading data from " + xhr.responseURL;
-                } else {
-                  title = Message.UNK_ERROR_TITLE;
-                  text =  "Error loading data from " + xhr.responseURL;
-                }
-              } else {
-                const err = JSON.parse(xhr.response);
-                  title = err.title;
-                  text = err.message;
-              }
+            (xhr: XMLHttpRequest) => {
+              const error: LoadingError = Util.getErrFromXhr(xhr);
               setData( prevValues => {
-                return { ...prevValues, isLoading: false, isLoaded: true, error: text,
-                  data: [], status: xhr.status }
+                return { ...prevValues, loading: false, error,
+                  data: [], statusCode: xhr.status }
               });
-              props.postMessage(new Message(Message.ERROR, title, text));
+              props.postMessage(new Message(Message.ERROR, error.title, error.text));
             });
         }
       }
@@ -145,9 +142,9 @@ function DatasetStudiesView(props) {
 
       {
         Header: 'Study ID',
-        Cell: ({ row }) => (
+        Cell: (propsC: CellProps<any>) => (
           <Container fluid>
-            <a href={ row.original.url }>{row.original.studyId}</a>
+            <a href={ propsC.row.original.url }>{propsC.row.original.studyId}</a>
           </Container>
         )
       },
@@ -161,24 +158,23 @@ function DatasetStudiesView(props) {
       },
       {
         Header: 'Series',
-        Cell: ({ row }) => (
+        Cell: (propsC: CellProps<any>) => (
           <Container fluid>
-            { generateSeriesCell(row.original.series, row.original.series.length, null) }
+            { generateSeriesCell(propsC.row.original.series, propsC.row.original.series.length, null) }
           </Container>
         )
       }
 
     ], [data.data]);
 
-    if (data.isLoading) {
+    if (data.loading) {
       return <LoadingView what="studies" />;
     }
   return (
     <Container fluid>
       <Row>
           <Col>
-            <TableComponent columns={columns} data={data.data}
-            NoDataComponent={NoDataConst} />
+            <TableComponent columns={columns} data={data.data ?? []} />
           </Col>
       </Row>
       <div className="w-100" >

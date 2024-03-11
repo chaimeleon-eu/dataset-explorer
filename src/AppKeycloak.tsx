@@ -1,6 +1,10 @@
 import { ReactKeycloakProvider } from "@react-keycloak/web";
+import type {
+  AuthClientEvent,
+  AuthClientError
+} from '@react-keycloak/core'
 import keycloakConfig from './keycloak';
-import  React, { useState, useCallback, Fragment } from "react";
+import  React, { useState, useCallback } from "react";
 import Config from "./config.json";
 
 import App from "./App";
@@ -10,7 +14,7 @@ function AppKeycloak() {
     const [keycloakReady, setKeycloakReady] = useState(false);
       // const [keycloakProviderInitConfig, setKeycloakProviderInitConfig] = useState(
   //   {"redirectUri": window.location.href});
-  const onEvent = useCallback((event, error) => {
+  const onEvent = useCallback((event?: AuthClientEvent | null, error?: AuthClientError | undefined ) => {
     //console.log('onKeycloakEvent', event);
           if (event && (event === 'onReady')) {
               setKeycloakReady(true);
@@ -22,7 +26,7 @@ function AppKeycloak() {
           //console.log('keycloak ready', keycloakReady);
   }, []);
 
-  const tokenLogger = (tokens) => {
+  const tokenLogger = (tokens?: any) => {
     console.log('onKeycloakTokens');//, tokens)
   }
 

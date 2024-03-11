@@ -1,5 +1,5 @@
 {
-    "include": ["./src/**/*.js", "./src/**/*.ts", "./src/**/*.jsx", "./src/**/*.tsx", "./src/**/*.json"],
+    "include": ["./src/**/*.js", "./src/**/*.ts", "./src/**/*.jsx", "./src/**/*.tsx", "./src/**/*.json", "TraceView.tsx"],
     "exclude": ["./test", "./node_modules", "./build"],
     "compilerOptions": {
       "jsx": "react",
@@ -8,7 +8,7 @@
         "outDir": "./build/",
         "rootDir": "src",
       "lib": [
-        "ES2022"
+        "ES2022", "dom", "dom.iterable"
       ],
       "module": "ES2022",
       "target": "ES2020",

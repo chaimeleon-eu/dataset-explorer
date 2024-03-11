@@ -2,9 +2,11 @@ import { useKeycloak } from "@react-keycloak/web";
 import React, { Fragment, useState, useEffect } from "react";
 import { useCallback } from "react";
 import { Alert } from "react-bootstrap";
+import DataManager from "../../../api/DataManager";
 
 import RouteFactory from "../../../api/RouteFactory";
 import Config from "../../../config.json";
+import Dataset from "../../../model/Dataset";
 import Message from "../../../model/Message";
 import Util from "../../../Util";
 
@@ -12,8 +14,16 @@ const MSG_INVALIDATED = 1;
 const MSG_NEXT_ID = 2;
 const MSG_CREATION_STAT = 3;
 
-function MessageBox({postMessage, keycloakReady, dataManager, dataset, getDataset}) {
-    const [msgs, setMsgs] = useState({});
+interface MessageBox {
+    postMessage: Function;
+    keycloakReady: boolean;
+    dataManager: DataManager;
+    dataset: Dataset;
+    getDataset: Function;
+}
+
+function MessageBox({postMessage, keycloakReady, dataManager, dataset, getDataset}: MessageBox) {
+    const [msgs, setMsgs] = useState<object>({});
     const { keycloak } = useKeycloak();
     useEffect(() => {
             if (dataset) {
@@ -53,12 +63,12 @@ function MessageBox({postMessage, keycloakReady, dataManager, dataset, getDatase
 
       }, [dataset]);
     useEffect(() => {
-        let intervalStat = null;
+        let intervalStat: number | null = null;
         if (dataset && dataset.draft  && keycloakReady) {
             if (dataset.creating) {
-                intervalStat = setInterval(() => {
+                intervalStat = window.setInterval(() => {
                     console.log(`get creation status ${dataset}`);
-                    getCreationStatus(intervalStat)
+                    getCreationStatus()
                 }, Config.refreshDatasetCreate);
             } else {
                 if (intervalStat) {
@@ -73,7 +83,7 @@ function MessageBox({postMessage, keycloakReady, dataManager, dataset, getDatase
         return <Alert variant="warning">
                 <ul>
                     {
-                        Object.values(msgs).map(m => <li key={m} dangerouslySetInnerHTML={{ __html: m }}></li>)
+                        Object.values(msgs).map((m: string) => <li key={m} dangerouslySetInnerHTML={{ __html: m }}></li>)
                     }
                 </ul>
             </Alert>

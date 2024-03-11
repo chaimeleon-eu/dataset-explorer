@@ -1,25 +1,36 @@
-import React, {useEffect, useState} from "react";
-import {Accordion, Container, Row, Col, Button} from "react-bootstrap";
-import { useKeycloak } from '@react-keycloak/web';
+import React, {ReactNode, useEffect, useState} from "react";
+import { Accordion, Button, Col, Container, Row } from "react-bootstrap";
+import DataManager from "../../../api/DataManager";
+import FilterCategory from "../../../model/FilterCategory";
+import TraceTable from "../../../model/TraceTable";
 
 import DataFilterCategory from "./DataFilterCategory";
 
+interface FiltersType {
+  [key: string]: Map<string, any>;
+}
 
-function DataFilterView(props) {
+interface DataFilterViewProps {
+  dataManager: DataManager;
+  traces: TraceTable[];
+  updFilteredData: Function;
+  postMessage: Function;
+}
+
+function DataFilterView(props: DataFilterViewProps) {
   //var [categories, setCategories] = useState([]);
-  let { keycloak } = useKeycloak();
 
-  const [filters, setFilters] = useState({});
-  const [categories, setCategories] = useState([]);
+  const [filters, setFilters] = useState<FiltersType>(Object.create(null));
+  const [categories, setCategories] = useState<FilterCategory[]>([]);
 
   useEffect(() => {
         setCategories([
           {
             categoryTitle: "User Action types",
             filterCategoryName: "userActions",
-            filterMapping: function(inResult) {return new Map(inResult.map(el => [el, true]));},
-            filterElUpd: function(oldValues, id, newValue) {oldValues[id] = newValue; return oldValues;},
-            filterApply: function(traces, filtersValues) {
+            filterMapping: function(inResult: string[]): Map<string, boolean> {return new Map(inResult.map(el => [el, true]));},
+            //filterElUpd: function(oldValues, id, newValue) {oldValues[id] = newValue; return oldValues;},
+            filterApply: function(traces: TraceTable[], filtersValues: Map<string, boolean>) {
                 if (filtersValues !== undefined) {
                   let tracesFiltered = [];
                   for (let t of traces) {
@@ -33,7 +44,7 @@ function DataFilterView(props) {
                 }
               },
             categoryLoader: () => props.dataManager.getTracesActions(),
-            categoryMapping: function(inResult) {
+            categoryMapping: function(inResult: string[]) {
               return inResult.map((el) => {return {id: el, label: el, enabled: true, filterName: "userActions"};});}
           }
         ]);
@@ -47,23 +58,23 @@ function DataFilterView(props) {
           props.updFilteredData(tracesFiltered);
         }
       }, [filters, props.traces]);
-      const updFilters = (filterName, newValues) => {
+      const updFilters = (filterName: string, newValues: any) => {
           setFilters( prevValues => {
             prevValues[filterName] = newValues;
             return { ...prevValues };
           });
         };
 
-      const updFilter = (filtersName, id, value) => {
+      const updFilter = (filtersName: string, id: string, value: any) => {
           setFilters( prevValues => {
             let filter = prevValues[filtersName];
-            if (filter != undefined)
+            if (filter !== undefined)
               filter.set(id, value);
             return { ...prevValues };
           });
         };
 
-  let components = [];
+  let components: ReactNode[] = [];
   if (categories.length > 0)
     components = categories.map((m, idx) => <DataFilterCategory updFilter={updFilter} updFilters={updFilters}
       category={m} postMessage={props.postMessage}/>);

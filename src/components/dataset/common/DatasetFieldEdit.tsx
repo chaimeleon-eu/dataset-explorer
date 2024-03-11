@@ -1,18 +1,18 @@
-import { Button, InputGroup, FormControl, Container, Form, Row, Col } from "react-bootstrap";
-import { PencilFill, ArrowCounterclockwise } from 'react-bootstrap-icons';
-import { useRef, useState, useEffect, Fragment } from "react";
+import { Button } from "react-bootstrap";
+import { PencilFill } from 'react-bootstrap-icons';
+import React, { ReactNode, useState, useEffect } from "react";
 import { useKeycloak } from '@react-keycloak/web';
 
 import StaticValues from "../../../api/StaticValues";
 import Dialog from "../../Dialog";
-import Message from "../../../model/Message";
 import Footer from "./fieldedit/Footer";
 import Body from "./fieldedit/Body";
 import BodyPid from "./fieldedit/BodyPid";
 import BodyId from "./fieldedit/BodyId";
 import BodyLicense from "./fieldedit/BodyLicense";
+import DataManager from "../../../api/DataManager";
 
-function transformValue(field, value) {
+function transformValue(field: string, value: any) {
   if (field === "pids") {
     let sVal = Object.create(null);
     sVal["preferred"] = value["preferred"];
@@ -25,15 +25,26 @@ function transformValue(field, value) {
     return value;
 }
 
+interface DatasetFieldEditProps {
+  datasetId: string;
+  oldValue: any;
+  field: string;
+  patchDataset: Function;
+  keycloakReady: boolean;
+  dataManager: DataManager;
+  fieldDisplay: string;
+  showDialog: Function;
+}
 
-function DatasetFieldEdit(props) {
-  let [value, setValue] = useState(props.oldValue);
+
+function DatasetFieldEdit(props: DatasetFieldEditProps) {
+  let [value, setValue] = useState<any>(props.oldValue);
   useEffect(() => setValue(props.oldValue), [props.oldValue]);
   let { keycloak } = useKeycloak();
   //console.log(`props.oldValue is ${JSON.stringify(props.oldValue)}`);
   //console.log(`dfe value is ${JSON.stringify(value)}`);
   const [isPatchValue, setIsPatchValue] = useState(false);
-  const updValue = (newVal) => {setValue(newVal);};
+  const updValue = (newVal: any) => {setValue(newVal);};
   const patchDataset = () => setIsPatchValue(true);
   useEffect(() => {
     if (isPatchValue) {
@@ -46,15 +57,15 @@ function DatasetFieldEdit(props) {
   //    return { ...prevValues, data: newData.data, isLoading: newData.isLoading, isLoaded: newData.isLoaded, error: newData.error, status: newData.status}}
   //  );
   
-  let body = null;
+  let body: ReactNode | null = null;
   if (props.field === "license" || props.field === "licenseUrl") {
-    body = <BodyLicense updValue={updValue} field={props.field} oldValue={props.oldValue} />;
+    body = <BodyLicense updValue={updValue} oldValue={props.oldValue} />;
   } else if (props.field === "pids") {
-    body = <BodyPid updValue={updValue} field={props.field} oldValue={value} />;
+    body = <BodyPid updValue={updValue} oldValue={value} />;
   } else if (props.field === "previousId") {
-    body = <BodyId updValue={updValue} field={props.field} oldValue={value} keycloakReady={props.keycloakReady} dataManager={props.dataManager}/>;
+    body = <BodyId updValue={updValue} oldValue={value} keycloakReady={props.keycloakReady} dataManager={props.dataManager}/>;
   } else {
-    body = <Body updValue={updValue} field={props.field} oldValue={props.oldValue} />;
+    body = <Body updValue={updValue} oldValue={props.oldValue} />;
   }
   return <Button title={`Edit field '${props.fieldDisplay}'`} variant="link" className="m-0 ms-1 me-1 p-0" onClick={() =>
       {

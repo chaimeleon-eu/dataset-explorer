@@ -1,10 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import { Button, Badge, InputGroup, ButtonGroup, ToggleButton } from "react-bootstrap";
-import { CheckCircle, CheckCircleFill, DashCircle, DashCircleFill, X, XCircleFill,XCircle } from "react-bootstrap-icons";
+import React, { useCallback, MouseEvent } from "react";
+import { Button, Badge } from "react-bootstrap";
+import { CheckCircle, CheckCircleFill, DashCircle, DashCircleFill, XCircleFill, XCircle } from "react-bootstrap-icons";
+
+interface FilterFlagsProps {
+    searchParams: URLSearchParams;
+    updSearchParams: Function;
+    loading: boolean;
+}
+
 
 const lblFalse = "Hide datasets flagged with '#flag'";
 const lblTrue = "Show only datasets flagged with '#flag'";
-const lblMissing = "Show all datasets including those flagged with '#flag'";
 
 const radios = [
     { iconUnchecked: <CheckCircle pointerEvents="none" />, iconChecked: <CheckCircleFill pointerEvents="none" />, lbl: lblTrue, value: "true" },
@@ -12,12 +18,12 @@ const radios = [
     //{ iconUnchecked: <XCircle />, iconChecked: <XCircleFill />, lbl: lblMissing, value: "null" },
   ];
 
-function getSearchParamValue(searchParams, filter?: string | null) {
+function getSearchParamValue(searchParams: URLSearchParams, filter: string) {
     return searchParams.get(filter) === null ? null 
-      : (searchParams.get(filter).toLowerCase() === "true" ? "true" : "false");
+      : (searchParams.get(filter)?.toLowerCase() === "true" ? "true" : "false");
 }
 
-function getFilterFlag(searchParams: Object, flagName: string, filter: string, updParamsCb: Function, disabled: boolean) {
+function getFilterFlag(searchParams: URLSearchParams, flagName: string, filter: string, updParamsCb: (e: MouseEvent) => void, disabled: boolean) {
     return (
         <tr title={`Filter datasets that have the flag '${filter}'.`}>
             <td>
@@ -31,14 +37,15 @@ function getFilterFlag(searchParams: Object, flagName: string, filter: string, u
                         key={`tgbtn-${idx}`}
                         variant="clear"
                         data-filter-value={radio.value}
-                        onClick={updParamsCb}
+                        onClick={(e:React.MouseEvent<HTMLButtonElement>) => updParamsCb(e)}
                         disabled={disabled}
                         data-filter={`${filter}`}
                     >
                         { getSearchParamValue(searchParams, filter) === radio.value ? radio.iconChecked : radio.iconUnchecked }
                     </Button>
                     ))}
-                <Button id={`${filter}--1`} disabled={disabled} data-filter={`${filter}`} data-filter-value={null} onClick={updParamsCb} title={`Remove filter for the '${filter}' flag`}  size="small" variant="link" className="ps-0 pt-0 mt-0 fw-bold">
+                <Button id={`${filter}--1`} disabled={disabled} data-filter={`${filter}`} data-filter-value={null} 
+                    onClick={updParamsCb} title={`Remove filter for the '${filter}' flag`}  size="sm" variant="link" className="ps-0 pt-0 mt-0 fw-bold">
                     {
                          getSearchParamValue(searchParams, filter) 
                             ?  <XCircle pointerEvents="none" data-filter={`${filter}`} style={{"backgroundColor": "white", "fontSize": "0.9rem"}}/>
@@ -51,9 +58,15 @@ function getFilterFlag(searchParams: Object, flagName: string, filter: string, u
     )
 }
 
-function FilterFlags({searchParams, updSearchParams, loading}) {
-    const updParamsCb = useCallback((e) => {
-        updSearchParams({[e.target.getAttribute("data-filter")]: e.target.getAttribute("data-filter-value")});
+function FilterFlags({searchParams, updSearchParams, loading}: FilterFlagsProps) {
+    const updParamsCb = useCallback((e: MouseEvent) => {
+        const el = e.target as HTMLInputElement;
+        const k: string | null = el.getAttribute("data-filter");
+        if (k) {
+            updSearchParams({[k]: el.getAttribute("data-filter-value")});
+        } else {
+            console.error("The elem doesn't have a field called 'data-filter'")
+        }
     }, [searchParams, updSearchParams]);
     const disabled = loading === true;
     return <div className="mt-1 mb-1">

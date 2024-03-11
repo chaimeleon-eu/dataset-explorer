@@ -3,7 +3,12 @@ import { Button, InputGroup, FormControl } from 'react-bootstrap';
 import { Search as SearchIc } from "react-bootstrap-icons";
 import React, {useState, useEffect}from 'react';
 
-function SearchComponent({initValue, updSearchParams}) {
+interface SearchComponentProps {
+  initValue: string;
+  updSearchParams: Function;
+}
+
+function SearchComponent({initValue, updSearchParams}: SearchComponentProps): JSX.Element {
     const [input, setInput] = useState(initValue);
     useEffect(() => {
       setInput(initValue);
@@ -26,7 +31,7 @@ function SearchComponent({initValue, updSearchParams}) {
           value={input}
           onKeyDown={(e) => {
             if(e.key === 'Enter') {
-                updSearchParams({searchString: e.target.value});
+                updSearchParams({searchString: (e.target as HTMLInputElement).value});
             }
           }}
         />

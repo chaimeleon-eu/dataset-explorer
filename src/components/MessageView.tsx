@@ -1,10 +1,22 @@
-import {useState, useCallback, useEffect} from 'react';
-import React from "react";
+import React, {useState, useCallback, useEffect} from 'react';
 import {Alert} from "react-bootstrap";
 
 import Message from "../model/Message";
 
-function AlertEntry(props) {
+interface MessageViewProps {
+
+  message: Message | null;
+
+}
+
+interface AlertEntryProps {
+
+  message: Message;
+  idx: number;
+  onAlertClose: Function;
+}
+
+function AlertEntry(props: AlertEntryProps): JSX.Element {
 
   return (
     <Alert variant={props.message.type} onClose={() => props.onAlertClose(props.idx)} dismissible>
@@ -14,16 +26,16 @@ function AlertEntry(props) {
   );
 }
 
-const MessageView = (props) => {
-  const [messages, setMessages] = useState([]);
-    const onAlertClose = useCallback((idx) => {
+const MessageView = (props: MessageViewProps) => {
+  const [messages, setMessages] = useState<Message[]>([]);
+    const onAlertClose = useCallback((idx: number) => {
       setMessages(oldArray => oldArray.filter((el, i) => i !== idx));
         console.log(messages);
     }, []);
   //const [messages, setMessages] = useState(null);
   useEffect(() => {
     if (props.message !== null) {
-       setMessages(messages => [...messages, props.message]);
+       setMessages((messages: Message[]) => props.message !== null ? [...messages, props.message] : messages);
      }
   }, [props.message]);
     // if (props.message !== null) {

@@ -1,12 +1,20 @@
+import React from "react";
 import { Pagination } from 'react-bootstrap';
 import { useCallback } from "react";
 
-const PREVIOUS_PAGE = 0;
-const NEXT_PAGE = -1
+// const PREVIOUS_PAGE = 0;
+// const NEXT_PAGE = -1
+
+interface PaginationFooterProps {
+    skip: number;
+    limit: number;
+    total: number;
+    onSkipChange: Function;
+}
 
 
-function PaginationFooter({skip, limit, total, onSkipChange}) {
-    const onClickPg = useCallback((pg) => {
+function PaginationFooter({skip, limit, total, onSkipChange}: PaginationFooterProps) {
+    const onClickPg = useCallback((pg: number) => {
         onSkipChange(limit * (pg - 1));
     }, [skip, limit]);
 

@@ -1,8 +1,9 @@
 import Config from "../config.json";
+import type QueryParamsType from "../model/QueryParamsType";
 
 export default class WebClient {
 
-  static getDatasets(token, qParams) {
+  static getDatasets(token: string | null | undefined, qParams: QueryParamsType): Promise<XMLHttpRequest>  {
     let headers = new Map();
     if (token) {
       headers.set("Authorization", "Bearer " + token);
@@ -12,16 +13,16 @@ export default class WebClient {
                 null, "text", qTmp);
   }
 
-  static getDataset(token, dsId, studiesSkip, studiesLimit) {
+  static getDataset(token: string | null | undefined, dsId: string): Promise<XMLHttpRequest> {
     let headers = new Map();
     if (token) {
       headers.set("Authorization", "Bearer " + token);
     }
     return WebClient._call("GET", Config.datasetService + "/datasets/" + dsId, headers,
-                null, "text", { studiesSkip, studiesLimit });
+                null, "text", null );
   }
 
-  static patchDataset(token, dsId, property, value) {
+  static patchDataset(token: string | null | undefined, dsId: string, property: string, value: string | null): Promise<XMLHttpRequest>  {
       let headers = new Map();
       if (token) {
         headers.set("Authorization", "Bearer " + token);
@@ -32,7 +33,7 @@ export default class WebClient {
                   JSON.stringify(payload), "text", null );
   }
 
-  static getStudies(token, dsId, studiesSkip, studiesLimit) {
+  static getStudies(token: string | null | undefined, dsId: string, studiesSkip: number | null | undefined, studiesLimit: number | null | undefined): Promise<XMLHttpRequest>  {
     let headers = new Map();
     if (token) {
       headers.set("Authorization", "Bearer " + token);
@@ -42,12 +43,12 @@ export default class WebClient {
 
   }
 
-  static getTracesActions() {
+  static getTracesActions(): Promise<XMLHttpRequest>  {
       return WebClient._call("GET", Config.tracerService + "/static/traces/actions",
         new Map(), null, "text", null);
   }
 
-  static getTracesDataset(token, datasetId, skipTraces, limitTraces) {
+  static getTracesDataset(token: string | null | undefined, datasetId: string, skipTraces: number | null, limitTraces: number | null): Promise<XMLHttpRequest>  {
     let headers = new Map();
     if (token) {
       headers.set("Authorization", "Bearer " + token);
@@ -57,7 +58,7 @@ export default class WebClient {
       headers, null, "text", qTmp);
   }
 
-  static getDatasetCreationStatus(token, dsId) {
+  static getDatasetCreationStatus(token: string | null | undefined, dsId: string): Promise<XMLHttpRequest>  {
     let headers = new Map();
     if (token) {
       headers.set("Authorization", "Bearer " + token);
@@ -66,8 +67,8 @@ export default class WebClient {
                 null, "text", null);
   }
 
-  static getUpgradableDatasets(token) {
-    let headers = new Map();
+  static getUpgradableDatasets(token: string | null | undefined): Promise<XMLHttpRequest>  {
+    let headers = new Map<string, string>();
     if (token) {
       headers.set("Authorization", "Bearer " + token);
     }
@@ -75,7 +76,7 @@ export default class WebClient {
                 null, "text", null);
   }
   
-  static _prepQueryParams(qTmp) {
+  static _prepQueryParams(qTmp: QueryParamsType): object | null {
     const entr = Object.entries(qTmp);
     let size = entr.length;
     for (const [k,v] of entr) {
@@ -87,7 +88,7 @@ export default class WebClient {
     return size === 0 ? null : qTmp;
   }
 
-  static _call(method, path, headers, payload, responseType, queryParams) {
+  static _call(method: string, path: string, headers: Map<string, string>, payload: any, responseType: XMLHttpRequestResponseType, queryParams: object | null): Promise<XMLHttpRequest> {
 
       let request = new XMLHttpRequest();
       return new Promise(function (resolve, reject) {
