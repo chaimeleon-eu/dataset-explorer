@@ -293,16 +293,21 @@ function ColNameIdRender({row}: ColNameIdRenderProps): JSX.Element {
     {row.original["name"]}
     &nbsp;(<i className={txtIdClass} onAnimationEnd={() => setCopySuc(null)}>{row.original["id"]}</i>
     <Button variant="link" className="m-0 p-0 ms-1" onClick={(e) =>
-        {navigator.clipboard ? 
-          navigator.clipboard.writeText(row.original["id"]).then(function() {
-              console.log('Async: Copying to clipboard was successful!');
-              setCopySuc(true);
-            }, function(err) {
-              console.error('Async: Could not copy text: ', err);
-              setCopySuc(false);
-            })
-            : () => {console.error('Async: Could not copy text'); setCopySuc(false)}
-        }} >
+            {
+              if (navigator.clipboard) { 
+                navigator.clipboard.writeText(row.original["id"]).then(function() {
+                    console.log('Async: Copying to clipboard was successful!');
+                    setCopySuc(true);
+                  }, function(err) {
+                    console.error('Async: Could not copy text: ', err);
+                    setCopySuc(false);
+                  })
+              } else {
+                  console.error('Async: Could not copy text'); 
+                  setCopySuc(false);
+              }
+            }
+        } >
 
         {copySuc !== null ? (copySuc ? <CheckCircleFill color="green"/> : <XCircleFill color="red"/>) : <ClipboardPlus />}
         
