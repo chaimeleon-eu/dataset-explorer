@@ -17,7 +17,7 @@
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
       "moduleResolution": "node",
-      "allowUnusedLabels": false,
+      "allowUnusedLabels": true,
       "allowUnreachableCode": false,
       "exactOptionalPropertyTypes": true,
       "noFallthroughCasesInSwitch": true,

@@ -93,20 +93,28 @@ function App({keycloakReady}: AppProps) {
                 <Route path="/datasets" element={<DatasetsView keycloakReady={keycloakReady} 
                     dataManager={dataManager} postMessage={postMessage} />} />
                     <Route path="/datasets/:datasetId/details" 
-                    element={<DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
+                      element={<DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
                         postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_DETAILS}/>} />
                     <Route path="/datasets/:datasetId/details/dlg-app-dashboard" 
-                    element={getDSV({...opt, tab: DatasetView.TAB_DETAILS, sdo: DatasetView.SHOW_DLG_APP_DASHBOARD })} />
+                      element={getDSV({...opt, tab: DatasetView.TAB_DETAILS, sdo: DatasetView.SHOW_DLG_APP_DASHBOARD })} />
                     <Route path="/datasets/:datasetId/studies" 
-                    element={<DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
-                    postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_STUDIES}/>} />
+                      element={<DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
+                        postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_STUDIES}/>} />
                     <Route path="/datasets/:datasetId/studies/dlg-app-dashboard" 
-                    element={getDSV({...opt, tab: DatasetView.TAB_STUDIES, sdo: DatasetView.SHOW_DLG_APP_DASHBOARD })} />
+                      element={getDSV({...opt, tab: DatasetView.TAB_STUDIES, sdo: DatasetView.SHOW_DLG_APP_DASHBOARD })} />
+                    
                     <Route path="/datasets/:datasetId/history" 
-                    element={<DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
-                        postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_HISTORY}/>} />
-                    <Route path="/datasets/:datasetId/history/dlg-app-dashboard" 
-                    element={getDSV({...opt, tab: DatasetView.TAB_HISTORY, sdo: DatasetView.SHOW_DLG_APP_DASHBOARD })} />
+                      element={<DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
+                          postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_HISTORY}/>} />
+                    <Route path="/datasets/:datasetId/history/dlg-app-dashboard"
+                      element={getDSV({...opt, tab: DatasetView.TAB_HISTORY, sdo: DatasetView.SHOW_DLG_APP_DASHBOARD })} />
+
+                    <Route path="/datasets/:datasetId/access" 
+                      element={<DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
+                          postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_ACCESS_HISTORY}/>} />
+                    <Route path="/datasets/:datasetId/access/dlg-app-dashboard" 
+                      element={getDSV({...opt, tab: DatasetView.TAB_HISTORY, sdo: DatasetView.SHOW_DLG_APP_DASHBOARD })} />
+                    
                     <Route path="*" element={
                         <main style={{ padding: "1rem" }}>
                         <p>There is nothing here!</p>

@@ -19,8 +19,28 @@ import DataManager from "../../api/DataManager";
 import Dataset from "../../model/Dataset";
 import LoadingError from "../../model/LoadingError";
 import LoadingData from "../../model/LoadingData";
+import AccessHistoryView from "./access/AccessHistoryView";
 
 const KUBE_APPS_CLUSTER = "default";
+
+
+DatasetView.TAB_DETAILS = "details";
+DatasetView.TAB_STUDIES = "studies";
+DatasetView.TAB_HISTORY = "history";
+DatasetView.TAB_ACCESS_HISTORY = "access";
+//DatasetView.TAB_DASHBOARD = "dashboard";
+
+DatasetView.SHOW_DLG_APP_DASHBOARD = "dlg-app-dashboard"
+
+// const routeRoot = "/datasets/:datasetId";
+
+// const routesTabs = {
+//   [`${routeRoot}/${DatasetView.TAB_DETAILS}`]: DatasetView.TAB_DETAILS,
+//   [`${routeRoot}/${DatasetView.TAB_STUDIES}`]: DatasetView.TAB_STUDIES,
+//   [`${routeRoot}/${DatasetView.TAB_HISTORY}`]: DatasetView.TAB_HISTORY,
+//   [`${routeRoot}/${DatasetView.TAB_ACCESS_HISTORY}`]: DatasetView.TAB_ACCESS_HISTORY,
+  
+// }
 
 function onLoadAppsDashboard(iframeDom: HTMLIFrameElement, datasetId: string): void {
   // Create an observer instance linked to the callback function
@@ -186,7 +206,7 @@ function Actions({data, patchDatasetCb, showDialog}: ActionsProps) {
               //}
             }, "Use on Apps Dashboard", "action-use-dashboard")
       ]
-      console.log(`data.editablePropertiesByTheUser ${data.editablePropertiesByTheUser}`);
+      //console.log(`data.editablePropertiesByTheUser ${data.editablePropertiesByTheUser}`);
       if (keycloak.authenticated) {
         entries.push(
           getAction(data.editablePropertiesByTheUser.includes("invalidated"),
@@ -219,16 +239,19 @@ interface DatasetViewProps {
 }
 
 function DatasetView(props: DatasetViewProps) {
-   let location = useLocation();
+   const location = useLocation();
+
+  // const path: string | null | undefined = matchPath( location.pathname, routesTabs )?.path;
 
     let params = useParams();
   let navigate = useNavigate();
+  //const [activeTab, setActivetab] = useState<string>(props.activeTab);
   const datasetId: string | undefined = params["datasetId"];//props.datasetId;
   const [allValues, setAllValues] = useState<LoadingData<Dataset>>({
       loading: false,
        error: null,
        data: null,
-       statusCode: null
+       statusCode: -1
     });
     // const handlePostMsg = useCallback((msgType, title, text) => {
     //   props.postMessage(new Message(msgType, title, text));
@@ -241,7 +264,7 @@ function DatasetView(props: DatasetViewProps) {
       .then(
         (xhr: XMLHttpRequest) => {
           let data = JSON.parse(xhr.response);
-          console.log("[TMP] license set");
+          //console.log("[TMP] license set");
           if (data["license"] === null ||  data["license"] === undefined ||  data["license"].length === 0) {
             data["license"] = {title: "", url: ""};
           }
@@ -285,7 +308,7 @@ function DatasetView(props: DatasetViewProps) {
       }
   useEffect(() => {
       if (props.keycloakReady && datasetId) {
-        console.log(`props.showdDlgOpt ${props.showdDlgOpt}`);
+        //console.log(`props.showdDlgOpt ${props.showdDlgOpt}`);
         getDataset(keycloak.token, datasetId);
         if (props.showdDlgOpt === DatasetView.SHOW_DLG_APP_DASHBOARD) {
           if (keycloak.authenticated) {
@@ -314,106 +337,113 @@ function DatasetView(props: DatasetViewProps) {
       }
     } else if (allValues.data === null || allValues.loading) {
         return <div>loading...</div>;
-    } else {
-      return (
-        <Fragment>
-          <Breadcrumbs elems={[{text: 'Dataset information', link: "", active: true}]}/>
-          <Row className="mb-4 mt-4">
-            <Col md={11}>
-              <span className="h3">
-                  <b className="me-1">{allValues.data.name}
-                  {
-                    allValues.data.editablePropertiesByTheUser.includes("draft")
-                    ? <DatasetFieldEdit datasetId={datasetId} showDialog={props.showDialog} field="name" 
-                        fieldDisplay="Dataset name" oldValue={allValues.data.name} patchDataset={patchDataset}
-                        keycloakReady={props.keycloakReady} dataManager={props.dataManager}/>
-                    : <Fragment />
+    }
+  } else {
+    if (allValues.data === null || allValues.loading) {
+      return <div>loading...</div>
+    } else {    
+      return <div>No dataset ID specified</div>; 
+    }
+  }
+
+  return (
+    <Fragment>
+      <Breadcrumbs elems={[{text: 'Dataset information', link: "", active: true}]}/>
+      <Row className="mb-4 mt-4">
+        <Col md={11}>
+          <span className="h3">
+              <b className="me-1">{allValues.data.name}
+              {
+                allValues.data.editablePropertiesByTheUser.includes("draft")
+                ? <DatasetFieldEdit keycloakReady={props.keycloakReady} dataManager={props.dataManager} datasetId={datasetId} showDialog={props.showDialog} field="name" fieldDisplay="Dataset name" oldValue={allValues.data.name} patchDataset={patchDataset}/>
+                : <Fragment />
+              }
+              </b>
+          </span>
+            <sup  className="container-fluid ms-0" style={{fontSize: "0.9rem"}}>
+              {( allValues.data.invalidated ? <Badge pill className="me-2" bg="secondary">Invalidated</Badge>: <Fragment /> )}
+              {( allValues.data.public ? <Badge pill bg="dark">Published</Badge> : <Fragment /> )}
+              {( allValues.data.draft ? <Badge pill bg="light" text="dark">Draft</Badge> : <Fragment /> )}
+            </sup>
+            <div>
+              <i>Created on </i> 
+                {new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
+                    .format(Date.parse(allValues.data.creationDate))}
+                {keycloak.authenticated ? (
+                <Fragment>
+                  <i> by </i>
+                    {allValues.data.authorName}
+                    <a className="ms-1" title="Send an email to the dataset author" href={"mailto:" + allValues.data.authorEmail }>
+                      <EnvelopeFill />
+                    </a>
+                    </Fragment>
+                ) : (<Fragment />)}
+              </div>
+
+        </Col>
+        <Col md={1}>
+          <div className="float-end">
+            <Actions data={allValues.data} patchDatasetCb={patchDataset} showDialog={props.showDialog}/>
+          </div>
+        </Col>
+      </Row>
+      <Container fluid className="w-100 h-75">
+
+        <Tab.Container defaultActiveKey="details" activeKey={props.activeTab} 
+              onSelect={(k) => {console.log(k);navigate(`/datasets/${datasetId}/${k}`)}}>
+          <Row>
+            <Col sm={2}>
+              <Nav variant="pills" className="flex-column mb-5">
+                <Nav.Item>
+                  <Nav.Link eventKey="details">Details</Nav.Link>
+                </Nav.Item>
+                {keycloak.authenticated ?
+                  [
+                      (<Nav.Item key="studies-nav">
+                        <Nav.Link eventKey="studies">Studies</Nav.Link>
+                      </Nav.Item>),
+                      (<Nav.Item key="history-nav">
+                        <Nav.Link eventKey="history">History</Nav.Link>
+                      </Nav.Item>)
+                  ] : (<Fragment />)}
+                  {keycloak.authenticated && allValues.data?.["allowedActionsForTheUser"].includes("viewAccessHistory") ?
+                     (<Nav.Item key="access-nav">
+                            <Nav.Link eventKey="access">Access</Nav.Link>
+                          </Nav.Item>)
+                      : (<Fragment />)
                   }
-                  </b>
-              </span>
-                <sup  className="container-fluid ms-0" style={{fontSize: "0.9rem"}}>
-                  {( allValues.data.invalidated ? <Badge pill className="me-2" bg="secondary">Invalidated</Badge>: <Fragment /> )}
-                  {( allValues.data.public ? <Badge pill bg="dark">Published</Badge> : <Fragment /> )}
-                  {( allValues.data.draft ? <Badge pill bg="light" text="dark">Draft</Badge> : <Fragment /> )}
-                </sup>
-                <div>
-                  <i>Created on </i> 
-                    {new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
-                        .format(Date.parse(allValues.data.creationDate))}
-                    {keycloak.authenticated ? (
-                    <Fragment>
-                      <i> by </i>
-                        {allValues.data.authorName}
-                        <a className="ms-1" title="Send an email to the dataset author" href={"mailto:" + allValues.data.authorEmail }>
-                          <EnvelopeFill />
-                        </a>
-                        </Fragment>
-                    ) : (<Fragment />)}
-                  </div>
+              </Nav>
 
             </Col>
-            <Col md={1}>
-              <div className="float-end">
-                <Actions data={allValues.data} patchDatasetCb={patchDataset} showDialog={props.showDialog}/>
-              </div>
+            <Col sm={10}>
+              <Tab.Content>
+                <Tab.Pane eventKey="details">
+                  <DatasetDetailsView patchDataset={patchDataset} showDialog={props.showDialog} getDataset={getDataset}
+                    dataset={allValues.data} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
+                </Tab.Pane>
+
+                {keycloak.authenticated ?
+                  [
+                    (<Tab.Pane eventKey="studies"  key="studies-pane">
+                      <DatasetStudiesView datasetId={datasetId} keycloakReady={props.keycloakReady}
+                        postMessage={props.postMessage} dataManager={props.dataManager}/>
+                    </Tab.Pane>),
+                    (<Tab.Pane eventKey="history" key="history-pane" >
+                      <DatasetHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
+                     </Tab.Pane>)
+                  ] : (<Fragment />)}
+                {keycloak.authenticated && allValues.data?.["allowedActionsForTheUser"].includes("viewAccessHistory") ?
+                    (<Tab.Pane eventKey="access" key="access-pane" >
+                      <AccessHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
+                     </Tab.Pane>)
+                  : (<Fragment />)}
+              </Tab.Content>
             </Col>
           </Row>
-          <Container fluid className="w-100 h-75">
-
-            <Tab.Container defaultActiveKey="details" activeKey={props.activeTab} onSelect={(k) => navigate(`/datasets/${datasetId}/${k}`)}>
-              <Row>
-                <Col sm={2}>
-                  <Nav variant="pills" className="flex-column mb-5">
-                    <Nav.Item>
-                      <Nav.Link eventKey="details">Details</Nav.Link>
-                    </Nav.Item>
-                    {keycloak.authenticated ?
-                      [
-                          (<Nav.Item key="studies-nav">
-                            <Nav.Link eventKey="studies" key="studies">Studies</Nav.Link>
-                          </Nav.Item>),
-                          (<Nav.Item key="history-nav">
-                            <Nav.Link eventKey="history">History</Nav.Link>
-                          </Nav.Item>)
-                      ] : (<Fragment />)}
-                  </Nav>
-
-                </Col>
-                <Col sm={10}>
-                  <Tab.Content>
-                    <Tab.Pane eventKey="details">
-                      <DatasetDetailsView patchDataset={patchDataset} showDialog={props.showDialog} getDataset={getDataset}
-                        dataset={allValues.data} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
-                    </Tab.Pane>
-
-                    {keycloak.authenticated ?
-                      [
-                        (<Tab.Pane eventKey="studies"  key="studies-pane">
-                          <DatasetStudiesView datasetId={datasetId} studiesCount={allValues.data === null ? 0 : allValues.data.studiesCount} keycloakReady={props.keycloakReady}
-                            postMessage={props.postMessage} dataManager={props.dataManager}/>
-                        </Tab.Pane>),
-                        (<Tab.Pane eventKey="history" key="history-pane" >
-                          <DatasetHistoryView datasetId={datasetId} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
-                        </Tab.Pane>)
-                      ] : (<Fragment />)}
-                  </Tab.Content>
-                </Col>
-              </Row>
-            </Tab.Container>
-          </Container>
-        </Fragment>
+        </Tab.Container>
+      </Container>
+    </Fragment>
       );
-    }
-  } else {    
-    return <div>No dataset ID specified</div>; 
-  }
 }
-
-DatasetView.TAB_DETAILS = "details";
-DatasetView.TAB_STUDIES = "studies";
-DatasetView.TAB_HISTORY = "history";
-//DatasetView.TAB_DASHBOARD = "dashboard";
-
-DatasetView.SHOW_DLG_APP_DASHBOARD = "dlg-app-dashboard"
 
 export default DatasetView;

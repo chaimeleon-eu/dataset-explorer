@@ -1,7 +1,6 @@
-import { Container, Navbar, Nav, Badge, Button, Dropdown, NavDropdown } from "react-bootstrap";
-import React, { useMemo, useId, Fragment }from "react";
+import { Container, Navbar, Nav, Badge, Dropdown, NavDropdown } from "react-bootstrap";
+import React, { useMemo, useId }from "react";
 import { GridFill } from 'react-bootstrap-icons';
-import { useKeycloak } from '@react-keycloak/web';
 
 import UserInfo from "./UserInfo";
 import Config from "../config.json"
@@ -19,7 +18,6 @@ function getReleaseConf() {
 }
 
 function NavbarView() {
-  const { keycloak } = useKeycloak();
   //console.log("navbar");
   const rc = useMemo(() => getReleaseConf(), []);
   const nbCollapseId = useId();
@@ -52,9 +50,9 @@ function NavbarView() {
             <Nav.Link title="Support" href={Config.basename + "/support"}>Support</Nav.Link>
           </Nav>
         </Navbar.Collapse>
-        { keycloak.authenticated ? <Button className="me-1" variant="warning" onClick={() => window?.open("https://forms.gle/bDmJC3cHog2CixMB8", '_blank')?.focus()}>Internal Validation</Button> : <Fragment/> }
+        {/* keycloak.authenticated ? <Button className="me-1" variant="warning" onClick={() => window.open("https://forms.gle/bDmJC3cHog2CixMB8", '_blank').focus()}>Internal Validation</Button> : <Fragment/> */}
         <Dropdown title="Launch CHAIMELEON Applications" className="float-end me-1" drop="start" >
-          <Dropdown.Toggle variant="success" id="dropdown-basic">
+          <Dropdown.Toggle size="sm" variant="success" id="dropdown-basic">
             <GridFill />
           </Dropdown.Toggle>
           <Dropdown.Menu>

@@ -18,6 +18,7 @@ import TraceTable from "../../../model/TraceTable";
 import RespTraces from "../../../model/RespTraces";
 import TracesBCPaginated from "../../../model/TracesBCPaginated";
 import LoadingError from "../../../model/LoadingError";
+import TableNoData from "../../TableNoData";
 
 class LoadingTraces extends LoadingData<TraceTable[]> {
   tracesFiltered: TraceTable[];
@@ -68,8 +69,7 @@ function TableComponent({ columns, data }: TableComponentProps<any>): JSX.Elemen
             </tr>
           )
         })
-        ) || <span>No history data available </span>
-      
+        ) || <TableNoData colSpan={columns.length} message="No history data available"></TableNoData>      
       }
       </tbody>
     </BTable>

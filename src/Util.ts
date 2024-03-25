@@ -79,4 +79,29 @@ export default class Util {
       default: return Util.RELEASE_UNDEFINED;
     }
   }
+
+  static updSearchParams(params: object, searchParams: URLSearchParams, setSearchParams: Function) {
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== null) {
+        searchParams.set(k, v);
+      } else {
+        searchParams.delete(k);
+      }
+    }
+    setSearchParams(searchParams);
+  }
+
+  static msToTime(duration: number) {
+    //var milliseconds = Math.floor((duration % 1000) / 100);
+    const seconds = Math.floor((duration / 1000) % 60);
+    const minutes = Math.floor((duration / (1000 * 60)) % 60);
+    const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+  
+    const shours = (hours < 10) ? "0" + hours : hours;
+    const sminutes = (minutes < 10) ? "0" + minutes : minutes;
+    const sseconds = (seconds < 10) ? "0" + seconds : seconds;
+  
+    return shours + ":" + sminutes + ":" + sseconds;
+  }
+
 }

@@ -8,6 +8,7 @@ import {matchSorter} from 'match-sorter';
 import DataManager from "../api/DataManager";
 import type Dataset from "../model/Dataset";
 import DatasetsTableSortBy from "../model/DatasetsTableSortBy";
+import TableNoData from "./TableNoData";
 
 
 // const IndeterminateCheckbox = forwardRef(
@@ -465,20 +466,24 @@ function Table({ columns, data, sortBy, updSearchParams//, showDialog, dataManag
         </tr>
       </thead>
       <tbody>
-        {rows.map(row => {
-          prepareRow(row)
-          return (
-            <tr {...row.getRowProps()} key={`tr-${Math.random().toString(16).slice(2)}`} >
-              {row.cells.map(cell => {
-                return (
-                  <td  {...cell.getCellProps()} key={`td-${Math.random().toString(16).slice(2)}`}>
-                    {cell.render('Cell')}
-                  </td>
-                )
-              })}
-            </tr>
-          )
-        })}
+        {
+          ( 
+            rows.length > 0 && rows.map(row => {
+            prepareRow(row)
+            return (
+              <tr {...row.getRowProps()} key={`tr-${Math.random().toString(16).slice(2)}`} >
+                {row.cells.map(cell => {
+                  return (
+                    <td  {...cell.getCellProps()} key={`td-${Math.random().toString(16).slice(2)}`}>
+                      {cell.render('Cell')}
+                    </td>
+                  )
+                })}
+              </tr>
+              )
+            })
+          ) || <TableNoData colSpan={columns.length} message="No datasets found"></TableNoData>
+        }
       </tbody>
     </BTable>
   )

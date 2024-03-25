@@ -72,7 +72,7 @@ function DatasetsView (props: DatasetsViewProps) {
   const sortBy: string = searchParams.get("sortBy") ?? "creationDate";
   const sortDirection: string = getSortDirectionDesc(searchParams.get("sortDirection"), searchParams.get("sortBy") ?? "creationDate");
   const skip: number = searchParams.get("skip") ? Number(searchParams.get("skip")) : 0;
-  const limit: number = searchParams.get("limit") ? Number(searchParams.get("skip")) : Config.defaultLimitDatasets;
+  const limit: number = searchParams.get("limit") ? Number(searchParams.get("limit")) : Config.defaultLimitDatasets;
   
   const onSkipChange = useCallback((skip: number) => {
     updSearchParams({skip: skip === 0 ? null : skip});
@@ -124,7 +124,6 @@ function DatasetsView (props: DatasetsViewProps) {
                       (xhr: XMLHttpRequest) => {
                         //setIsLoaded(true);
                         const data = JSON.parse(xhr.response);
-                        //console.log(d);
                         //setData(d);
                         setAllData(prev => {
                           return {...prev, loading: false, data, error: null, statusCode: xhr.status}

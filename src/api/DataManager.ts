@@ -34,4 +34,8 @@ export default class DataManager {
   getUpgradableDatasets(token: string | null | undefined): Promise<XMLHttpRequest>  {
     return WebClient.getUpgradableDatasets(token);
   }
+
+  getDatasetAccessHistory(token:  string | null | undefined, datasetId: string, skip: number | null,  limit: number | null) {
+    return WebClient.getDatasetAccessHistory(token, datasetId, skip, limit);
+  }
 }

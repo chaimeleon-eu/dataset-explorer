@@ -1,5 +1,7 @@
 
+
 export default interface ItemPage<T_ITEM> {
+    
     total: number;
     returned: number;
     skipped: number;
