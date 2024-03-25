@@ -28,10 +28,10 @@ editablePropertiesByTheUser: string[],
 allowedActionsForTheUser: string[],
 studiesCount: number;
 subjectsCount: number;
-ageLow: string | null;
-ageHigh: string | null;
+ageLow: number | null;
+ageHigh: number | null;
 ageUnit: string[];
-ageNullCount: string | null;
+ageNullCount: number;
 sex: string[];
 sexCount: number[];
 bodyPart: string[];
@@ -40,9 +40,9 @@ modality: string[];
 modalityCount: number[];
 manufacturer: string[];
 manufacturerCount: number[];
-diagnosisYearLow: number;
-diagnosisYearHigh: number;
-diagnosisYearNullCount: string | null;
+diagnosisYearLow: number | null;
+diagnosisYearHigh: number | null;
+diagnosisYearNullCount: number | null;
 seriesTags: string[];
-sizeInBytes: number; 
+sizeInBytes: number | null; 
 }

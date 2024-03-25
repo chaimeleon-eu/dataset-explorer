@@ -167,7 +167,7 @@ function DatasetStudiesView(props: DatasetStudiesViewProps): JSX.Element {
         Header: 'Size',
         Cell: (propsC: CellProps<any>) => (
           <div className="text-end">
-            {Util.formatBytes(propsC.row.original.sizeInBytes) }
+            {propsC.row.original.sizeInBytes !== null && propsC.row.original.sizeInBytes !== undefined ? Util.formatBytes(propsC.row.original.sizeInBytes) : "unknown" }
           </div>
         )
       },
