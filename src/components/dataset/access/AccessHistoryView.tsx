@@ -106,7 +106,7 @@ function AccessHistoryView(props: AccessHistoryViewProps): JSX.Element {
   
     const onSkipChange = useCallback((skip: number) => {
       updSearchParams({skip: skip === 0 ? null : skip});
-    }, [skip, updSearchParams]);
+    }, [skip, limit, updSearchParams, searchParams, setSearchParams]);
 
   useEffect(() => {
       if (props.keycloakReady && keycloak.authenticated) {
@@ -146,7 +146,7 @@ function AccessHistoryView(props: AccessHistoryViewProps): JSX.Element {
                 });
             });
         }
-  }, [props, setData, keycloak.authenticated, skip, limit]);
+  }, [props.keycloakReady, props.datasetId, keycloak.authenticated, searchParams, setSearchParams]);
   const columns = useMemo(
     () => [
       {

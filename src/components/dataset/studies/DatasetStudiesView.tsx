@@ -18,7 +18,7 @@ import { useSearchParams } from 'react-router-dom';
 import PaginationFooter from '../../PaginationFooter';
 import ItemPage from '../../../model/ItemPage';
 
-const STUDY_VISIBLE_SERIES = 1;
+//const STUDY_VISIBLE_SERIES = 1;
 
 interface TableComponentProps<TData extends object> {
 
@@ -113,7 +113,7 @@ function DatasetStudiesView(props: DatasetStudiesViewProps): JSX.Element {
   const limit = searchParams.get("limit") ? Number(searchParams.get("limit")) : Config.defaultLimitStudies;
   const onSkipChange = useCallback((skip: number) => {
     updSearchParams({skip: skip === 0 ? null : skip});
-  }, [skip, updSearchParams]);
+  }, [skip, limit, updSearchParams, searchParams, setSearchParams]);
   useEffect(() => {
     if (props.keycloakReady && keycloak.authenticated) {
         setData( prevValues => {
@@ -136,7 +136,7 @@ function DatasetStudiesView(props: DatasetStudiesViewProps): JSX.Element {
               });
             });
         }
-  }, [props, setData, keycloak.authenticated, skip, limit]);
+  }, [props.datasetId, props.keycloakReady, keycloak.authenticated, searchParams, setSearchParams]);
   // const lastPage = Number(props.studiesCount) % Number(limit) === 0 ? 0 : 1;
   // let numPages = Math.floor(Number(props.studiesCount) / Number(limit)) + lastPage;
   // if (numPages === 0)
