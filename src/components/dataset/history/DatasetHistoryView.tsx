@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect } from "react";
-import { Button, Table as BTable, Container, Row, Col} from 'react-bootstrap';
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { Table as BTable, Container, Row, Col} from 'react-bootstrap';
 import React, { CellProps, useTable } from 'react-table';
 import type { Column } from 'react-table';
 import { useKeycloak } from '@react-keycloak/web';
@@ -19,6 +19,7 @@ import RespTraces from "../../../model/RespTraces";
 import TracesBCPaginated from "../../../model/TracesBCPaginated";
 import LoadingError from "../../../model/LoadingError";
 import TableNoData from "../../TableNoData";
+import PaginationFooter from "../../PaginationFooter";
 
 class LoadingTraces extends LoadingData<TraceTable[]> {
   tracesFiltered: TraceTable[];
@@ -86,11 +87,7 @@ interface DatasetHistoryViewProps {
 
 
 function DatasetHistoryView(props: DatasetHistoryViewProps) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const defSkip = searchParams.get("skipStudies");
-  const defLimit = searchParams.get("limitStudies");
-  const skip = defSkip === null ? 0 : Number(defSkip);
-  const limit = defLimit === null ? Config.defaultLimitTraces : Number(defLimit);
+  const [searchParams, setSearchParams] = useSearchParams("");
 
   const [data, setData] = useState<LoadingTraces>({
     loading: false,
@@ -100,6 +97,15 @@ function DatasetHistoryView(props: DatasetHistoryViewProps) {
     error: null,
     statusCode: -1
   });
+
+
+  const updSearchParams = useCallback((params: Object) => Util.updSearchParams(params, searchParams, setSearchParams), 
+    [searchParams, setSearchParams]);
+  const skip = searchParams.get("skip") ? Number(searchParams.get("skip")) : 0;
+  const limit = searchParams.get("limit") ? Number(searchParams.get("limit")) : Config.defaultLimitTraces;
+  const onSkipChange = useCallback((skip: number) => {
+    updSearchParams({skip: skip === 0 ? null : skip});
+  }, [skip, limit, updSearchParams, searchParams, setSearchParams]);
 
     const updFilteredData = (tracesFiltered: LoadingTraces) => {
       setData( (prevValues: LoadingTraces) => {
@@ -117,13 +123,10 @@ function DatasetHistoryView(props: DatasetHistoryViewProps) {
   let { keycloak } = useKeycloak();
   //console.log(keycloak);
     useEffect(() => {
-        setData( prevValues => {
-          return { ...prevValues, isLoaded: false, isLoading: true, status: -1, error: null }
-          });
         if (props.keycloakReady && keycloak.authenticated) {
           setData( prevValues => {
-              return { ...prevValues, loading: true }
-              });
+            return { ...prevValues, loading: true, status: -1, error: null, data: [], tracesFiltered: [], totalTracesCnt: 0 }
+            });
           props.dataManager.getTracesDataset(keycloak.token, props.datasetId, skip, limit)
             .then(
               (xhr: XMLHttpRequest) => {
@@ -147,22 +150,22 @@ function DatasetHistoryView(props: DatasetHistoryViewProps) {
                   }
                   traces.sort((a,b) => b.created.getTime() - a.created.getTime());
                   setData( prevValues => {
-                      return { ...prevValues, totalTracesCnt, loading: false, traces: traces, statusCode: xhr.status, error: null }
+                      return { ...prevValues, totalTracesCnt, loading: false, data: traces, tracesFiltered: traces, statusCode: xhr.status, error: null }
                       });
                 }
               },
               (xhr: XMLHttpRequest) => {
                 const error: LoadingError = Util.getErrFromXhr(xhr);
+                props.postMessage(new Message(Message.ERROR, error.title, error.text));
                 setData( prevValues => {
-                   return { ...prevValues, totalTracesCnt: 0, traces: [], loading: false,
+                   return { ...prevValues, totalTracesCnt: 0, data: [], tracesFiltered: [], loading: false,
                     statusCode: xhr.status, error }
                    });
-                   props.postMessage(new Message(Message.ERROR, error.title, error.text));
               });
             }
 
     }, //1000);},
-    [props.keycloakReady, keycloak.authenticated, searchParams]);
+    [props.datasetId, props.keycloakReady, keycloak.authenticated, searchParams, setSearchParams]);
 
   const columns: Column<any>[] = useMemo(
     () => [
@@ -195,12 +198,7 @@ function DatasetHistoryView(props: DatasetHistoryViewProps) {
     if (data.loading) {
       return <LoadingView what="dataset history" />;
     }
-    const lastPage = Number(data.totalTracesCnt) % Number(limit) === 0 ? 0 : 1;
-    let numPages = Math.floor(Number(data.totalTracesCnt) / Number(limit)) + lastPage;
-    if (numPages === 0)
-      numPages = 1;
-  
-    const page = Number(skip) / Number(limit) + 1;
+
     return (
         <Container fluid>
           <Row>
@@ -211,7 +209,7 @@ function DatasetHistoryView(props: DatasetHistoryViewProps) {
             </Col>
             <Col lg={9} md={12} className="d-flex flex-column">
               <TableComponent columns={columns} data={data.tracesFiltered} />
-              <div className="w-100  d-flex  justify-content-center align-self-end" >
+              {/* <div className="w-100  d-flex  justify-content-center align-self-end" >
                 <Button className="position-relative me-4" disabled={page === 1 ? true : false}
                   onClick={(e) => {
                     setSearchParams(prevValues => {
@@ -237,6 +235,10 @@ function DatasetHistoryView(props: DatasetHistoryViewProps) {
                   }
                     }>Next</Button>
                 <span>Page <b>{page}</b> of <b>{numPages}</b></span>
+              </div> */}
+      
+              <div className="d-flex flex-row justify-content-center w-100" >
+                <PaginationFooter skip={skip} limit={limit} total={data.totalTracesCnt} onSkipChange={onSkipChange} />
               </div>
             </Col>
           </Row>
