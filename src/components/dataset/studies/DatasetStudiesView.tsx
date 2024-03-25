@@ -162,6 +162,15 @@ function DatasetStudiesView(props: DatasetStudiesViewProps): JSX.Element {
         Header: 'Subject',
         accessor: 'subjectName'
       },
+
+      {
+        Header: 'Size',
+        Cell: (propsC: CellProps<any>) => (
+          <div className="text-end">
+            {Util.formatBytes(propsC.row.original.sizeInBytes) }
+          </div>
+        )
+      },
       {
         Header: 'Series',
         Cell: (propsC: CellProps<any>) => (

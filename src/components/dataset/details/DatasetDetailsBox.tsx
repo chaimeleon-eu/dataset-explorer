@@ -5,6 +5,7 @@ import DatasetFieldEdit from "../common/DatasetFieldEdit";
 import RouteFactory from "../../../api/RouteFactory";
 import Dataset from "../../../model/Dataset";
 import DataManager from "../../../api/DataManager";
+import Util from "../../../Util";
 
 const PREVIOUS_ID = "Previous version";
 const NEXT_ID = "Next version";
@@ -84,6 +85,8 @@ function DatasetDetailsBox(props: DatasetDetailsBoxProps) {
         <p title="The list of tags set on the series that compose this dataset"><b>Series tags</b><br />
           <span className="ms-3">{dataset.seriesTags !== null && dataset.seriesTags !== undefined && dataset.seriesTags.length > 0 ? 
           dataset.seriesTags.map(t => <Badge pill key={t} bg="light" text="dark" className="ms-1 me-1">{t}</Badge>) : "-"}</span></p>
+        <p title="The size occupied by the dataset on the platform' storage"><b>Size</b><br />
+          <span className="ms-3">{Util.formatBytes(dataset.sizeInBytes)}</span></p>
       </Container>
     );
 }

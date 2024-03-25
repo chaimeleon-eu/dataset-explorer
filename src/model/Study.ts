@@ -8,4 +8,5 @@ export default interface Study {
     pathInDatalake: string,
     series: Series[],
     url: string | null
+    sizeInBytes: number;
 }

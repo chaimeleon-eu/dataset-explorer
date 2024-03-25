@@ -44,5 +44,5 @@ diagnosisYearLow: number;
 diagnosisYearHigh: number;
 diagnosisYearNullCount: string | null;
 seriesTags: string[];
-    
+sizeInBytes: number; 
 }
