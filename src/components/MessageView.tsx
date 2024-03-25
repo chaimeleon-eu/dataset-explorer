@@ -30,7 +30,7 @@ const MessageView = (props: MessageViewProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
     const onAlertClose = useCallback((idx: number) => {
       setMessages(oldArray => oldArray.filter((el, i) => i !== idx));
-        console.log(messages);
+        //console.log(messages);
     }, []);
   //const [messages, setMessages] = useState(null);
   useEffect(() => {
