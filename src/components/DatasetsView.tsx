@@ -104,10 +104,10 @@ function DatasetsView (props: DatasetsViewProps) {
             //setTimeout(function() {
             //console.log(keycloak.authenticated);
             //if (props.keycloakReady) {
-                let modLimit = limit;
-                if (allData.data?.list?.length === limit+1) {
-                  modLimit += 1;
-                }
+                // let modLimit = limit;
+                // if (allData.data?.list?.length === limit+1) {
+                //   modLimit += 1;
+                // }
                 //console.log(searchString);
                 
                 setAllData(prev => {
@@ -115,7 +115,7 @@ function DatasetsView (props: DatasetsViewProps) {
                 });
                   props.dataManager.getDatasets(keycloak.token, 
                       {
-                        skip, modLimit, searchString, sortBy, sortDirection, v2: true,
+                        skip, limit, searchString, sortBy, sortDirection, //v2: true,
                         ...(searchParams.get("draft") !== null) && {draft: searchParams.get("draft")},
                         ...(searchParams.get("public") !== null) && {public: searchParams.get("public")},
                         ...(searchParams.get("invalidated") !== null) && {invalidated: searchParams.get("invalidated")}                        
