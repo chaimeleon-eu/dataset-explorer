@@ -115,7 +115,7 @@ function DatasetDetailsBox(props: DatasetDetailsBoxProps) {
           <span className="ms-3">{dataset.studiesCount}/{dataset.subjectsCount}</span></p>
         <p title="The range of the ages of all subjects in this dataset, DICOM tag (0010, 1010) or subject clinical data"><b>Age range</b><br />
           <span className="ms-3">{ageLstItemTxt}</span></p>
-        <p title="The range of the ages of all subjects in this dataset, subject clinical data"><b>Year of diagnosis range</b><br />
+        <p title="The range of the diagnosis years for all subjects in this dataset, subject clinical data"><b>Year of diagnosis range</b><br />
           <span className="ms-3">{diagnosisLstItemTxt}</span></p>
         <p title="The set of sexes of all subjects in this dataset, DICOM tag (0010, 0040) or subject clinical data"><b>Sex{sex.show ? " (#studies)" : ""}</b><br />
           <span className="ms-3">{sex.txt}</span></p>
