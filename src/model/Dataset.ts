@@ -13,7 +13,6 @@ authorId: string;
 authorName: string | null;
 authorEmail: string | null;
 creationDate: string;
-lastIntegrityCheck:  string | null;
 description: string;
 license: DatasetLicense;
 pids: DatasetPids;
@@ -45,4 +44,5 @@ diagnosisYearHigh: number | null;
 diagnosisYearNullCount: number | null;
 seriesTags: string[];
 sizeInBytes: number | null; 
+lastIntegrityCheck:  string | null;
 }
