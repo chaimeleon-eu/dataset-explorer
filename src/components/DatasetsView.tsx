@@ -76,7 +76,10 @@ function DatasetsView (props: DatasetsViewProps) {
   
   const onSkipChange = useCallback((skip: number) => {
     updSearchParams({skip: skip === 0 ? null : skip});
-  }, [skip, updSearchParams]);
+  }, [searchParams, setSearchParams, updSearchParams]);
+
+  const filterUpdate = useCallback((params: Object) => updSearchParams({...params, skip: null}),
+    [searchParams, setSearchParams, updSearchParams]);
 
 
   //console.log(`searchString is ${searchString}`);
@@ -147,7 +150,7 @@ function DatasetsView (props: DatasetsViewProps) {
           </Row>
           <Row>
             <Col lg={2}>
-              <DatasetsFiltering updSearchParams={updSearchParams} searchParams={searchParams}  loading={allData.loading} />
+              <DatasetsFiltering filterUpdate={filterUpdate} searchParams={searchParams}  loading={allData.loading} />
             </Col>
             <Col>
               <DatasetsMainTable data={allData.data && allData.data?.list ? allData.data.list.slice(0, limit) : []}

@@ -4,14 +4,14 @@ import FilterFlags from "./FilterFlags";
 
 interface DatasetsFilteringProps {
     searchParams: URLSearchParams;
-    updSearchParams: Function;
+    filterUpdate: Function;
     loading: boolean;
 }
 
-function DatasetsFiltering({searchParams, updSearchParams, loading}: DatasetsFilteringProps) {
+function DatasetsFiltering({searchParams, filterUpdate, loading}: DatasetsFilteringProps) {
 
     return <Container>
-        <FilterFlags updSearchParams={updSearchParams} searchParams={searchParams} loading={loading}/>
+        <FilterFlags filterUpdate={filterUpdate} searchParams={searchParams} loading={loading}/>
 
     </Container>;
 }

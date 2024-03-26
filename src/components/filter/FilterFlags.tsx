@@ -4,7 +4,7 @@ import { CheckCircle, CheckCircleFill, DashCircle, DashCircleFill, XCircleFill, 
 
 interface FilterFlagsProps {
     searchParams: URLSearchParams;
-    updSearchParams: Function;
+    filterUpdate: Function;
     loading: boolean;
 }
 
@@ -58,16 +58,16 @@ function getFilterFlag(searchParams: URLSearchParams, flagName: string, filter: 
     )
 }
 
-function FilterFlags({searchParams, updSearchParams, loading}: FilterFlagsProps) {
+function FilterFlags({searchParams, filterUpdate, loading}: FilterFlagsProps) {
     const updParamsCb = useCallback((e: MouseEvent) => {
         const el = e.target as HTMLInputElement;
         const k: string | null = el.getAttribute("data-filter");
         if (k) {
-            updSearchParams({[k]: el.getAttribute("data-filter-value")});
+            filterUpdate({[k]: el.getAttribute("data-filter-value")});
         } else {
             console.error("The elem doesn't have a field called 'data-filter'")
         }
-    }, [searchParams, updSearchParams]);
+    }, [searchParams, filterUpdate]);
     const disabled = loading === true;
     return <div className="mt-1 mb-1">
         <h5>Filter by dataset flags</h5>
