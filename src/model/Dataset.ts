@@ -45,4 +45,5 @@ diagnosisYearNullCount: number | null;
 seriesTags: string[];
 sizeInBytes: number | null; 
 lastIntegrityCheck:  string | null;
+project: string;
 }

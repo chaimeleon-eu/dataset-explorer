@@ -35,7 +35,11 @@ export default class DataManager {
     return WebClient.getUpgradableDatasets(token);
   }
 
-  getDatasetAccessHistory(token:  string | null | undefined, datasetId: string, skip: number | null,  limit: number | null) {
+  getDatasetAccessHistory(token:  string | null | undefined, datasetId: string, skip: number | null,  limit: number | null): Promise<XMLHttpRequest> {
     return WebClient.getDatasetAccessHistory(token, datasetId, skip, limit);
+  }
+
+  getProjects(token:  string | null | undefined): Promise<XMLHttpRequest> {
+    return WebClient.getProjects(token);
   }
 }

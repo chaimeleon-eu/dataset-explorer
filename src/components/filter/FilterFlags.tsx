@@ -69,8 +69,8 @@ function FilterFlags({searchParams, filterUpdate, loading}: FilterFlagsProps) {
         }
     }, [searchParams, filterUpdate]);
     const disabled = loading === true;
-    return <div className="mt-1 mb-1">
-        <h5>Filter by dataset flags</h5>
+    return <div className="mt-1 mb-4">
+        <h6>Dataset flags</h6>
         <table>
             <tbody>
                 {getFilterFlag(searchParams, "Draft", "draft", updParamsCb, disabled)}

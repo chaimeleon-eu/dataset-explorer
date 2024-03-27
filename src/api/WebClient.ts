@@ -76,13 +76,22 @@ export default class WebClient {
                 null, "text", null);
   }
 
-  static getDatasetAccessHistory(token:  string | null | undefined, datasetId: string, skip: number | null,  limit: number | null) {
+  static getDatasetAccessHistory(token:  string | null | undefined, datasetId: string, skip: number | null,  limit: number | null): Promise<XMLHttpRequest> {
     let headers = new Map();
     if (token) {
       headers.set("Authorization", "Bearer " + token);
     }
     return WebClient._call("GET", Config.datasetService + "/datasets/" + datasetId + "/accessHistory", headers,
                 null, "text", { skip, limit });
+  }
+
+  static getProjects(token:  string | null | undefined): Promise<XMLHttpRequest> {
+    let headers = new Map();
+    if (token) {
+      headers.set("Authorization", "Bearer " + token);
+    }
+    return WebClient._call("GET", Config.datasetService + "/projects", headers,
+                null, "text", null );
   }
   
   static _prepQueryParams(qTmp: QueryParamsType): object | null {

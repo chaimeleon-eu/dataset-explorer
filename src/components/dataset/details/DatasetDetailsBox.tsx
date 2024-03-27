@@ -106,7 +106,8 @@ function DatasetDetailsBox(props: DatasetDetailsBoxProps) {
               //   <ClipboardPlus />
               // </Button>
 }
-        </p>
+        </p>        
+        <p title="The project that this dataset is part of"><b>Project</b><br /><span className="ms-3">{dataset.project}</span></p>
         { getIDLink(PREVIOUS_ID, dataset.previousId, 
             dataset.editablePropertiesByTheUser.includes("previousId"),
             dataset, props.showDialog, props.patchDataset, props.keycloakReady, props.dataManager) }

@@ -528,6 +528,11 @@ function DatasetsMainTable(props: DatasetsMainTableProps): JSX.Element {
       accessor: 'authorName'
     },
     {
+      Header: 'Project',
+      id: "project",
+      accessor: 'project'
+    },
+    {
       Header: 'Created',
       id: "creationDate",
       accessor: 'creationDate',

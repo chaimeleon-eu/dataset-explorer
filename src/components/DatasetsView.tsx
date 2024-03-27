@@ -119,6 +119,7 @@ function DatasetsView (props: DatasetsViewProps) {
                   props.dataManager.getDatasets(keycloak.token, 
                       {
                         skip, limit, searchString, sortBy, sortDirection, //v2: true,
+                        ...(searchParams.get("project") !== null) && {project: searchParams.get("project")},
                         ...(searchParams.get("draft") !== null) && {draft: searchParams.get("draft")},
                         ...(searchParams.get("public") !== null) && {public: searchParams.get("public")},
                         ...(searchParams.get("invalidated") !== null) && {invalidated: searchParams.get("invalidated")}                        
@@ -150,7 +151,8 @@ function DatasetsView (props: DatasetsViewProps) {
           </Row>
           <Row>
             <Col lg={2}>
-              <DatasetsFiltering filterUpdate={filterUpdate} searchParams={searchParams}  loading={allData.loading} />
+              <DatasetsFiltering filterUpdate={filterUpdate} searchParams={searchParams}  loading={allData.loading} 
+                  keycloakReady={props.keycloakReady} dataManager={props.dataManager} postMessage={postMessage}/>
             </Col>
             <Col>
               <DatasetsMainTable data={allData.data && allData.data?.list ? allData.data.list.slice(0, limit) : []}
