@@ -103,6 +103,17 @@ function DatasetsView (props: DatasetsViewProps) {
 
 
       //console.log(keycloak);
+
+      useEffect(() => {
+        if (searchParams.get("invalidated") === null) {
+          console.log("update");
+          updSearchParams({invalidated: "false"})
+        }
+
+      }, [searchParams, setSearchParams, updSearchParams]);
+
+      const invalidated = searchParams.get("invalidated") === "" ? null : searchParams.get("invalidated");
+
         useEffect(() => {
             //setTimeout(function() {
             //console.log(keycloak.authenticated);
@@ -122,7 +133,8 @@ function DatasetsView (props: DatasetsViewProps) {
                         ...(searchParams.get("project") !== null) && {project: searchParams.get("project")},
                         ...(searchParams.get("draft") !== null) && {draft: searchParams.get("draft")},
                         ...(searchParams.get("public") !== null) && {public: searchParams.get("public")},
-                        ...(searchParams.get("invalidated") !== null) && {invalidated: searchParams.get("invalidated")}                        
+                        ...(invalidated !== null) && {invalidated}
+                        //...(searchParams.get("invalidated") !== null) && {invalidated: searchParams.get("invalidated")}                        
                       })
                     .then(
                       (xhr: XMLHttpRequest) => {

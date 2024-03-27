@@ -80,32 +80,32 @@ function FilterProject(props: FilterProjectProps): JSX.Element {
         }
     }, [props.filterUpdate, props.searchParams, props.keycloakReady, data, setData])
 
-    if (data.loading) {
-        return <LoadingView what="projects" />;
-    } else {
-        // Only show the filter when there are more than one projects 
-        if (data.data && data.data.length > 1) {
-            return <div className="mt-4 mb-1">
-                <h6>Projects</h6>
-                <Container className="m-0 p-0">
-                    <Dropdown title="Select the project " className="me-1 ms-2" drop="down-centered" onSelect={onSelectProj}>
-                        <Dropdown.Toggle size="sm" variant="primary" id="dropdown-basic">
-                            {selProj === ALL_PROJECTS ? <i>{selProj}</i> : selProj} 
-                        </Dropdown.Toggle>
+    // Only show the filter when there are more than one projects 
+    if (data.data && data.data.length > 1) {
+        return <div className="mt-4 mb-4">
+            <h6>Projects</h6>
+            <Container fluid className="m-0 p-0">
+                {
+                    !data.loading ?
+                        <Dropdown title="Select the project " className="me-1 ms-2" drop="down-centered" onSelect={onSelectProj}>
+                            <Dropdown.Toggle size="sm" variant="primary" id="dropdown-basic">
+                                {selProj === ALL_PROJECTS ? <i>{selProj}</i> : selProj} 
+                            </Dropdown.Toggle>
 
-                        <Dropdown.Menu style={{ "fontSize": "0.9rem", "minWidth": "2rem" }}>
-                            {
-                                data.data?.filter(p => p !== selProj).map(p => 
-                                        <Dropdown.Item disabled={disabled} eventKey={p} key={p}>{p === ALL_PROJECTS ? <i>{p}</i> : p}</Dropdown.Item>
-                                    )
-                            }
-                        </Dropdown.Menu>
-                    </Dropdown>
-                </Container>
-            </div>;
-        } else {
-            return <></>;
-        }
+                            <Dropdown.Menu style={{ "fontSize": "0.9rem", "minWidth": "2rem" }}>
+                                {
+                                    data.data?.filter(p => p !== selProj).map(p => 
+                                            <Dropdown.Item disabled={disabled} eventKey={p} key={p}>{p === ALL_PROJECTS ? <i>{p}</i> : p}</Dropdown.Item>
+                                        )
+                                }
+                            </Dropdown.Menu>
+                        </Dropdown>
+                        : <LoadingView what="projects filter values" />
+                }
+            </Container>
+        </div>;
+    } else {
+        return <></>;
     }
 }
 

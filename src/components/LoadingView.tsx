@@ -7,7 +7,7 @@ interface LoadingViewProps {
 }
 
 function LoadingView(props: LoadingViewProps) {
-  return <div><Spinner animation="border" className="me-2"/>Loading { props.what }. Please wait...</div>
+  return <div style={{width: "parent", wordBreak: "break-all"}}><Spinner animation="border" className="me-2"/>Loading { props.what }. Please wait...</div>
 }
 
 export default LoadingView;

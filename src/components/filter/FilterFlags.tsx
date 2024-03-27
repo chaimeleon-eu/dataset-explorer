@@ -19,20 +19,31 @@ const radios = [
   ];
 
 function getSearchParamValue(searchParams: URLSearchParams, filter: string) {
-    return searchParams.get(filter) === null ? null 
-      : (searchParams.get(filter)?.toLowerCase() === "true" ? "true" : "false");
+    if (searchParams.get(filter) !== null) {
+        if (searchParams.get(filter)?.toLowerCase() === "true") {
+            return "true";
+        } else if (searchParams.get(filter)?.toLowerCase() === "false") {
+            return "false"
+        } else if (searchParams.get(filter)?.toLowerCase() === "") {
+            return null
+        } else {
+            return null;
+        }
+    } else {
+        return null;
+    }
 }
 
 function getFilterFlag(searchParams: URLSearchParams, 
         flagName: string, filter: string, updParamsCb: (e: MouseEvent) => void, 
-        bg: string, text: string, disabled: boolean) {
+        bg: string, text: string, rmFilterValue: string | null, disabled: boolean) {
     return (
         <Row xs={1} sm={1} md={1} lg={1} xl={2} xxl={2} title={`Filter datasets that have the flag '${filter}'.`} 
-                className="ms-0 me-0" style={{display: "flex", flexDirection: "row"}}>
-            <Col xs={4} style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
+                className="ms-0 me-0 my-xs-3 my-sm-3 my-md-3 my-lg-3 my-xl-0 my-xxl-0" style={{display: "flex", flexDirection: "row"}}>
+            <Col xs={4} style={{display: "flex", flexDirection: "row", alignItems: "center"}} className="ps-2">
                 <Badge pill bg={bg} text={text}>{flagName}</Badge> 
             </Col>
-            <Col style={{display: "flex", overflowX: "visible", marginLeft: "auto"}}>
+            <Col className="ms-3 ms-sm-3 ms-md-3 ms-lg-3 ms-xl-0 ms-xxl-0" style={{display: "flex", overflowX: "visible", marginLeft: "auto"}}>
                     {radios.map((radio, idx) => (
                     <Button
                         title={radio.lbl.replace("#flag", filter)}
@@ -47,7 +58,7 @@ function getFilterFlag(searchParams: URLSearchParams,
                         { getSearchParamValue(searchParams, filter) === radio.value ? radio.iconChecked : radio.iconUnchecked }
                     </Button>
                     ))}
-                <Button id={`${filter}--1`} disabled={disabled} data-filter={`${filter}`} data-filter-value={null} 
+                <Button id={`${filter}--1`} disabled={disabled} data-filter={`${filter}`} data-filter-value={rmFilterValue} 
                     onClick={updParamsCb} title={`Remove filter for the '${filter}' flag`}  size="sm" variant="link" className="ps-0 pt-0 mt-0 fw-bold">
                     {
                          getSearchParamValue(searchParams, filter) 
@@ -75,9 +86,9 @@ function FilterFlags({searchParams, filterUpdate, loading}: FilterFlagsProps) {
     return <div className="mt-1 mb-4">
         <h6>Dataset flags</h6>
             <Container className="m-0 p-0">
-                {getFilterFlag(searchParams, "Draft", "draft", updParamsCb, "light", "dark", disabled)}
-                {getFilterFlag(searchParams, "Published", "public", updParamsCb, "dark", "light", disabled)}
-                {getFilterFlag(searchParams, "Invalidated", "invalidated", updParamsCb, "secondary", "light", disabled)}
+                {getFilterFlag(searchParams, "Draft", "draft", updParamsCb, "light", "dark", null, disabled)}
+                {getFilterFlag(searchParams, "Published", "public", updParamsCb, "dark", "light", null, disabled)}
+                {getFilterFlag(searchParams, "Invalidated", "invalidated", updParamsCb, "secondary", "light", "", disabled)}
             </Container>
     </div>;
 }
