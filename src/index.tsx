@@ -7,13 +7,15 @@ import './index.css';
 import AppKeycloak from './AppKeycloak';
 import reportWebVitals from './reportWebVitals';
 
-const Loading = () => <div>Loading, please wait...</div>
+//const Loading = () => <div>Loading, please wait...</div>
 
-const domNode = document.getElementById('root');
-const root = createRoot(domNode);
-root.render(
-      <AppKeycloak />
-);
+const domNode: HTMLElement | null = document.getElementById('root');
+if (domNode) {
+      const root = createRoot(domNode);
+      root.render(
+            <AppKeycloak />
+      );
+}
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

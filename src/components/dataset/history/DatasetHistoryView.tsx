@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { ListGroup, Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} from 'react-bootstrap';
-import { useTable, useRowSelect } from 'react-table';
+import { Table as BTable, Container, Row, Col} from 'react-bootstrap';
+import React, { CellProps, useTable } from 'react-table';
+import type { Column } from 'react-table';
 import { useKeycloak } from '@react-keycloak/web';
 import {
   useSearchParams,
@@ -10,12 +11,28 @@ import Message from "../../../model/Message";
 import DataFilterView from "./DataFilterView";
 import LoadingView from "../../LoadingView";
 import Config from "../../../config.json";
+import LoadingData from "../../../model/LoadingData";
+import DataManager from "../../../api/DataManager";
+import Util from "../../../Util";
+import TraceTable from "../../../model/TraceTable";
+import RespTraces from "../../../model/RespTraces";
+import TracesBCPaginated from "../../../model/TracesBCPaginated";
+import LoadingError from "../../../model/LoadingError";
+import TableNoData from "../../TableNoData";
+import PaginationFooter from "../../PaginationFooter";
 
-const NoDataConst = props => (
-  <div>No data.</div>
-);
+class LoadingTraces extends LoadingData<TraceTable[]> {
+  tracesFiltered: TraceTable[];
+  totalTracesCnt: number;
+}
 
-function TableComponent({ columns, data }) {
+interface TableComponentProps<TData extends object> {
+
+  columns: Array<Column<TData>>;
+  data: Array<TData>;
+}
+
+function TableComponent({ columns, data }: TableComponentProps<any>): JSX.Element {
   // Use the state and functions returned from useTable to build your UI
   const { getTableProps, headerGroups, rows, prepareRow } = useTable({
       columns,
@@ -38,7 +55,8 @@ function TableComponent({ columns, data }) {
         ))}
       </thead>
       <tbody>
-        {rows.map((row, i) => {
+        {
+        ( rows.length > 0 && rows.map((row, i) => {
           prepareRow(row)
           return (
             <tr {...row.getRowProps()}>
@@ -51,33 +69,47 @@ function TableComponent({ columns, data }) {
               })}
             </tr>
           )
-        })}
+        })
+        ) || <TableNoData colSpan={columns.length} message="No history data available"></TableNoData>      
+      }
       </tbody>
     </BTable>
   )
 }
 
+interface DatasetHistoryViewProps {
+  datasetId: string;
+  keycloakReady: boolean;
+  postMessage: Function;
+  dataManager: DataManager;
 
-function DatasetHistoryView(props) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const defSkip = searchParams.get("skipStudies");
-  const defLimit = searchParams.get("limitStudies");
-  const skip = defSkip === null ? 0 : Number(defSkip);
-  const limit = defLimit === null ? Config.defaultLimitTraces : Number(defLimit);
+}
 
-  const [data, setData] = useState({
-    isLoading: false,
-    isLoaded: false,
-    traces: [],
+
+function DatasetHistoryView(props: DatasetHistoryViewProps) {
+  const [searchParams, setSearchParams] = useSearchParams("");
+
+  const [data, setData] = useState<LoadingTraces>({
+    loading: false,
+    data: [],
     tracesFiltered: [],
     totalTracesCnt: 0,
     error: null,
-    status: -1
+    statusCode: -1
   });
 
-    const updFilteredData = (tracesFiltered) => {
-      setData( prevValues => {
-        return { ...prevValues, tracesFiltered};
+
+  const updSearchParams = useCallback((params: Object) => Util.updSearchParams(params, searchParams, setSearchParams), 
+    [searchParams, setSearchParams]);
+  const skip = searchParams.get("skip") ? Number(searchParams.get("skip")) : 0;
+  const limit = searchParams.get("limit") ? Number(searchParams.get("limit")) : Config.defaultLimitTraces;
+  const onSkipChange = useCallback((skip: number) => {
+    updSearchParams({skip: skip === 0 ? null : skip});
+  }, [skip, limit, updSearchParams, searchParams, setSearchParams]);
+
+    const updFilteredData = (tracesFiltered: LoadingTraces) => {
+      setData( (prevValues: LoadingTraces) => {
+        return { ...prevValues, ...tracesFiltered};
       });
     }
 
@@ -89,68 +121,53 @@ function DatasetHistoryView(props) {
   //   }
   // ];
   let { keycloak } = useKeycloak();
-  const handlePostMsg = useCallback((msgType, title, text) => {
-    props.postMessage(new Message(msgType, title, text));
-  }, []);
   //console.log(keycloak);
     useEffect(() => {
-        setData( prevValues => {
-          return { ...prevValues, isLoaded: false, isLoading: true, status: -1, error: null }
-          });
         if (props.keycloakReady && keycloak.authenticated) {
+          setData( prevValues => {
+            return { ...prevValues, loading: true, status: -1, error: null, data: [], tracesFiltered: [], totalTracesCnt: 0 }
+            });
           props.dataManager.getTracesDataset(keycloak.token, props.datasetId, skip, limit)
             .then(
-              (xhr) => {
+              (xhr: XMLHttpRequest) => {
                 let totalTracesCnt = 0;
-                let traces  = [];
-                const rawTraces = JSON.parse(xhr.response).traces;
+                let traces: TraceTable[]  = [];
+                const resp: RespTraces | undefined = JSON.parse(xhr.response);
+                const rawTraces: TracesBCPaginated[] | undefined = resp?.traces;
                 console.log(rawTraces);
-                for (let rt of rawTraces) {
-                  console.log(rt.countAllTraces);
-                  if (rt.countAllTraces !== undefined)
-                    totalTracesCnt += rt.countAllTraces;
-                  for (let t of rt.traces) {
-                      let d = new Date(t.timestamp);
-                      //console.log(t.timestamp);
-                      //d.setUTCMilliseconds(t.timestamp);
-                      traces.push({blockchain: rt.blockchain, action: t.userAction, user: t.userId,
-                        created: d, details: t.details});
+                if (rawTraces) {
+                  for (let rt of rawTraces) {
+                    console.log(rt.countAllTraces);
+                    if (rt.countAllTraces !== undefined)
+                      totalTracesCnt += rt.countAllTraces;
+                    for (let t of rt.traces) {
+                        let d = new Date(t.timestamp);
+                        //console.log(t.timestamp);
+                        //d.setUTCMilliseconds(t.timestamp);
+                        traces.push({blockchain: rt.blockchain, action: t.userAction, user: t.userId,
+                          created: d, details: t.details});
+                    }
                   }
+                  traces.sort((a,b) => b.created.getTime() - a.created.getTime());
+                  setData( prevValues => {
+                      return { ...prevValues, totalTracesCnt, loading: false, data: traces, tracesFiltered: traces, statusCode: xhr.status, error: null }
+                      });
                 }
-                traces.sort((a,b) => b.created - a.created);
-                setData( prevValues => {
-                    return { ...prevValues, totalTracesCnt, isLoaded: true, traces: traces, isLoading: false, status: xhr.status, error: null }
-                    });
               },
-              (xhr) => {
-                let title = null;
-                let text = null;
-                if (!xhr.responseText) {
-                  title = Message.UNK_ERROR_TITLE;
-                  text = Message.UNK_ERROR_MSG;
-                } else {
-                  if (xhr.responseType === "text") {
-                    title = "History Error";
-                    text = xhr.response;
-
-                  } else {
-                    const err = JSON.parse(xhr.response);
-                      title = err.title;
-                      text = err.message;
-                  }
-                }
-                handlePostMsg(Message.ERROR, title, text);
+              (xhr: XMLHttpRequest) => {
+                const error: LoadingError = Util.getErrFromXhr(xhr);
+                props.postMessage(new Message(Message.ERROR, error.title, error.text));
                 setData( prevValues => {
-                   return { ...prevValues, totalTracesCnt: 0,  isLoaded: true, traces: [], isLoading: false,
-                      status: xhr.status, error: text }
+                   return { ...prevValues, totalTracesCnt: 0, data: [], tracesFiltered: [], loading: false,
+                    statusCode: xhr.status, error }
                    });
               });
             }
 
     }, //1000);},
-    [props.keycloakReady, keycloak.authenticated, searchParams]);
+    [props.datasetId, props.keycloakReady, keycloak.authenticated, searchParams, setSearchParams]);
 
-  const columns = useMemo(
+  const columns: Column<any>[] = useMemo(
     () => [
       {
         Header: 'Action',
@@ -167,36 +184,32 @@ function DatasetHistoryView(props) {
       ,
       {
         Header: 'Created',
-        Cell: ({ row }) => (
+        accessor: "",
+        Cell: (propsC: CellProps<any>) => (
             new Intl.DateTimeFormat('en-GB', { dateStyle: 'short', timeStyle: 'long' })
-              .format(row.original["created"])
+              .format(propsC.row.original["created"])
             )
       },
       {
         Header: 'Details',
-        accessor: 'details'
+        accessor: 'details' as const
       }
-    ]);
-    if (data.isLoading) {
+    ], []);
+    if (data.loading) {
       return <LoadingView what="dataset history" />;
     }
-    const lastPage = Number(data.totalTracesCnt) % Number(limit) === 0 ? 0 : 1;
-    let numPages = Math.floor(Number(data.totalTracesCnt) / Number(limit)) + lastPage;
-    if (numPages === 0)
-      numPages = 1;
-  
-    const page = Number(skip) / Number(limit) + 1;
+
     return (
         <Container fluid>
           <Row>
             <Col lg={3} md={12}>
-              <DataFilterView traces={data.traces} updFilteredData={updFilteredData} 
-                keycloakReady={props.keycloakReady} dataManager={props.dataManager} 
+              <DataFilterView traces={data.data ?? []} updFilteredData={updFilteredData} 
+                 dataManager={props.dataManager} 
                 postMessage={props.postMessage}/>
             </Col>
             <Col lg={9} md={12} className="d-flex flex-column">
-              <TableComponent columns={columns} data={data.tracesFiltered} NoDataComponent={NoDataConst} />
-              <div className="w-100  d-flex  justify-content-center align-self-end" >
+              <TableComponent columns={columns} data={data.tracesFiltered} />
+              {/* <div className="w-100  d-flex  justify-content-center align-self-end" >
                 <Button className="position-relative me-4" disabled={page === 1 ? true : false}
                   onClick={(e) => {
                     setSearchParams(prevValues => {
@@ -222,6 +235,10 @@ function DatasetHistoryView(props) {
                   }
                     }>Next</Button>
                 <span>Page <b>{page}</b> of <b>{numPages}</b></span>
+              </div> */}
+      
+              <div className="d-flex flex-row justify-content-center w-100" >
+                <PaginationFooter skip={skip} limit={limit} total={data.totalTracesCnt} onSkipChange={onSkipChange} />
               </div>
             </Col>
           </Row>

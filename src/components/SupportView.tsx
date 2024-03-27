@@ -1,10 +1,10 @@
-
+import React from "react";
 import {  Container } from 'react-bootstrap';
 
 function SupportView() {
     return (
         <Container>
-            <div class="alert alert-info" role="alert">
+            <div className="alert alert-info" role="alert">
                 Please use the link bellow to report bugs or request new functionality for any service, component, application etc. on the CHAIMELEON platform (by creating an issue).  
                 You will be redirected to Github to the list of already existing issue. 
                 Before anything, please check this list, the problem you have encountered on our platform might have been reported already.  

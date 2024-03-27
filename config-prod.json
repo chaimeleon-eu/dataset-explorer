@@ -7,7 +7,7 @@
   "basename": "/dataset-service",
   "defaultLimitDatasets": 30,
   "defaultLimitStudies": 30,
-  "defaultLimitTraces": 15,
+  "defaultLimitTraces": 30,
   "defaultLimitAccess": 30,
   "kubeAppsUrl": "https://chaimeleon-eu.i3m.upv.es/apps/",
   "userAccountUrl": "https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON/account",

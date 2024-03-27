@@ -1,12 +1,20 @@
+import React from "react";
 import { Pagination } from 'react-bootstrap';
 import { useCallback } from "react";
 
-const PREVIOUS_PAGE = 0;
-const NEXT_PAGE = -1
+// const PREVIOUS_PAGE = 0;
+// const NEXT_PAGE = -1
+
+interface PaginationFooterProps {
+    skip: number;
+    limit: number;
+    total: number;
+    onSkipChange: Function;
+}
 
 
-function PaginationFooter({skip, limit, total, onSkipChange}) {
-    const onClickPg = useCallback((pg) => {
+function PaginationFooter({skip, limit, total, onSkipChange}: PaginationFooterProps) {
+    const onClickPg = useCallback((pg: number) => {
         onSkipChange(limit * (pg - 1));
     }, [skip, limit]);
 
@@ -23,7 +31,7 @@ function PaginationFooter({skip, limit, total, onSkipChange}) {
     if (total !== 0  && limit !== 0) {
 
         const numPages = Math.trunc(total / limit) + (total % limit === 0 ? 0 : 1);
-        console.log(total, limit);
+//        console.log(total, limit);
         const activePg = 1 + Math.trunc(skip / limit);
         items.push(<Pagination.Prev  onClick={onClickPrevious} disabled={activePg === 1} key={0} />);
         // if (numPages <= 7) {

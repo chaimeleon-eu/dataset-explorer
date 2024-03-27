@@ -1,20 +1,21 @@
 import React, {useState, useEffect, useCallback }from 'react';
-import ReactDOM from 'react-dom';
-import { Button, InputGroup, FormControl, Table as BTable, Container, Row, Col } from 'react-bootstrap';
-import { Search as SearchIc, FilePlus as FilePlusIc } from "react-bootstrap-icons";
-import { useTable, useRowSelect } from 'react-table';
+import { Container} from 'react-bootstrap';
 import { useKeycloak } from '@react-keycloak/web';
-import { useLocation, useSearchParams, useNavigate, createSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 import Message from "../model/Message";
-import Dialog from "./Dialog";
 import DatasetsSearch from  "./DatasetsSearch";
 import DatasetsMainTable from "./DatasetsMainTable";
 import Config from "../config.json";
 import DatasetsFiltering from './filter/DatasetsFiltering';
 import PaginationFooter from './PaginationFooter';
+import type LoadingData from '../model/LoadingData';
+import DataManager from '../api/DataManager';
+import ItemPage from '../model/ItemPage';
+import Dataset from '../model/Dataset';
+import Util from '../Util';
 
-function getSortDirectionDesc(searchParam, sortBy) {
+function getSortDirectionDesc(searchParam?: string | null, sortBy?: string | null): string {
   if (!sortBy) {
     sortBy = "creationDate";
   }
@@ -32,48 +33,44 @@ function getSortDirectionDesc(searchParam, sortBy) {
   return searchParam;// === "ascending" ? false : true;
 }
 
+interface DatasetsViewProps {
+  keycloakReady: boolean;
+  dataManager: DataManager;
+  postMessage: Function;
+  activeTab?: string;
+}
 
-
-function DatasetsView (props) {
+function DatasetsView (props: DatasetsViewProps) {
   //let navigate = useNavigate();
+  let { keycloak } = useKeycloak();
   const [searchParams, setSearchParams] = useSearchParams("");
 
   //const [search] = useSearchParams();
   //const searchStringParam = search.get('searchString') === null ? "" : search.get('searchString');
   //console.log(`searchStringParam is ${searchStringParam}`);
 
-  const [allData, setAllData] = useState({
+  const [allData, setAllData] = useState<LoadingData<ItemPage<Dataset>>>({
     data: null,
     error: null,
-    loading: false
-  })
+    loading: false,
+    statusCode: -1
+  });
 
-  // const [error, setError] = useState(null);
-  // const [isLoaded, setIsLoaded] = useState(false);
-  // const [data, setData] = useState(null);
-  // const [skip, setSkip] = useState(0);
-  // const [limit, setLimit] = useState(Config.defaultLimitDatasets);
-
-  const updSearchParams = useCallback((params: Object) => {
-    for (const [k, v] of Object.entries(params)) {
-      if (v !== null) {
-        searchParams.set(k, v);
-      } else {
-        searchParams.delete(k);
-      }
-    }
-    setSearchParams(searchParams);
-  }, [searchParams, setSearchParams]);
-
-  const searchString = searchParams.get("searchString") ? decodeURIComponent(searchParams.get("searchString")) : "";
-  const sortBy = searchParams.get("sortBy") ?? "creationDate";
-  const sortDirection = getSortDirectionDesc(searchParams.get("sortDirection"), searchParams.get("sortBy") ?? "creationDate");
-  const skip = searchParams.get("skip") ? Number(searchParams.get("skip")) : 0;
-  const limit = searchParams.get("limit") ? Number(searchParams.get("limit")) : Config.defaultLimitDatasets;
+  const updSearchParams = useCallback((params: Object) => Util.updSearchParams(params, searchParams, setSearchParams), 
+    [searchParams, setSearchParams]);
+  const searchStringTmp: string | null = searchParams.get("searchString");
+  const searchString: string = searchStringTmp ? decodeURIComponent(searchStringTmp) : "";
+  const sortBy: string = searchParams.get("sortBy") ?? "creationDate";
+  const sortDirection: string = getSortDirectionDesc(searchParams.get("sortDirection"), searchParams.get("sortBy") ?? "creationDate");
+  const skip: number = searchParams.get("skip") ? Number(searchParams.get("skip")) : 0;
+  const limit: number = searchParams.get("limit") ? Number(searchParams.get("limit")) : Config.defaultLimitDatasets;
   
-  const onSkipChange = useCallback((skip) => {
+  const onSkipChange = useCallback((skip: number) => {
     updSearchParams({skip: skip === 0 ? null : skip});
-  }, [skip, updSearchParams]);
+  }, [searchString, sortBy, sortDirection, skip, limit, updSearchParams, searchParams, setSearchParams]);
+
+  const filterUpdate = useCallback((params: Object) => updSearchParams({...params, skip: null}),
+    [searchParams, setSearchParams, updSearchParams]);
 
 
   //console.log(`searchString is ${searchString}`);
@@ -95,17 +92,27 @@ function DatasetsView (props) {
 
       //const data = [{name: "A", version: "1.0", created: "2021-08-09Z08:03:0000"}];
 
-      let { keycloak } = useKeycloak();
 
       //console.log(keycloak);
+
+      useEffect(() => {
+        if (searchParams.get("invalidated") === null) {
+          console.log("update");
+          updSearchParams({invalidated: "false"})
+        }
+
+      }, [searchParams, setSearchParams, updSearchParams]);
+
+      const invalidated = searchParams.get("invalidated") === "" ? null : searchParams.get("invalidated");
+
         useEffect(() => {
             //setTimeout(function() {
             //console.log(keycloak.authenticated);
             //if (props.keycloakReady) {
-                let modLimit = limit;
-                if (allData.data?.list?.length === limit+1) {
-                  modLimit += 1;
-                }
+                // let modLimit = limit;
+                // if (allData.data?.list?.length === limit+1) {
+                //   modLimit += 1;
+                // }
                 //console.log(searchString);
                 
                 setAllData(prev => {
@@ -113,25 +120,27 @@ function DatasetsView (props) {
                 });
                   props.dataManager.getDatasets(keycloak.token, 
                       {
-                        skip, modLimit, searchString, sortBy, sortDirection, "v2": true,
+                        skip, limit, searchString, sortBy, sortDirection, //v2: true,
+                        ...(searchParams.get("project") !== null) && {project: searchParams.get("project")},
                         ...(searchParams.get("draft") !== null) && {draft: searchParams.get("draft")},
                         ...(searchParams.get("public") !== null) && {public: searchParams.get("public")},
-                        ...(searchParams.get("invalidated") !== null) && {invalidated: searchParams.get("invalidated")}                        
+                        ...(invalidated !== null) && {invalidated}
+                        //...(searchParams.get("invalidated") !== null) && {invalidated: searchParams.get("invalidated")}                        
                       })
                     .then(
-                      (xhr) => {
+                      (xhr: XMLHttpRequest) => {
                         //setIsLoaded(true);
                         const data = JSON.parse(xhr.response);
                         //setData(d);
                         setAllData(prev => {
-                          return {...prev, loading: false, data, error: null}
+                          return {...prev, loading: false, data, error: null, statusCode: xhr.status}
                         })
                       },
-                      (xhr) => {
+                      (xhr: XMLHttpRequest) => {
                         const error = Util.getErrFromXhr(xhr);
                         props.postMessage(new Message(Message.ERROR, error.title, error.text));
                         setAllData(prev => {
-                          return {...prev, loading: false, data: null, error }
+                          return {...prev, loading: false, data: null, error, statusCode: xhr.status }
                         });
                       });
                 //}
@@ -140,15 +149,16 @@ function DatasetsView (props) {
         [props.keycloakReady, searchParams, sortBy, sortDirection, skip, limit, searchString]);
       return (
         <Container fluid>
-          <Row>
+          <div>
             <DatasetsSearch initValue={searchString} updSearchParams={updSearchParams} />
-          </Row>
-          <Row>
-            <Col lg={2}>
-              <DatasetsFiltering updSearchParams={updSearchParams} searchParams={searchParams}  loading={allData.loading} />
-            </Col>
-            <Col>
-              <DatasetsMainTable data={allData.data && allData.data?.list ? allData.data.list.slice(0, limit) : []} showDialog={props.showDialog}
+          </div>
+          <div style={{display: "flex", flexDirection: "row"}}>
+            <div>
+              <DatasetsFiltering filterUpdate={filterUpdate} searchParams={searchParams}  loading={allData.loading} 
+                  keycloakReady={props.keycloakReady} dataManager={props.dataManager} postMessage={postMessage}/>
+            </div>
+            <div style={{flexGrow: "1"}}>
+              <DatasetsMainTable data={allData.data && allData.data?.list ? allData.data.list.slice(0, limit) : []}
                 dataManager={props.dataManager}
                 postMessage={props.postMessage}
                 currentSort={{
@@ -162,10 +172,10 @@ function DatasetsView (props) {
                   <Button variant="link" className="position-relative start-50 me-4" disabled={skip === 0 ? true : false} onClick={(e) => updSearchParams({skip: skip - limit})}>&lt; Previous</Button>
                   <Button variant="link" className="position-relative start-50"  disabled={data?.list?.length <= limit ? true : false} onClick={(e) => updSearchParams({skip: skip + limit})}>Next &gt;</Button>
                   TableNavigationPages skip={skip} limit={limit} total={data} */}
-                  <PaginationFooter skip={skip} limit={limit} total={allData.data?.total} onSkipChange={onSkipChange} className="" />
+                  <PaginationFooter skip={skip} limit={limit} total={allData.data?.total ?? 0} onSkipChange={onSkipChange} />
                 </div>
-              </Col>
-          </Row>
+              </div>
+          </div>
         </Container>
       );
 }

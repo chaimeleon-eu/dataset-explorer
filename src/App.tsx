@@ -14,34 +14,49 @@ import Config from "./config.json";
 import FairView from "./components/FairView";
 import SupportView from "./components/SupportView"; 
 import Message from "./model/Message";
+import type DialogSettings from "./model/DialogSettings";
+import { DialogSize } from "./model/DialogSize";
 
+interface Dsv {
+  tab: string;
+  sdo: string;
+  dataManager: DataManager;
+  keycloakReady: boolean;
+  postMessage: Function;
+  showDialog: Function;
+}
 
-const dlgDefaultValues = {
+const dlgDefaultValues: DialogSettings = {
   show: false,
   footer: <Button onClick={() => Dialog.HANDLE_CLOSE()}>Close</Button>,
   title: "DEFAULT",
   body: <div>Empty body</div>,
-  size: Dialog.SIZE_LG,
+  size: DialogSize.SIZE_LG,
   onBeforeClose: null,
-  data: null
+  //data: null,
+  scrollable: false
 };
 
-function getDSV({tab, sdo, dataManager, keycloakReady, postMessage, showDialog}) {
+function getDSV({tab, sdo, dataManager, keycloakReady, postMessage, showDialog}: Dsv) {
   return (
-    <DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
-    postMessage={postMessage} dataManager={dataManager} activeTab={tab} showdDlgOpt={sdo}/>
+      <DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
+        postMessage={postMessage} dataManager={dataManager} activeTab={tab} showdDlgOpt={sdo}/>
     );
 }
 
-function App({keycloakReady}) { 
-  const [dlgState, setDlgState] = useState(dlgDefaultValues);
+interface AppProps {
+  keycloakReady: boolean;
+}
+
+function App({keycloakReady}: AppProps) { 
+  const [dlgState, setDlgState] = useState<DialogSettings>(dlgDefaultValues);
   //const handleClose = useCallback(() => Dialog.HANDLE_CLOSE());
   const [dataManager] = useState(new DataManager());
-  const [message, setMessage] = useState(null);
-  const postMessage = useCallback(message => {
+  const [message, setMessage] = useState<Message | null>(null);
+  const postMessage = useCallback((message: Message | null) => {
     setMessage(message);
   }, []);
-  const showDialog = dlgProps => {
+  const showDialog = (dlgProps: DialogSettings) => {
     setDlgState({
       ...dlgState,
       show: true,
@@ -72,21 +87,21 @@ function App({keycloakReady}) {
               <br />
               <BrowserRouter basename={Config.basename}>
                 <Routes>
-                <Route exact path="/" element={<Navigate to="/datasets" replace />} />
-                <Route exact path="/fair" element={<FairView />} />
-                <Route exact path="/support" element={<SupportView />} />
+                <Route path="/" element={<Navigate to="/datasets" replace />} />
+                <Route path="/fair" element={<FairView />} />
+                <Route path="/support" element={<SupportView />} />
                 <Route path="/datasets" element={<DatasetsView keycloakReady={keycloakReady} 
                     dataManager={dataManager} postMessage={postMessage} />} />
                     <Route path="/datasets/:datasetId/details" 
-                    element={<DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
+                      element={<DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
                         postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_DETAILS}/>} />
                     <Route path="/datasets/:datasetId/details/dlg-app-dashboard" 
-                    element={getDSV({...opt, tab: DatasetView.TAB_DETAILS, sdo: DatasetView.SHOW_DLG_APP_DASHBOARD })} />
+                      element={getDSV({...opt, tab: DatasetView.TAB_DETAILS, sdo: DatasetView.SHOW_DLG_APP_DASHBOARD })} />
                     <Route path="/datasets/:datasetId/studies" 
-                    element={<DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
-                    postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_STUDIES}/>} />
+                      element={<DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
+                        postMessage={postMessage} dataManager={dataManager} activeTab={DatasetView.TAB_STUDIES}/>} />
                     <Route path="/datasets/:datasetId/studies/dlg-app-dashboard" 
-                    element={getDSV({...opt, tab: DatasetView.TAB_STUDIES, sdo: DatasetView.SHOW_DLG_APP_DASHBOARD })} />
+                      element={getDSV({...opt, tab: DatasetView.TAB_STUDIES, sdo: DatasetView.SHOW_DLG_APP_DASHBOARD })} />
                     
                     <Route path="/datasets/:datasetId/history" 
                       element={<DatasetView showDialog={showDialog} keycloakReady={keycloakReady} 
