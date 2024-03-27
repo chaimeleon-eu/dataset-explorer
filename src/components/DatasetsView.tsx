@@ -56,17 +56,8 @@ function DatasetsView (props: DatasetsViewProps) {
     statusCode: -1
   });
 
-  const updSearchParams = useCallback((params: Object) => {
-    for (const [k, v] of Object.entries(params)) {
-      if (v !== null) {
-        searchParams.set(k, v);
-      } else {
-        searchParams.delete(k);
-      }
-    }
-    setSearchParams(searchParams);
-  }, [searchParams, setSearchParams]);
-
+  const updSearchParams = useCallback((params: Object) => Util.updSearchParams(params, searchParams, setSearchParams), 
+    [searchParams, setSearchParams]);
   const searchStringTmp: string | null = searchParams.get("searchString");
   const searchString: string = searchStringTmp ? decodeURIComponent(searchStringTmp) : "";
   const sortBy: string = searchParams.get("sortBy") ?? "creationDate";
@@ -76,7 +67,7 @@ function DatasetsView (props: DatasetsViewProps) {
   
   const onSkipChange = useCallback((skip: number) => {
     updSearchParams({skip: skip === 0 ? null : skip});
-  }, [searchParams, setSearchParams, updSearchParams]);
+  }, [searchString, sortBy, sortDirection, skip, limit, updSearchParams, searchParams, setSearchParams]);
 
   const filterUpdate = useCallback((params: Object) => updSearchParams({...params, skip: null}),
     [searchParams, setSearchParams, updSearchParams]);
