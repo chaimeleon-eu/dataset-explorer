@@ -1,6 +1,6 @@
 import { useKeycloak } from "@react-keycloak/web";
 import React, { useCallback, useEffect, useState } from "react";
-import { Dropdown } from "react-bootstrap";
+import { Container, Dropdown } from "react-bootstrap";
 import DataManager from "../../api/DataManager";
 import LoadingData from "../../model/LoadingData";
 import Message from "../../model/Message";
@@ -87,20 +87,21 @@ function FilterProject(props: FilterProjectProps): JSX.Element {
         if (data.data && data.data.length > 1) {
             return <div className="mt-4 mb-1">
                 <h6>Projects</h6>
+                <Container className="m-0 p-0">
+                    <Dropdown title="Select the project " className="me-1 ms-2" drop="down-centered" onSelect={onSelectProj}>
+                        <Dropdown.Toggle size="sm" variant="primary" id="dropdown-basic">
+                            {selProj === ALL_PROJECTS ? <i>{selProj}</i> : selProj} 
+                        </Dropdown.Toggle>
 
-                <Dropdown title="Select the project " className="me-1 ms-2" drop="down-centered" onSelect={onSelectProj}>
-                    <Dropdown.Toggle size="sm" variant="primary" id="dropdown-basic">
-                        {selProj === ALL_PROJECTS ? <i>{selProj}</i> : selProj} 
-                    </Dropdown.Toggle>
-
-                    <Dropdown.Menu style={{ "fontSize": "0.9rem", "minWidth": "2rem" }}>
-                        {
-                            data.data?.filter(p => p !== selProj).map(p => 
-                                    <Dropdown.Item disabled={disabled} eventKey={p} key={p}>{p === ALL_PROJECTS ? <i>{p}</i> : p}</Dropdown.Item>
-                                )
-                        }
-                    </Dropdown.Menu>
-                </Dropdown>
+                        <Dropdown.Menu style={{ "fontSize": "0.9rem", "minWidth": "2rem" }}>
+                            {
+                                data.data?.filter(p => p !== selProj).map(p => 
+                                        <Dropdown.Item disabled={disabled} eventKey={p} key={p}>{p === ALL_PROJECTS ? <i>{p}</i> : p}</Dropdown.Item>
+                                    )
+                            }
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </Container>
             </div>;
         } else {
             return <></>;

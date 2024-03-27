@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback }from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container} from 'react-bootstrap';
 import { useKeycloak } from '@react-keycloak/web';
 import { useSearchParams } from "react-router-dom";
 
@@ -146,15 +146,15 @@ function DatasetsView (props: DatasetsViewProps) {
         [props.keycloakReady, searchParams, sortBy, sortDirection, skip, limit, searchString]);
       return (
         <Container fluid>
-          <Row>
+          <div>
             <DatasetsSearch initValue={searchString} updSearchParams={updSearchParams} />
-          </Row>
-          <Row>
-            <Col lg={2}>
+          </div>
+          <div style={{display: "flex", flexDirection: "row"}}>
+            <div>
               <DatasetsFiltering filterUpdate={filterUpdate} searchParams={searchParams}  loading={allData.loading} 
                   keycloakReady={props.keycloakReady} dataManager={props.dataManager} postMessage={postMessage}/>
-            </Col>
-            <Col>
+            </div>
+            <div style={{flexGrow: "1"}}>
               <DatasetsMainTable data={allData.data && allData.data?.list ? allData.data.list.slice(0, limit) : []}
                 dataManager={props.dataManager}
                 postMessage={props.postMessage}
@@ -171,8 +171,8 @@ function DatasetsView (props: DatasetsViewProps) {
                   TableNavigationPages skip={skip} limit={limit} total={data} */}
                   <PaginationFooter skip={skip} limit={limit} total={allData.data?.total ?? 0} onSkipChange={onSkipChange} />
                 </div>
-              </Col>
-          </Row>
+              </div>
+          </div>
         </Container>
       );
 }
