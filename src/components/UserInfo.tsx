@@ -1,17 +1,22 @@
-import { useState, useCallback, Fragment } from "react";
-import { Button, Dropdown, DropdownButton } from "react-bootstrap";
+import React, { Fragment } from "react";
+import { Button, Dropdown } from "react-bootstrap";
 import { useKeycloak } from '@react-keycloak/web';
+import { Person } from "react-bootstrap-icons";
 
 
 import Config from "../config.json";
 
-function UserInfo(props) {
+function UserInfo() {
   let {keycloak} = useKeycloak();
+
+  const name: string = keycloak.idTokenParsed?.["name"] ?? "<i>Unknown user</i>";
+  //const email: string = keycloak.idTokenParsed?.["email"] ? " (" + keycloak.idTokenParsed?.["email"] + ")" : "";
 
   return (
     <Fragment>
     {!keycloak.authenticated && (
       <Button
+      size="sm"
         type="button"
         className="text-blue-800"
         onClick={() => keycloak.login()}
@@ -20,16 +25,19 @@ function UserInfo(props) {
       </Button>
     )}
 
-    {keycloak.authenticated && (<DropdownButton
-      id="dropdown-basic-button"
-      title={
-        keycloak.idTokenParsed.name + " (" + keycloak.idTokenParsed.email + ")"
-      }
-    >
-      <Dropdown.Item href={Config.userAccountUrl} key="useraccount" target="_blank" >
+    {keycloak.authenticated && (
+            <Dropdown title="Logged in user options" className="float-end me-1" drop="down-centered" >
+            <Dropdown.Toggle size="sm"  variant="primary" id="dropdown-basic">
+                <Person /> { name /* + " (" + keycloak.idTokenParsed.email + ")"*/ }
+            </Dropdown.Toggle>
+      
+      <Dropdown.Menu style={{"fontSize": "0.9rem", "minWidth": "2rem"}}>
+
+      <Dropdown.Item style={{"fontSize": "0.9rem"}} href={Config.userAccountUrl} key="useraccount" target="_blank" >
         User Account
       </Dropdown.Item>
       <Dropdown.Item
+        style={{"fontSize": "0.9rem"}}
         href="#" key="logout"
         onClick={() => {
              // workaround for changes with oidc logout in Keycloak 18.0.0
@@ -57,7 +65,8 @@ function UserInfo(props) {
       >
         Log Out
       </Dropdown.Item>
-    </DropdownButton>)}
+    </Dropdown.Menu>
+    </Dropdown>)}
 
       </Fragment>);
 };

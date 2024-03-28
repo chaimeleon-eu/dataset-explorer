@@ -1,23 +1,32 @@
-import React, {useMemo, useState, useEffect, Fragment } from 'react';
-import { ListGroup, Button, InputGroup, FormControl, Table as BTable, Container, Row, Col} from 'react-bootstrap';
-import { useTable, useRowSelect } from 'react-table';
+import React, {useMemo, useState, useEffect, Fragment, useCallback } from 'react';
+import { Table as BTable, Container, Row, Col} from 'react-bootstrap';
+import { CellProps, useTable } from 'react-table';
+import type { Column } from 'react-table';
 import { useKeycloak } from '@react-keycloak/web';
 
 import Config from "../../../config.json";
 import Message from "../../../model/Message";
 import LoadingView from "../../LoadingView";
+import Series from "../../../model/Series";
+import LoadingData from "../../../model/LoadingData";
+import LoadingError from "../../../model/LoadingError";
+import DataManager from '../../../api/DataManager';
+import Study from '../../../model/Study';
+import Util from '../../../Util';
+import TableNoData from '../../TableNoData';
+import { useSearchParams } from 'react-router-dom';
+import PaginationFooter from '../../PaginationFooter';
+import ItemPage from '../../../model/ItemPage';
 
-const STUDY_VISIBLE_SERIES = 1;
+//const STUDY_VISIBLE_SERIES = 1;
 
-const NoDataConst = props => (
-  <div>No data.</div>
-);
+interface TableComponentProps<TData extends object> {
 
-const defaultPropGetter = () => ({});
+  columns: Array<Column<TData>>;
+  data: Array<TData>;
+}
 
-function TableComponent({ columns, data,
-  getColumnProps = defaultPropGetter,
-  getCellProps = defaultPropGetter }) {
+function TableComponent({ columns, data }: TableComponentProps<any>): JSX.Element {
   // Use the state and functions returned from useTable to build your UI
   const { getTableProps, headerGroups, rows, prepareRow } = useTable({
       columns,
@@ -40,31 +49,34 @@ function TableComponent({ columns, data,
         ))}
       </thead>
       <tbody>
-        {rows.map((row, i) => {
-          prepareRow(row)
-          return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map(cell => {
-                return (
-                  <td {...cell.getCellProps({className: "word-wrap"})}>
-                    {cell.render('Cell')}
-                  </td>
-                )
-              })}
-            </tr>
-          )
-        })}
+        {
+          ( rows.length > 0 && rows.map((row, i) => {
+            prepareRow(row)
+            return (
+              <tr {...row.getRowProps()}>
+                {row.cells.map(cell => {
+                  return (
+                    <td {...cell.getCellProps({className: "word-wrap"})}>
+                      {cell.render('Cell')}
+                    </td>
+                  )
+                })}
+              </tr>
+            )
+          }) ) 
+          ||  <TableNoData colSpan={columns.length} message="No studies available"></TableNoData>
+        }
       </tbody>
     </BTable>
   )
 }
 
-function generateSeriesCellView(series, seriesLimit) {
+function generateSeriesCellView(series: Series[], seriesLimit: number): string {
   return series.map(s => s["folderName"]).slice(0, seriesLimit).join(", ");
 }
 
-function generateSeriesCell(series, seriesLimit, onclickCb) {
-  if (series.length == 0) {
+function generateSeriesCell(series: Series[], seriesLimit: number, onclickCb: Function | null): JSX.Element {
+  if (series.length === 0) {
     return <Fragment />;
   }
 
@@ -72,82 +84,73 @@ function generateSeriesCell(series, seriesLimit, onclickCb) {
  //  { (row.original.visibleSeriesLimit > STUDY_VISIBLE_SERIES ? <Button size="sm" variant="link" >...>></Button> :
  //    ( row.original.visibleSeriesLimit == row.original.series.length ? )
  // ) }
-  return (generateSeriesCellView(series, seriesLimit));
+  return (<>{generateSeriesCellView(series, seriesLimit)}</>);
 }
 
+interface DatasetStudiesViewProps {
+  datasetId: string;
+  keycloakReady: boolean;
+  postMessage: Function;
+  dataManager: DataManager;
+}
 
-function DatasetStudiesView(props) {
-  const [skip, setSkip] = useState(0);
-  const [limit, setLimit] = useState(Config.defaultLimitStudies);
-  const [data, setData] = useState({
-       isLoaded: false,
-       isLoading: false,
+function DatasetStudiesView(props: DatasetStudiesViewProps): JSX.Element {
+  const [searchParams, setSearchParams] = useSearchParams("");
+
+  let { keycloak } = useKeycloak();
+  const [data, setData] = useState<LoadingData<ItemPage<Study>>>({
+       loading: false,
        error: null,
-       data: [],
-       status: -1
+       data: null,
+       statusCode: -1
 
   });
 
-    let { keycloak } = useKeycloak();
+
+  const updSearchParams = useCallback((params: Object) => Util.updSearchParams(params, searchParams, setSearchParams), 
+    [searchParams, setSearchParams]);
+  const skip = searchParams.get("skip") ? Number(searchParams.get("skip")) : 0;
+  const limit = searchParams.get("limit") ? Number(searchParams.get("limit")) : Config.defaultLimitStudies;
+  const onSkipChange = useCallback((skip: number) => {
+    updSearchParams({skip: skip === 0 ? null : skip});
+  }, [skip, limit, updSearchParams, searchParams, setSearchParams]);
   useEffect(() => {
-    if (props.studiesCount != 0) {
-      setData( prevValues => {
-         return { ...prevValues, isLoading: true, isLoaded: false, error: null,
-           data: [], status: -1 }
-      });
-      if (props.keycloakReady && keycloak.authenticated) {
+    if (props.keycloakReady && keycloak.authenticated) {
+        setData( prevValues => {
+           return { ...prevValues, loading: true, error: null, data: null, statusCode: -1 }
+        });
         props.dataManager.getStudies(keycloak.token, props.datasetId, skip, limit)
           .then(
-            (xhr) => {
-              let studies = JSON.parse(xhr.response).list;
-              for (let study of studies) {
-                  study.visibleSeriesLimit = STUDY_VISIBLE_SERIES;
-              }
+            (xhr: XMLHttpRequest) => {
+              const pagedStudies: ItemPage<Study> = JSON.parse(xhr.response);
               setData( prevValues => {
-                return { ...prevValues, isLoading: false, isLoaded: true, error: null,
-                  data: studies, status: xhr.status }
+                return { ...prevValues, loading: false, error: null, data: pagedStudies, statusCode: xhr.status }
               });
             },
-            (xhr) => {
-              //setIsLoaded(true);
-              let title = null;
-              let text = null;
-              if (!xhr.responseText) {
-                if (xhr.statusText !== undefined && xhr.statusText !== null) {
-                    title = xhr.statusText;
-                    text = "Error loading data from " + xhr.responseURL;
-                } else {
-                  title = Message.UNK_ERROR_TITLE;
-                  text =  "Error loading data from " + xhr.responseURL;
-                }
-              } else {
-                const err = JSON.parse(xhr.response);
-                  title = err.title;
-                  text = err.message;
-              }
+            (xhr: XMLHttpRequest) => {
+              const error: LoadingError = Util.getErrFromXhr(xhr);
+              props.postMessage(new Message(Message.ERROR, error.title, error.text));
               setData( prevValues => {
-                return { ...prevValues, isLoading: false, isLoaded: true, error: text,
-                  data: [], status: xhr.status }
+                return { ...prevValues, loading: false, error,
+                  data: null, statusCode: xhr.status }
               });
-              props.postMessage(new Message(Message.ERROR, title, text));
             });
         }
-      }
-  }, [props.keycloakReady, keycloak.authenticated, skip, limit, props.studiesCount]);
-  const lastPage = Number(props.studiesCount) % Number(limit) === 0 ? 0 : 1;
-  let numPages = Math.floor(Number(props.studiesCount) / Number(limit)) + lastPage;
-  if (numPages === 0)
-    numPages = 1;
+  }, [props.datasetId, props.keycloakReady, keycloak.authenticated, searchParams, setSearchParams]);
+  // const lastPage = Number(props.studiesCount) % Number(limit) === 0 ? 0 : 1;
+  // let numPages = Math.floor(Number(props.studiesCount) / Number(limit)) + lastPage;
+  // if (numPages === 0)
+  //   numPages = 1;
 
-  const page = Number(skip) / Number(limit) + 1;
+  // const page = Number(skip) / Number(limit) + 1;
   const columns = useMemo(
     () => [
 
       {
         Header: 'Study ID',
-        Cell: ({ row }) => (
+        Cell: (propsC: CellProps<any>) => (
           <Container fluid>
-            <a href={ row.original.url }>{row.original.studyId}</a>
+            <a href={ propsC.row.original.url }>{propsC.row.original.studyId}</a>
           </Container>
         )
       },
@@ -159,35 +162,47 @@ function DatasetStudiesView(props) {
         Header: 'Subject',
         accessor: 'subjectName'
       },
+
+      {
+        Header: 'Size',
+        Cell: (propsC: CellProps<any>) => (
+          <div className="text-end">
+            {propsC.row.original.sizeInBytes !== null && propsC.row.original.sizeInBytes !== undefined ? Util.formatBytes(propsC.row.original.sizeInBytes) : "unknown" }
+          </div>
+        )
+      },
       {
         Header: 'Series',
-        Cell: ({ row }) => (
+        Cell: (propsC: CellProps<any>) => (
           <Container fluid>
-            { generateSeriesCell(row.original.series, row.original.series.length, null) }
+            { generateSeriesCell(propsC.row.original.series, propsC.row.original.series.length, null) }
           </Container>
         )
       }
 
     ], [data.data]);
 
-    if (data.isLoading) {
+    if (data.loading) {
       return <LoadingView what="studies" />;
     }
   return (
     <Container fluid>
       <Row>
           <Col>
-            <TableComponent columns={columns} data={data.data}
-            NoDataComponent={NoDataConst} />
+            <TableComponent columns={columns} data={data.data?.list ?? []} />
           </Col>
       </Row>
-      <div className="w-100" >
+      
+      <div className="d-flex flex-row justify-content-center w-100" >
+        <PaginationFooter skip={skip} limit={limit} total={data.data?.total ?? 0} onSkipChange={onSkipChange} />
+      </div>
+            {/* <div className="w-100" >
         <Button className="position-relative me-4" disabled={page === 1 ? true : false}
           onClick={(e) => setSkip(skip - limit)}>Previous</Button>
         <Button className="position-relative me-4"  disabled={page === numPages ? true : false}
           onClick={(e) => setSkip(skip + limit)}>Next</Button>
         <span>Page <b>{page}</b> of <b>{numPages}</b></span>
-      </div>
+      </div> */}
     </Container>);
 }
 

@@ -1,10 +1,17 @@
+import React from "react";
 import { Link } from "react-router-dom";
 
-function ResourceNotFoundView(props) {
+interface ResourceNotFoundViewProps {
+
+  id: string;
+
+}
+
+function ResourceNotFoundView({id}: ResourceNotFoundViewProps) {
 
   return (
     <h4  className="m-2">
-      Resource identified by <b>{ props.id }</b> not found. Return to the <Link to="/">home</Link> page.
+      Resource identified by <b>{ id }</b> not found. Return to the <Link to="/">home</Link> page.
     </h4>
   );
 }

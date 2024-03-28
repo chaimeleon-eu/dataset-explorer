@@ -1,11 +1,10 @@
-import * as React from 'react'
-import { useCallback } from 'react'
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import React from 'react'
+import { Navigate } from 'react-router-dom'
 
 import { useKeycloak } from '@react-keycloak/web'
 
 const Login = () => {
-  let navigate = useNavigate();
+  //let navigate = useNavigate();
 
   const login = () => {keycloak.login();}
 

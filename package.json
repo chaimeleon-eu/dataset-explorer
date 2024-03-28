@@ -1,6 +1,6 @@
 {
   "name": "dataset-explorer",
-  "version": "1.5.1-BETA",
+  "version": "1.6.0",
   "private": true,
   "homepage": ".",
   "dependencies": {
@@ -18,11 +18,11 @@
     "keycloak-js": "^20.0.3",
     "match-sorter": "^6.3.1",
     "react": "^18.2.0",
-    "react-bootstrap": "~2.7.2",
+    "react-bootstrap": "^2.10.2",
     "react-bootstrap-icons": "^1.10.3",
     "react-dom": "~18.2.0",
     "react-paginate": "8.1.5",
-    "react-router-dom": "^6.9.0",
+    "react-router-dom": "^6.22.3",
     "react-scripts": "^5.0.1",
     "react-select": "^5.7.2",
     "react-table": "^7.8.0",

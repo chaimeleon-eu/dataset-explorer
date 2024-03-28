@@ -1,9 +1,14 @@
 import { Button} from "react-bootstrap";
-import React, {useState} from "react";
+import React, {FormEvent, useState} from "react";
 
-function Body(props) {
+interface BodyProps {
+  oldValue: string | null | undefined;
+  updValue: Function;
+}
+
+function Body(props: BodyProps) {
     const [value, setValue] = useState(props.oldValue);
-    const updValue = (newVal) => {
+    const updValue = (newVal: string | null | undefined) => {
       setValue(newVal);
       props.updValue(newVal);
     }
@@ -13,9 +18,11 @@ function Body(props) {
       {
         props.oldValue === null || props.oldValue === undefined || props.oldValue.length < 20 ?
             <input type="text" className="ms-2 w-100" title="Modify field's value"
-              aria-label="Edit value" value={value === undefined || value === null ? "" : value} onInput={(e) => {e.preventDefault();updValue(e.target.value);}} />
-           : <textarea rows="3" wrap="hard" className="ms-2 w-100" title="Modify field's value"
-              aria-label="Edit value" value={value === undefined || value === null ? "" : value} onInput={(e) => {e.preventDefault();updValue(e.target.value);}} />
+              aria-label="Edit value" value={value === undefined || value === null ? "" : value} 
+              onInput={(e: FormEvent<HTMLInputElement>) => {e.preventDefault();updValue((e.target as HTMLInputElement).value);}} />
+           : <textarea rows={3} wrap="hard" className="ms-2 w-100" title="Modify field's value"
+              aria-label="Edit value" value={value === undefined || value === null ? "" : value} 
+              onInput={(e: FormEvent<HTMLTextAreaElement>) => {e.preventDefault();updValue((e.target as HTMLTextAreaElement).value);}} />
       }
   
     </div>;

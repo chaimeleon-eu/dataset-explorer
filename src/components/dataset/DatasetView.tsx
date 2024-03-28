@@ -1,9 +1,8 @@
 import {Tab, Button, Row, Col, Container, Badge, DropdownButton, Dropdown, Nav } from "react-bootstrap";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import React, { useState, useEffect, Fragment, useCallback }from "react";
+import React, { useState, useEffect, Fragment, useCallback, ReactNode } from "react";
 import { useKeycloak } from '@react-keycloak/web';
 import { EnvelopeFill } from 'react-bootstrap-icons';
-import PropTypes from "prop-types";
 
 import DatasetDetailsView from "./details/DatasetDetailsView";
 import DatasetHistoryView from "./history/DatasetHistoryView";
@@ -16,62 +15,77 @@ import DatasetFieldEdit from "./common/DatasetFieldEdit";
 import Util from "../../Util";
 import Config from "../../config.json";
 import Dialog from "../Dialog";
+import DataManager from "../../api/DataManager";
+import Dataset from "../../model/Dataset";
+import LoadingError from "../../model/LoadingError";
+import LoadingData from "../../model/LoadingData";
 import AccessHistoryView from "./access/AccessHistoryView";
 
 const KUBE_APPS_CLUSTER = "default";
 
-function onLoadAppsDashboard(iframeDom, datasetId, uNameKeycloak) {
+
+DatasetView.TAB_DETAILS = "details";
+DatasetView.TAB_STUDIES = "studies";
+DatasetView.TAB_HISTORY = "history";
+DatasetView.TAB_ACCESS_HISTORY = "access";
+//DatasetView.TAB_DASHBOARD = "dashboard";
+
+DatasetView.SHOW_DLG_APP_DASHBOARD = "dlg-app-dashboard"
+
+// const routeRoot = "/datasets/:datasetId";
+
+// const routesTabs = {
+//   [`${routeRoot}/${DatasetView.TAB_DETAILS}`]: DatasetView.TAB_DETAILS,
+//   [`${routeRoot}/${DatasetView.TAB_STUDIES}`]: DatasetView.TAB_STUDIES,
+//   [`${routeRoot}/${DatasetView.TAB_HISTORY}`]: DatasetView.TAB_HISTORY,
+//   [`${routeRoot}/${DatasetView.TAB_ACCESS_HISTORY}`]: DatasetView.TAB_ACCESS_HISTORY,
+  
+// }
+
+function onLoadAppsDashboard(iframeDom: HTMLIFrameElement, datasetId: string): void {
   // Create an observer instance linked to the callback function
   const config = { attributes: true, childList: true, subtree: true };
-  const targetNode = iframeDom.contentWindow.document.body;
-  const cb = (mutationsList, observer) => {
-    //console.log("change inside iframe");
+  const targetNode: Node | undefined = iframeDom.contentWindow?.document.body;
+  const cb = (mutationsList: MutationRecord[], observer: MutationObserver) => {
     observer.disconnect();
-    // const cContext = iframeDom.contentWindow.document.body.querySelector("div.kubeapps-dropdown-section > span.kubeapps-dropdown-header");
-    // if (cContext !== null) {
-    //   console.log(cContext);
-    //   cContext.dispatchEvent( new Event('click',{
-    //     bubbles: true
-    //   }) );
-    //   if (uNameKube !== null) {
-    //     const selectNamespace = iframeDom.contentWindow.document.body.querySelector(".application-notes");
-    //     if (selectNamespace !== null) {
-    //       console.log(selectNamespace);
-    //       selectNamespace.value = uNameKube;
-    //       // const opts = selectNamespace.querySelectorAll("a");
-    //       // for (const o of opts) {
-    //       //   if (o.value === uNameKube) {
-    //       //     selectNamespace.value = 
-    //       //   }
-    //       // }
-    //     }
-    //   }
-    // }
-    let inp = iframeDom.contentWindow.document.body.querySelector("#datasets_list-0");
-    if (inp !== null) {
+    const inp: HTMLInputElement | undefined | null = iframeDom.contentWindow?.document.body.querySelector("#datasets_list-0");
+    if (inp) {
         // React swallows the event, and overides the setter, we have to use the native
-        let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-        nativeInputValueSetter.call(inp, datasetId);
-        let event = new Event('change', {
-            bubbles: true
-        });
-        inp.dispatchEvent(event);
+        let nativeInputValueSetter: Function | undefined = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+        if (nativeInputValueSetter) {
+          nativeInputValueSetter.call(inp, datasetId);
+          let event = new Event('change', {
+              bubbles: true
+          });
+          inp.dispatchEvent(event);
+        } else {
+          console.error("Setter is undefined");
+        }
     }
     // Set all links in the Installation Notes section to be openable in a new tab
-    const appnotes = iframeDom.contentWindow.document.body.querySelector(".application-notes");
-    if (appnotes !== null) {
+    const appnotes: Element | null | undefined = iframeDom.contentWindow?.document.body.querySelector(".application-notes");
+    if (appnotes) {
       const links = appnotes.querySelectorAll("a");
       for (let a of links) {
         a.target = "_blank";
       }
+    } else {
+      console.error("appnotes is null or undefined");
     }
-
-    observer.observe(targetNode, config);
+    if (targetNode) {
+      observer.observe(targetNode, config);
+    } else {
+      console.error("Iframe body is undefined")
+    }
   }
   const observer = new MutationObserver(cb);
 
-  // Start observing the target node for configured mutations
-  observer.observe(targetNode, config);
+  // Start observing the target node for configured mutations  
+  if (targetNode) {
+    observer.observe(targetNode, config);
+  } else {
+    console.error("Iframe body is undefined")
+  }
 }
 
 // function triggerFocus(element) {
@@ -91,7 +105,7 @@ function onLoadAppsDashboard(iframeDom, datasetId, uNameKeycloak) {
 //     element.dispatchEvent(event);
 // }
 
-function getAction(condition, actionCb, txt, keyName) {
+function getAction(condition: boolean, actionCb: Function, txt: string, keyName: string): ReactNode {
   if (condition) {
     return <Dropdown.Item eventKey={keyName} key={keyName} href="#"
             onClick={() => {
@@ -102,7 +116,7 @@ function getAction(condition, actionCb, txt, keyName) {
   }
 }
 
-function showDialogPublishDs(token, patchDatasetCb, showDialog,  data) {
+function showDialogPublishDs(token: string | null | undefined, patchDatasetCb: Function, showDialog: Function,  data: Dataset): void {
   if (!data["public"]) {
     const  showZenodo = data["pids"]["preferred"] == null;
     showDialog({
@@ -134,17 +148,19 @@ function showDialogPublishDs(token, patchDatasetCb, showDialog,  data) {
   }
 }
 
-function showDialogAppDashhboard(datasetId, showDialog, onBeforeClose, uNameKeycloak) {
+function showDialogAppDashhboard(datasetId: string, showDialog: Function, onBeforeClose: Function, uNameKeycloak: string | null | undefined): void {
   let kubeAppsUrl = Config.kubeAppsUrl;
   if (uNameKeycloak) {
     const uNamespace = Util.getUserKubeNamespace(Util.parseK8sNames(uNameKeycloak, true));
-    kubeAppsUrl = `${Config.kubeAppsUrl}/#/c/${KUBE_APPS_CLUSTER}/ns/${uNamespace}/catalog`;
+    if (uNamespace) {
+      kubeAppsUrl = `${Config.kubeAppsUrl}/#/c/${KUBE_APPS_CLUSTER}/ns/${uNamespace}/catalog`;
+    }
   }
   
   showDialog({
     show: true,
     footer: <Fragment />,
-    body: <iframe title="Kube Apps" onLoad={(e) => onLoadAppsDashboard(e.target, datasetId, uNameKeycloak)} 
+    body: <iframe title="Kube Apps" onLoad={(e) => onLoadAppsDashboard(e.target as HTMLIFrameElement, datasetId)} 
               src={kubeAppsUrl} style={{ width: "100%", height: "100%" }}/>,
     title: <span>Apps Dashboard for dataset <b>{datasetId}</b></span>,
     size: Dialog.SIZE_XXL,
@@ -152,19 +168,19 @@ function showDialogAppDashhboard(datasetId, showDialog, onBeforeClose, uNameKeyc
   });
 }
 
-function popPath(path) {
+function popPath(path: string): string {
   let pS = path.split("/");
   pS.pop();
   return pS.join("/");
 }
 
-Actions.propTypes = {
-  data: PropTypes.object,
-  patchDatasetCb: PropTypes.func,
-  showDialog: PropTypes.func
+interface ActionsProps {
+  data: Dataset;
+  patchDatasetCb: Function;
+  showDialog: Function; 
 }
 
-function Actions({data, patchDatasetCb, showDialog}) {
+function Actions({data, patchDatasetCb, showDialog}: ActionsProps) {
 
   let { keycloak } = useKeycloak();
   const navigate = useNavigate();
@@ -190,7 +206,7 @@ function Actions({data, patchDatasetCb, showDialog}) {
               //}
             }, "Use on Apps Dashboard", "action-use-dashboard")
       ]
-      console.log(`data.editablePropertiesByTheUser ${data.editablePropertiesByTheUser}`);
+      //console.log(`data.editablePropertiesByTheUser ${data.editablePropertiesByTheUser}`);
       if (keycloak.authenticated) {
         entries.push(
           getAction(data.editablePropertiesByTheUser.includes("invalidated"),
@@ -212,40 +228,43 @@ function Actions({data, patchDatasetCb, showDialog}) {
   return <Fragment />;
 }
 
-DatasetView.propTypes = {
-  dataManager: PropTypes.object,
-  postMessage: PropTypes.func,
-  showDialog: PropTypes.func,
-  keycloakReady: PropTypes.bool,
-  showdDlgOpt: PropTypes.string,
-  activeTab: PropTypes.string
+interface DatasetViewProps {
+  dataManager: DataManager;
+  postMessage: Function;
+  showDialog: Function;
+  keycloakReady: boolean;
+  showdDlgOpt?: string | null;
+  activeTab: string;
+
 }
 
-function DatasetView(props) {
-   let location = useLocation();
+function DatasetView(props: DatasetViewProps) {
+   const location = useLocation();
+
+  // const path: string | null | undefined = matchPath( location.pathname, routesTabs )?.path;
 
     let params = useParams();
   let navigate = useNavigate();
-  const datasetId = params.datasetId;//props.datasetId;
-  const [allValues, setAllValues] = useState({
-      isLoading: false,
-       isLoaded: false,
+  //const [activeTab, setActivetab] = useState<string>(props.activeTab);
+  const datasetId: string | undefined = params["datasetId"];//props.datasetId;
+  const [allValues, setAllValues] = useState<LoadingData<Dataset>>({
+      loading: false,
        error: null,
        data: null,
-       status: -1
+       statusCode: -1
     });
-    const handlePostMsg = useCallback((msgType, title, text) => {
-      props.postMessage(new Message(msgType, title, text));
-    }, []);
+    // const handlePostMsg = useCallback((msgType, title, text) => {
+    //   props.postMessage(new Message(msgType, title, text));
+    // }, []);
 
     let { keycloak } = useKeycloak();
-    const getDataset = useCallback((token, datasetId) => {
+    const getDataset = useCallback((token: string | null | undefined, datasetId: string) => {
 
-      props.dataManager.getDataset(token, datasetId, 0, 0)
+      props.dataManager.getDataset(token, datasetId)
       .then(
-        (xhr) => {
+        (xhr: XMLHttpRequest) => {
           let data = JSON.parse(xhr.response);
-          console.log("[TMP] license set");
+          //console.log("[TMP] license set");
           if (data["license"] === null ||  data["license"] === undefined ||  data["license"].length === 0) {
             data["license"] = {title: "", url: ""};
           }
@@ -256,8 +275,8 @@ function DatasetView(props) {
              return { ...prevValues, isLoading: false, isLoaded: true, error: null, data: data, status: xhr.status }
           });
         },
-        (xhr) => {
-          const error = Util.getErrFromXhr(xhr);
+        (xhr: XMLHttpRequest) => {
+          const error: LoadingError = Util.getErrFromXhr(xhr);
           if (xhr.status === 401) {
             keycloak.login();
           } else {
@@ -268,10 +287,10 @@ function DatasetView(props) {
           }
         });
       }, [props.dataManager, keycloak]);
-    const patchDataset = (token, datasetId, field, value) => {
+    const patchDataset = (token: string | null | undefined, datasetId: string, field: string, value: string | null) => {
       props.dataManager.patchDataset(token, datasetId, field, value)
       .then(
-        () => {
+        (xhr: XMLHttpRequest) => {
           getDataset(token, datasetId);
           // setAllValues( prevValues => {
           //   let data = JSON.parse(JSON.stringify(prevValues));
@@ -279,7 +298,7 @@ function DatasetView(props) {
           //    return { ...prevValues, isLoading: false, isLoaded: true, error: null, data, status: xhr.status }
           // });
         },
-        (xhr) => {
+        (xhr: XMLHttpRequest) => {
           const error = Util.getErrFromXhr(xhr);
           props.postMessage(new Message(Message.ERROR, error.title, error.text));
           // setAllValues( prevValues => {
@@ -288,15 +307,15 @@ function DatasetView(props) {
         });
       }
   useEffect(() => {
-      if (props.keycloakReady) {
-        console.log(`props.showdDlgOpt ${props.showdDlgOpt}`);
+      if (props.keycloakReady && datasetId) {
+        //console.log(`props.showdDlgOpt ${props.showdDlgOpt}`);
         getDataset(keycloak.token, datasetId);
         if (props.showdDlgOpt === DatasetView.SHOW_DLG_APP_DASHBOARD) {
           if (keycloak.authenticated) {
             showDialogAppDashhboard(datasetId, props.showDialog, () => {
               navigate(popPath(location.pathname));
             },
-            keycloak.idTokenParsed.preferred_username
+            keycloak?.idTokenParsed?.["preferred_username"]
             )
           } else {
             keycloak.login();
@@ -307,17 +326,23 @@ function DatasetView(props) {
       //   getDataset(null, datasetId);
       // }
     }, [props.keycloakReady, keycloak.authenticated]);
-  if (allValues.error !== null) {
-    if (allValues.status === 401) {
-      return <UnauthorizedView />
-    } else if (allValues.status === 404) {
-      return <ResourceNotFoundView id={datasetId} />;
-    } else {
-      return <div>Error</div>;
+  if (datasetId) {
+    if (allValues.error !== null) {
+      if (allValues.statusCode === 401) {
+        return <UnauthorizedView />
+      } else if (allValues.statusCode === 404) {
+        return <ResourceNotFoundView id={datasetId} />;
+      } else {
+        return <div>Error</div>;
+      }
+    } else if (allValues.data === null || allValues.loading) {
+        return <div>loading...</div>;
     }
   } else {
-    if (allValues.data === null || allValues.isLoading) {
+    if (allValues.data === null || allValues.loading) {
       return <div>loading...</div>
+    } else {    
+      return <div>No dataset ID specified</div>; 
     }
   }
 
@@ -330,7 +355,7 @@ function DatasetView(props) {
               <b className="me-1">{allValues.data.name}
               {
                 allValues.data.editablePropertiesByTheUser.includes("draft")
-                ? <DatasetFieldEdit datasetId={datasetId} showDialog={props.showDialog} field="name" fieldDisplay="Dataset name" oldValue={allValues.data.name} patchDataset={patchDataset}/>
+                ? <DatasetFieldEdit keycloakReady={props.keycloakReady} dataManager={props.dataManager} datasetId={datasetId} showDialog={props.showDialog} field="name" fieldDisplay="Dataset name" oldValue={allValues.data.name} patchDataset={patchDataset}/>
                 : <Fragment />
               }
               </b>
@@ -364,7 +389,8 @@ function DatasetView(props) {
       </Row>
       <Container fluid className="w-100 h-75">
 
-        <Tab.Container defaultActiveKey="details" activeKey={props.activeTab} onSelect={(k) => navigate(`/datasets/${datasetId}/${k}`)}>
+        <Tab.Container defaultActiveKey="details" activeKey={props.activeTab} 
+              onSelect={(k) => {console.log(k);navigate(`/datasets/${datasetId}/${k}`)}}>
           <Row>
             <Col sm={2}>
               <Nav variant="pills" className="flex-column mb-5">
@@ -374,7 +400,7 @@ function DatasetView(props) {
                 {keycloak.authenticated ?
                   [
                       (<Nav.Item key="studies-nav">
-                        <Nav.Link eventKey="studies" key="studies">Studies</Nav.Link>
+                        <Nav.Link eventKey="studies">Studies</Nav.Link>
                       </Nav.Item>),
                       (<Nav.Item key="history-nav">
                         <Nav.Link eventKey="history">History</Nav.Link>
@@ -393,13 +419,13 @@ function DatasetView(props) {
               <Tab.Content>
                 <Tab.Pane eventKey="details">
                   <DatasetDetailsView patchDataset={patchDataset} showDialog={props.showDialog} getDataset={getDataset}
-                    allValues={allValues} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
+                    dataset={allValues.data} keycloakReady={props.keycloakReady} postMessage={props.postMessage} dataManager={props.dataManager}/>
                 </Tab.Pane>
 
                 {keycloak.authenticated ?
                   [
                     (<Tab.Pane eventKey="studies"  key="studies-pane">
-                      <DatasetStudiesView datasetId={datasetId} studiesCount={allValues.data === null ? 0 : allValues.data.studiesCount} keycloakReady={props.keycloakReady}
+                      <DatasetStudiesView datasetId={datasetId} keycloakReady={props.keycloakReady}
                         postMessage={props.postMessage} dataManager={props.dataManager}/>
                     </Tab.Pane>),
                     (<Tab.Pane eventKey="history" key="history-pane" >
@@ -417,15 +443,7 @@ function DatasetView(props) {
         </Tab.Container>
       </Container>
     </Fragment>
-  );
+      );
 }
-
-DatasetView.TAB_DETAILS = "details";
-DatasetView.TAB_STUDIES = "studies";
-DatasetView.TAB_HISTORY = "history";
-DatasetView.TAB_ACCESS_HISTORY = "access";
-//DatasetView.TAB_DASHBOARD = "dashboard";
-
-DatasetView.SHOW_DLG_APP_DASHBOARD = "dlg-app-dashboard"
 
 export default DatasetView;

@@ -1,59 +1,68 @@
-import { Button, Modal} from 'react-bootstrap';
-import { useState, useEffect} from "react";
+import { Modal} from 'react-bootstrap';
+import React, { useState, useEffect} from "react";
+import type DialogSettings from '../model/DialogSettings';
+import { DialogSize } from '../model/DialogSize';
 
-var outsideSetShow;
+let outsideSetShow: Function | null;
 
-const handleClose = (onBeforeClose) => {
+const handleClose = (onBeforeClose?: Function | null) => {
   console.log(onBeforeClose);
-  if (onBeforeClose !== null && onBeforeClose !== undefined) {
+  if (onBeforeClose) {
     if (typeof onBeforeClose === 'function') {
         onBeforeClose();
     } else
-      throw "Dialog: On before clause parameter must be a function";
+      throw new Error("Dialog: On before clause parameter must be a function");
   }
-
-  outsideSetShow(false);
+  if (outsideSetShow) {
+    outsideSetShow(false);
+  } else {
+    console.error("outsidesetShow is not defined or null");
+  }
 };
 
-function Dialog(props) {
+
+interface DialogProps {
+  settings: DialogSettings;
+}
+
+function Dialog({settings}: DialogProps) {
   const [show, setShow] = useState(false);
-  const [data, setData] = useState(props.settings.data);
   useEffect(() => {
     /* Assign update to outside variable */
     outsideSetShow = setShow;
 
     /* Unassign when component unmounts */
-    return () => outsideSetShow = null;
-  });
+    return () => { outsideSetShow = null; };
+  }, []);
 
   useEffect(() => {
-      setShow(props.settings.show);
-  }, [props.settings]);
+      setShow(settings.show);
+  }, [settings]);
   let dialogClassName = "modal-90w";
-  let size = "";
-  if (props.settings.size === Dialog.SIZE_XXL) {
+  let size: "xl" | "lg" | "sm" = "sm";
+  if (settings.size === DialogSize.SIZE_XL) {
     dialogClassName = "modal-xxl";
-    size = Dialog.SIZE_XXL;
-  } else if (props.settings.size === Dialog.SIZE_LG) {
+    size = "xl";
+  } else if (settings.size === DialogSize.SIZE_LG) {
       dialogClassName = "modal-lg";
-      size = Dialog.SIZE_LG;
-  } else if (props.settings.size === Dialog.SIZE_SM) {
+      size = "lg";
+  } else if (settings.size === DialogSize.SIZE_SM) {
       dialogClassName = "modal-sm";
-      size = Dialog.SIZE_SM;
+      size = "sm";
   } else {
     console.error(`unhandled dialog size ${dialogClassName}`);
   }
   return (
     <>
-      <Modal dialogClassName={dialogClassName} size={size} show={show} scrollable={props.settings.scrollable} onHide={() => handleClose(props.settings.onBeforeClose)}>
+      <Modal dialogClassName={dialogClassName} size={size} show={show} scrollable={settings.scrollable} onHide={() => handleClose(settings.onBeforeClose)}>
         <Modal.Header closeButton>
-          <Modal.Title>{props.settings.title}</Modal.Title>
+          <Modal.Title>{settings.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {props.settings.body}
+          {settings.body}
         </Modal.Body>
         <Modal.Footer>
-          {props.settings.footer}
+          {settings.footer}
         </Modal.Footer>
       </Modal>
     </>

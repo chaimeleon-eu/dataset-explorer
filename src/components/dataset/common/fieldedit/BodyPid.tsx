@@ -1,19 +1,32 @@
 import { Button, Form } from "react-bootstrap";
-import React, {useState} from "react";
+import React, {useState, FormEvent} from "react";
 
 import StaticValues from "../../../../api/StaticValues";
 
-function BodyPid(props) {
-    const [value, setValue] = useState(props.oldValue);
+interface Pid {
+  preferred: string | null;
+  urls: {
+    [key: string]: string | null;
+  }
+}
+
+interface BodyPidProps {
+  oldValue: Pid;
+  updValue: Function;
+}
+
+function BodyPid(props: BodyPidProps) {
+    const [value, setValue] = useState<Pid>(props.oldValue);
     //console.log(`value is ${JSON.stringify(value)}`);
     //console.log(`props.oldValue is ${JSON.stringify(props.oldValue)}`);
     const isAuto = props.oldValue["preferred"] === null || props.oldValue["preferred"] === StaticValues.DS_PID_ZENODO;
-    const [customValue, setCustomValue] = useState(props.oldValue["urls"]["custom"] === null ? "" :  props.oldValue["urls"]["custom"]);
+    const oldCustValue: string = props.oldValue["urls"]["custom"] === null ||  props.oldValue["urls"]["custom"] === undefined  ? "" :  props.oldValue["urls"]["custom"];
+    const [customValue, setCustomValue] = useState<string>(oldCustValue);
     const [editType, setEditType] = useState(isAuto ? StaticValues.DS_PID_ZENODO : StaticValues.DS_PID_CUSTOM);
     const [expanded, setExpanded] = useState(false);
   
-    const updValue = (newVal) => {
-      setEditType(newVal["preferred"]);
+    const updValue = (newVal: Pid) => {
+      setEditType(newVal["preferred"] ?? StaticValues.DS_PID_ZENODO);
       setValue(newVal);
       props.updValue(newVal);
     }
@@ -33,32 +46,38 @@ function BodyPid(props) {
     } else {
       msgAutoPid = msgAutoPid.replace(/(?:\r\n|\r|\n)/g, '<br>');
     }
+    const formOnChange = (e: FormEvent<HTMLInputElement>) =>  {
+      //console.log(`${e.target.value}`)
+      //setEditType(e.target.value);
+
+      /// IGNORE input changes
+      const t = e.target as HTMLInputElement;
+      if (t.nodeName === 'INPUT' && t.type === "radio") {
+        if (t.value === StaticValues.DS_PID_ZENODO) {
+          updValue({
+            preferred: StaticValues.DS_PID_ZENODO,
+            urls: value["urls"]
+          });
+        } else if (t.value === StaticValues.DS_PID_CUSTOM) {
+          let newUrls = {...value["urls"]};
+          newUrls[StaticValues.DS_PID_CUSTOM] = customValue;
+          updValue({
+            preferred: StaticValues.DS_PID_CUSTOM,
+            urls: newUrls
+          });
+        } else {
+          throw new Error(`Unhandled option ${t.value }`);
+        }
+      }
+    }
+    let urlZenodo: string | null | undefined = null;
+    if ( value && value["urls"] && value["urls"]?.[StaticValues.DS_PID_ZENODO] !== null && value["urls"]?.[StaticValues.DS_PID_ZENODO] !== undefined) {
+      urlZenodo = value["urls"][StaticValues.DS_PID_ZENODO];
+    }
+    const urlZ: string = urlZenodo ? urlZenodo : "";
     return  <div className="mb-3">
         <Form>
-          <Form.Group onChange={e => {
-            //console.log(`${e.target.value}`)
-            //setEditType(e.target.value);
-  
-            /// IGNORE input changes
-            if (e.target.nodeName === 'INPUT' && e.target.type === "radio") {
-              if (e.target.value === StaticValues.DS_PID_ZENODO) {
-                updValue({
-                  preferred: StaticValues.DS_PID_ZENODO,
-                  urls: value["urls"]
-                });
-              } else if (e.target.value === StaticValues.DS_PID_CUSTOM) {
-                let newUrls = {...value["urls"]};
-                newUrls[StaticValues.DS_PID_CUSTOM] = customValue;
-                updValue({
-                  preferred: StaticValues.DS_PID_CUSTOM,
-                  urls: newUrls
-                });
-              } else {
-                throw new Error(`Unhandled option ${e.target.value }`);
-              }
-            }
-          }
-          }>
+          <Form.Group onChange={formOnChange}>
             <Form.Check type="radio" id={StaticValues.DS_PID_ZENODO} style={{marginBottom: "2em"}}>            
               <Form.Check.Input id={StaticValues.DS_PID_ZENODO} type="radio" isValid name="pid" defaultChecked={isAuto ? true : false} value={StaticValues.DS_PID_ZENODO} />
               <Form.Check.Label htmlFor={StaticValues.DS_PID_ZENODO}>
@@ -68,8 +87,8 @@ function BodyPid(props) {
               </Form.Check.Label>
               {
                 value["urls"][StaticValues.DS_PID_ZENODO] !== null ?
-                  <div  className="ms-2 w-100"><a href={props.oldValue["urls"][StaticValues.DS_PID_ZENODO]} title="Custom Zenodo PID URL">
-                    {props.oldValue["urls"][StaticValues.DS_PID_ZENODO]}
+                  <div  className="ms-2 w-100"><a href={urlZ} title="Custom Zenodo PID URL">
+                    {value["urls"][StaticValues.DS_PID_ZENODO]}
                   </a></div>
                   : <div className="ms-2 w-100 d-flex">
                       <div className={cssMsgAutoPid} dangerouslySetInnerHTML={{__html: msgAutoPid}}></div>
@@ -90,11 +109,12 @@ function BodyPid(props) {
                 onInput={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  const t = e.target as HTMLInputElement;
                   //e.target.value =
-                  setCustomValue(e.target.value);
+                  setCustomValue(t.value);
                   let newVal = {...value};
                   newVal["preferred"] =  StaticValues.DS_PID_CUSTOM;
-                  newVal["urls"][StaticValues.DS_PID_CUSTOM] = e.target.value;
+                  newVal["urls"][StaticValues.DS_PID_CUSTOM] = t.value;
                   updValue(newVal);
                 }} />
             </Form.Check>
