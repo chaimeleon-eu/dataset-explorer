@@ -1,3 +1,5 @@
+## [IMPORTANT] The CHAIMELEON project has ended therefore this repository has been archived. Our work on Dataset Explorer will continue but in the context of the EUCAIM project, at https://github.com/EUCAIM/dataset-explorer.
+
 # Dataset Explorer
 
 ## Build 
